@@ -38,7 +38,7 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
         product: { name: "New Test Product" }
       }
     end
-    
+
     assert_redirected_to product_url(Product.last)
     assert_equal "Product was successfully created.", flash[:notice]
   end
@@ -50,7 +50,7 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
         product: { name: "New Test Product" }
       }
     end
-    
+
     assert_redirected_to root_path
   end
 
@@ -64,7 +64,7 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
     patch product_url(@product), params: {
       product: { name: "Updated Product Name" }
     }
-    
+
     assert_redirected_to product_url(@product)
     assert_equal "Product was successfully updated.", flash[:notice]
     @product.reload
@@ -75,7 +75,7 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
     assert_difference "Product.count", -1 do
       delete product_url(@product)
     end
-    
+
     assert_redirected_to products_url
     assert_equal "Product was successfully deleted.", flash[:notice]
   end

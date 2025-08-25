@@ -2,18 +2,15 @@
   <% if alert = flash[:alert] %>
     <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
   <% end %>
-
   <% if notice = flash[:notice] %>
     <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
   <% end %>
-
   <div class="flex justify-between items-center mb-6">
     <h1 class="font-bold text-4xl">Products</h1>
     <% if Current.session&.user&.can_create_products? %>
       <%= link_to "New Product", new_product_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium" %>
     <% end %>
   </div>
-
   <% if @products.any? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @products.each do |product| %>
@@ -26,10 +23,8 @@
             <p class="text-gray-600 mb-4">
               Ingredients: <%= product.ingredients.count %>
             </p>
-            
             <div class="flex gap-2">
               <%= link_to "View", product_path(product), class: "text-blue-600 hover:text-blue-800 font-medium" %>
-              
               <% if Current.session&.user&.can_create_products? && (product.user == Current.session.user || Current.session.user.head?) %>
                 <%= link_to "Edit", edit_product_path(product), class: "text-green-600 hover:text-green-800 font-medium" %>
                 <%= link_to "Delete", product_path(product), method: :delete, 

@@ -1,6 +1,6 @@
 class ProductsController < ApplicationController
-  before_action :set_product, only: [:show, :edit, :update, :destroy]
-  before_action :require_manager_or_head, only: [:new, :create, :edit, :update, :destroy]
+  before_action :set_product, only: [ :show, :edit, :update, :destroy ]
+  before_action :require_manager_or_head, only: [ :new, :create, :edit, :update, :destroy ]
 
   def index
     @products = Product.includes(:user, :ingredients).order(created_at: :desc)
@@ -15,9 +15,9 @@ class ProductsController < ApplicationController
 
   def create
     @product = current_user.products.build(product_params)
-    
+
     if @product.save
-      redirect_to @product, notice: 'Product was successfully created.'
+      redirect_to @product, notice: "Product was successfully created."
     else
       render :new, status: :unprocessable_content
     end
@@ -25,18 +25,18 @@ class ProductsController < ApplicationController
 
   def edit
     unless can_edit_product?
-      redirect_to products_path, alert: 'You can only edit your own products.'
+      redirect_to products_path, alert: "You can only edit your own products."
     end
   end
 
   def update
     unless can_edit_product?
-      redirect_to products_path, alert: 'You can only edit your own products.'
+      redirect_to products_path, alert: "You can only edit your own products."
       return
     end
 
     if @product.update(product_params)
-      redirect_to @product, notice: 'Product was successfully updated.'
+      redirect_to @product, notice: "Product was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end
@@ -44,12 +44,12 @@ class ProductsController < ApplicationController
 
   def destroy
     unless can_edit_product?
-      redirect_to products_path, alert: 'You can only delete your own products.'
+      redirect_to products_path, alert: "You can only delete your own products."
       return
     end
 
     @product.destroy
-    redirect_to products_path, notice: 'Product was successfully deleted.'
+    redirect_to products_path, notice: "Product was successfully deleted."
   end
 
   private
@@ -64,7 +64,7 @@ class ProductsController < ApplicationController
 
   def require_manager_or_head
     unless current_user&.can_create_products?
-      redirect_to root_path, alert: 'Only managers and heads can manage products.'
+      redirect_to root_path, alert: "Only managers and heads can manage products."
     end
   end
 

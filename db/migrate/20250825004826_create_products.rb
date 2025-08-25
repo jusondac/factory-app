@@ -8,6 +8,6 @@ class CreateProducts < ActiveRecord::Migration[8.0]
     end
 
     add_index :products, :name
-    add_index :products, [:user_id, :created_at]
+    add_index :products, [ :user_id, :created_at ]
   end
 end

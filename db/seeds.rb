@@ -11,7 +11,7 @@ worker = User.find_or_create_by!(email_address: "worker@factory.com") do |user|
   user.role = :worker
 end
 
-# Tester (role: 1) 
+# Tester (role: 1)
 tester = User.find_or_create_by!(email_address: "tester@factory.com") do |user|
   user.password = "password123"
   user.role = :tester
@@ -55,31 +55,31 @@ puts "Created #{Product.count} products"
 puts "Creating ingredients for products..."
 
 # Chocolate Cake ingredients
-chocolate_ingredients = ["Dark Chocolate", "Flour", "Sugar", "Eggs", "Butter", "Vanilla Extract", "Baking Powder"]
+chocolate_ingredients = [ "Dark Chocolate", "Flour", "Sugar", "Eggs", "Butter", "Vanilla Extract", "Baking Powder" ]
 chocolate_ingredients.each do |ingredient_name|
   Ingredient.find_or_create_by!(name: ingredient_name, product: chocolate_cake)
 end
 
-# Vanilla Cookies ingredients  
-cookie_ingredients = ["Flour", "Sugar", "Butter", "Vanilla Extract", "Eggs", "Baking Soda"]
+# Vanilla Cookies ingredients
+cookie_ingredients = [ "Flour", "Sugar", "Butter", "Vanilla Extract", "Eggs", "Baking Soda" ]
 cookie_ingredients.each do |ingredient_name|
   Ingredient.find_or_create_by!(name: ingredient_name, product: vanilla_cookies)
 end
 
 # Strawberry Muffin ingredients
-muffin_ingredients = ["Flour", "Sugar", "Strawberries", "Milk", "Eggs", "Baking Powder", "Salt"]
+muffin_ingredients = [ "Flour", "Sugar", "Strawberries", "Milk", "Eggs", "Baking Powder", "Salt" ]
 muffin_ingredients.each do |ingredient_name|
   Ingredient.find_or_create_by!(name: ingredient_name, product: strawberry_muffin)
 end
 
 # Premium Bread ingredients
-bread_ingredients = ["Bread Flour", "Yeast", "Salt", "Water", "Olive Oil", "Honey"]
+bread_ingredients = [ "Bread Flour", "Yeast", "Salt", "Water", "Olive Oil", "Honey" ]
 bread_ingredients.each do |ingredient_name|
   Ingredient.find_or_create_by!(name: ingredient_name, product: premium_bread)
 end
 
 # Artisan Pizza ingredients
-pizza_ingredients = ["Pizza Dough", "Tomato Sauce", "Mozzarella Cheese", "Basil", "Olive Oil", "Oregano"]
+pizza_ingredients = [ "Pizza Dough", "Tomato Sauce", "Mozzarella Cheese", "Basil", "Olive Oil", "Oregano" ]
 pizza_ingredients.each do |ingredient_name|
   Ingredient.find_or_create_by!(name: ingredient_name, product: artisan_pizza)
 end
@@ -100,7 +100,7 @@ end
 
 puts "\nLogin credentials for testing:"
 puts "  Worker: worker@factory.com / password123"
-puts "  Tester: tester@factory.com / password123" 
+puts "  Tester: tester@factory.com / password123"
 puts "  Supervisor: supervisor@factory.com / password123"
 puts "  Manager: manager@factory.com / password123 (can create products)"
 puts "  Head: head@factory.com / password123 (can create products)"

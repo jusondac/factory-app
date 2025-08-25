@@ -8,6 +8,6 @@ class CreateIngredients < ActiveRecord::Migration[8.0]
     end
 
     add_index :ingredients, :name
-    add_index :ingredients, [:product_id, :created_at]
+    add_index :ingredients, [ :product_id, :created_at ]
   end
 end

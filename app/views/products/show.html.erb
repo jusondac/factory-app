@@ -2,24 +2,19 @@
   <% if alert = flash[:alert] %>
     <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
   <% end %>
-
   <% if notice = flash[:notice] %>
     <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
   <% end %>
-
   <div class="flex justify-between items-center mb-6">
     <h1 class="font-bold text-4xl"><%= @product.name %></h1>
-    
     <div class="flex gap-2">
       <%= link_to "← Back to Products", products_path, class: "rounded-md px-3.5 py-2.5 bg-gray-300 hover:bg-gray-400 text-gray-700 inline-block font-medium" %>
-      
       <% if Current.session&.user&.can_create_products? && (@product.user == Current.session.user || Current.session.user.head?) %>
         <%= link_to "Edit Product", edit_product_path(@product), class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium" %>
         <%= link_to "Add Ingredient", new_product_ingredient_path(@product), class: "rounded-md px-3.5 py-2.5 bg-green-600 hover:bg-green-500 text-white inline-block font-medium" %>
       <% end %>
     </div>
   </div>
-
   <div class="bg-white border border-gray-200 rounded-lg shadow p-6 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -30,18 +25,15 @@
       </div>
     </div>
   </div>
-
   <div class="bg-white border border-gray-200 rounded-lg shadow p-6">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-2xl font-semibold">Ingredients (<%= @product.ingredients.count %>)</h2>
     </div>
-
     <% if @product.ingredients.any? %>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         <% @product.ingredients.order(:name).each do |ingredient| %>
           <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex justify-between items-center">
             <span class="font-medium"><%= ingredient.name %></span>
-            
             <% if Current.session&.user&.can_create_products? && (@product.user == Current.session.user || Current.session.user.head?) %>
               <div class="flex gap-1">
                 <%= link_to "Edit", edit_product_ingredient_path(@product, ingredient), class: "text-blue-600 hover:text-blue-800 text-sm" %>

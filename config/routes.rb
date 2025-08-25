@@ -4,9 +4,9 @@ Rails.application.routes.draw do
   resource :session
   resource :registration, only: [ :new, :create ]
   resources :passwords, param: :token
-  
+
   resources :products do
-    resources :ingredients, except: [:show]
+    resources :ingredients, except: [ :show ]
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

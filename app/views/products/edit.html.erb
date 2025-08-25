@@ -2,9 +2,7 @@
   <% if alert = flash[:alert] %>
     <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
   <% end %>
-
   <h1 class="font-bold text-4xl mb-6">Edit Product</h1>
-
   <%= form_with model: @product, class: "contents" do |form| %>
     <% if @product.errors.any? %>
       <div class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
@@ -16,12 +14,10 @@
         </ul>
       </div>
     <% end %>
-
     <div class="my-5">
       <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
       <%= form.text_field :name, required: true, autofocus: true, placeholder: "Enter product name", class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
     </div>
-
     <div class="flex gap-4">
       <%= form.submit "Update Product", class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
       <%= link_to "Show", @product, class: "rounded-md px-3.5 py-2.5 bg-green-600 hover:bg-green-500 text-white inline-block font-medium" %>

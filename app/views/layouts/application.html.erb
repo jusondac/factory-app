@@ -7,21 +7,16 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= yield :head %>
-
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
-
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-
   <body class="h-full flex flex-col">
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
@@ -36,7 +31,6 @@
               <span class="text-xl font-bold text-gray-900">Factory Management</span>
             <% end %>
           </div>
-
           <!-- Desktop Navigation -->
           <div class="hidden md:flex md:items-center md:space-x-6">
             <% if Current.session %>
@@ -44,7 +38,6 @@
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
               <%= link_to "Products", products_path, 
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
-              
               <% if Current.session.user.can_create_products? %>
                 <%= link_to new_product_path, 
                     class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" do %>
@@ -56,7 +49,6 @@
               <% end %>
             <% end %>
           </div>
-
           <!-- User Menu -->
           <div class="flex items-center space-x-4">
             <% if Current.session %>
@@ -74,7 +66,6 @@
                   </div>
                 </div>
               </div>
-              
               <!-- Sign Out Button -->
               <%= button_to session_path, method: :delete, 
                   class: "text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors",
@@ -93,7 +84,6 @@
                     class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" %>
               </div>
             <% end %>
-
             <!-- Mobile menu button -->
             <button type="button" class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100" id="mobile-menu-button">
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -102,7 +92,6 @@
             </button>
           </div>
         </div>
-
         <!-- Mobile Navigation Menu -->
         <div class="md:hidden hidden" id="mobile-menu">
           <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
@@ -111,12 +100,10 @@
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
               <%= link_to "Products", products_path, 
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
-              
               <% if Current.session.user.can_create_products? %>
                 <%= link_to "New Product", new_product_path, 
                     class: "bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md text-base font-medium" %>
               <% end %>
-              
               <!-- Mobile User Info -->
               <div class="px-3 py-2 border-t border-gray-200 mt-3">
                 <div class="text-base font-medium text-gray-800"><%= Current.session.user.email_address %></div>
@@ -127,7 +114,6 @@
         </div>
       </nav>
     </header>
-
     <!-- Flash Messages -->
     <% if flash.any? %>
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-4">
@@ -176,12 +162,10 @@
         <% end %>
       </div>
     <% end %>
-    
     <!-- Main Content -->
     <main class="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <%= yield %>
     </main>
-
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-200 mt-auto">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
@@ -198,13 +182,12 @@
         </div>
       </div>
     </footer>
-
     <!-- Mobile Menu JavaScript -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
-        
+
         if (mobileMenuButton && mobileMenu) {
           mobileMenuButton.addEventListener('click', function() {
             mobileMenu.classList.toggle('hidden');

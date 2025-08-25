@@ -1,6 +1,6 @@
 class IngredientsController < ApplicationController
   before_action :set_product
-  before_action :set_ingredient, only: [:edit, :update, :destroy]
+  before_action :set_ingredient, only: [ :edit, :update, :destroy ]
   before_action :require_manager_or_head
   before_action :require_product_owner
 
@@ -14,9 +14,9 @@ class IngredientsController < ApplicationController
 
   def create
     @ingredient = @product.ingredients.build(ingredient_params)
-    
+
     if @ingredient.save
-      redirect_to @product, notice: 'Ingredient was successfully added.'
+      redirect_to @product, notice: "Ingredient was successfully added."
     else
       render :new, status: :unprocessable_content
     end
@@ -27,7 +27,7 @@ class IngredientsController < ApplicationController
 
   def update
     if @ingredient.update(ingredient_params)
-      redirect_to @product, notice: 'Ingredient was successfully updated.'
+      redirect_to @product, notice: "Ingredient was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end
@@ -35,7 +35,7 @@ class IngredientsController < ApplicationController
 
   def destroy
     @ingredient.destroy
-    redirect_to @product, notice: 'Ingredient was successfully removed.'
+    redirect_to @product, notice: "Ingredient was successfully removed."
   end
 
   private
@@ -54,13 +54,13 @@ class IngredientsController < ApplicationController
 
   def require_manager_or_head
     unless current_user&.can_create_products?
-      redirect_to root_path, alert: 'Only managers and heads can manage ingredients.'
+      redirect_to root_path, alert: "Only managers and heads can manage ingredients."
     end
   end
 
   def require_product_owner
     unless @product.user == current_user || current_user.head?
-      redirect_to products_path, alert: 'You can only manage ingredients for your own products.'
+      redirect_to products_path, alert: "You can only manage ingredients for your own products."
     end
   end
 
