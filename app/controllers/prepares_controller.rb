@@ -4,7 +4,7 @@ class PreparesController < ApplicationController
   before_action :require_worker_for_check, only: [ :check, :checking, :update_check, :cancel ]
 
   def index
-    @prepares = Prepare.includes(:product, :created_by, :checked_by, :prepare_ingredients)
+    @prepares = Prepare.includes({ unit_batch: :product }, :created_by, :checked_by, :prepare_ingredients)
                       .order(prepare_date: :desc, created_at: :desc)
 
     # Auto-cancel old unchecked/checking prepares
@@ -24,13 +24,37 @@ class PreparesController < ApplicationController
   end
 
   def create
-    @prepare = Prepare.new(prepare_params)
-    @prepare.created_by = Current.user
+    product = Product.find(prepare_params[:product_id])
 
-    if @prepare.save
-      redirect_to prepares_path, notice: "Prepare was successfully created."
+    # Check if there's already a unit batch for this product on this date
+    existing_unit_batch = UnitBatch.joins(:prepare)
+                                   .where(product: product, prepares: { prepare_date: prepare_params[:prepare_date] })
+                                   .first
+
+    if existing_unit_batch
+      redirect_to prepares_path, alert: "A preparation for this product on this date already exists."
+      return
+    end
+
+    # Create UnitBatch first
+    @unit_batch = UnitBatch.new(product: product)
+
+    if @unit_batch.save
+      # Then create Prepare
+      @prepare = Prepare.new(prepare_params.except(:product_id))
+      @prepare.unit_batch = @unit_batch
+      @prepare.created_by = Current.user
+
+      if @prepare.save
+        redirect_to prepares_path, notice: "Preparation was successfully created."
+      else
+        @unit_batch.destroy # Clean up if prepare creation fails
+        @products = Product.all.order(:name)
+        render :new, status: :unprocessable_entity
+      end
     else
       @products = Product.all.order(:name)
+      @prepare = Prepare.new(prepare_params)
       render :new, status: :unprocessable_entity
     end
   end

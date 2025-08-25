@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_25_061906) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_25_175921) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -32,7 +32,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_061906) do
   end
 
   create_table "prepares", force: :cascade do |t|
-    t.integer "product_id", null: false
     t.date "prepare_date", null: false
     t.string "prepare_id", null: false
     t.integer "status", default: 0
@@ -40,11 +39,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_061906) do
     t.integer "created_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "unit_batch_id", null: false
     t.index ["checked_by_id"], name: "index_prepares_on_checked_by_id"
     t.index ["created_by_id"], name: "index_prepares_on_created_by_id"
     t.index ["prepare_id"], name: "index_prepares_on_prepare_id", unique: true
-    t.index ["product_id", "prepare_date"], name: "index_prepares_on_product_id_and_prepare_date", unique: true
-    t.index ["product_id"], name: "index_prepares_on_product_id"
+    t.index ["unit_batch_id"], name: "index_prepares_on_unit_batch_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -66,6 +65,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_061906) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "unit_batches", force: :cascade do |t|
+    t.string "unit_id"
+    t.integer "product_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_unit_batches_on_product_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
@@ -77,9 +84,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_061906) do
 
   add_foreign_key "ingredients", "products"
   add_foreign_key "prepare_ingredients", "prepares"
-  add_foreign_key "prepares", "products"
+  add_foreign_key "prepares", "unit_batches"
   add_foreign_key "prepares", "users", column: "checked_by_id"
   add_foreign_key "prepares", "users", column: "created_by_id"
   add_foreign_key "products", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "unit_batches", "products"
 end

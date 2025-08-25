@@ -87,33 +87,40 @@ end
 puts "Created #{Ingredient.count} ingredients"
 
 # Create some Prepare records for testing
-puts "Creating prepare records..."
+puts "Creating unit batches and prepare records..."
 
-# Create a prepare for today for Chocolate Cake
-prepare1 = Prepare.find_or_create_by!(
-  product: chocolate_cake,
+# Clear existing data to ensure clean state
+puts "Clearing existing prepare and unit batch data..."
+Prepare.destroy_all
+UnitBatch.destroy_all
+
+# Create a unit batch and prepare for today for Chocolate Cake
+unit_batch1 = UnitBatch.create!(product: chocolate_cake)
+prepare1 = Prepare.create!(
+  unit_batch: unit_batch1,
   prepare_date: Date.current,
   created_by: supervisor
 )
 
-# Create a prepare for tomorrow for Artisan Pizza
-prepare2 = Prepare.find_or_create_by!(
-  product: artisan_pizza,
+# Create a unit batch and prepare for tomorrow for Artisan Pizza
+unit_batch2 = UnitBatch.create!(product: artisan_pizza)
+prepare2 = Prepare.create!(
+  unit_batch: unit_batch2,
   prepare_date: Date.current + 1.day,
   created_by: supervisor
 )
 
-# Create a prepare for yesterday that's already being checked
-prepare3 = Prepare.find_or_create_by!(
-  product: vanilla_cookies,
+# Create a unit batch and prepare for yesterday that's already being checked
+unit_batch3 = UnitBatch.create!(product: vanilla_cookies)
+prepare3 = Prepare.create!(
+  unit_batch: unit_batch3,
   prepare_date: Date.current - 1.day,
-  created_by: supervisor
-) do |prepare|
-  prepare.status = :checking
-  prepare.checked_by = worker
-end
+  created_by: supervisor,
+  status: :checking,
+  checked_by: worker
+)
 
-puts "Created #{Prepare.count} prepare records"
+puts "Created #{UnitBatch.count} unit batches and #{Prepare.count} prepare records"
 
 puts "\n=== Seed Data Summary ==="
 puts "Users created:"
@@ -128,8 +135,9 @@ Product.includes(:user).each do |product|
 end
 
 puts "\nPrepares created:"
-Prepare.includes(:product, :created_by, :checked_by).each do |prepare|
+Prepare.includes({ unit_batch: :product }, :created_by, :checked_by).each do |prepare|
   puts "  #{prepare.prepare_id} - #{prepare.product.name} (#{prepare.prepare_date}) - Status: #{prepare.status}"
+  puts "    Unit Batch: #{prepare.unit_batch.unit_id}"
   puts "    Created by: #{prepare.created_by.email_address}"
   puts "    Checked by: #{prepare.checked_by&.email_address || 'None'}"
   puts "    Ingredients: #{prepare.prepare_ingredients.count} (#{prepare.checking_progress})"
