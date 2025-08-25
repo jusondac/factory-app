@@ -86,6 +86,35 @@ end
 
 puts "Created #{Ingredient.count} ingredients"
 
+# Create some Prepare records for testing
+puts "Creating prepare records..."
+
+# Create a prepare for today for Chocolate Cake
+prepare1 = Prepare.find_or_create_by!(
+  product: chocolate_cake,
+  prepare_date: Date.current,
+  created_by: supervisor
+)
+
+# Create a prepare for tomorrow for Artisan Pizza
+prepare2 = Prepare.find_or_create_by!(
+  product: artisan_pizza,
+  prepare_date: Date.current + 1.day,
+  created_by: supervisor
+)
+
+# Create a prepare for yesterday that's already being checked
+prepare3 = Prepare.find_or_create_by!(
+  product: vanilla_cookies,
+  prepare_date: Date.current - 1.day,
+  created_by: supervisor
+) do |prepare|
+  prepare.status = :checking
+  prepare.checked_by = worker
+end
+
+puts "Created #{Prepare.count} prepare records"
+
 puts "\n=== Seed Data Summary ==="
 puts "Users created:"
 User.all.each do |user|
@@ -96,6 +125,14 @@ puts "\nProducts created:"
 Product.includes(:user).each do |product|
   puts "  #{product.name} (created by #{product.user.role}: #{product.user.email_address})"
   puts "    Ingredients: #{product.ingredients.pluck(:name).join(', ')}"
+end
+
+puts "\nPrepares created:"
+Prepare.includes(:product, :created_by, :checked_by).each do |prepare|
+  puts "  #{prepare.prepare_id} - #{prepare.product.name} (#{prepare.prepare_date}) - Status: #{prepare.status}"
+  puts "    Created by: #{prepare.created_by.email_address}"
+  puts "    Checked by: #{prepare.checked_by&.email_address || 'None'}"
+  puts "    Ingredients: #{prepare.prepare_ingredients.count} (#{prepare.checking_progress})"
 end
 
 puts "\nLogin credentials for testing:"

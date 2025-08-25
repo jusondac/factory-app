@@ -1,0 +1,281 @@
+<% content_for :title, "Preparations" %>
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="min-w-0 flex-1">
+      <h1 class="text-2xl font-bold text-gray-900">Preparations</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Manage product preparations for workers
+      </p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0">
+      <% if Current.user&.can_create_prepares? %>
+        <%= link_to new_prepare_path, 
+            class: "inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500" do %>
+          <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          New Preparation
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  <!-- Data Table -->
+  <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+    <% if @prepares.any? %>
+      <!-- Table Header -->
+      <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-medium text-gray-900">Preparation Records</h3>
+          <span class="text-sm text-gray-500"><%= @prepares.count %> total</span>
+        </div>
+      </div>
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Prepare ID
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Product
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Progress
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Created By
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Checked By
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @prepares.each do |prepare| %>
+              <% 
+                row_classes = ["hover:shadow-sm transition-all"]
+                row_classes << case prepare.status
+                              when 'checked' then 'bg-green-50 hover:bg-green-100'
+                              when 'cancelled' then 'bg-red-50 hover:bg-red-100'
+                              else 'hover:bg-gray-50'
+                              end
+                
+                clickable = prepare.clickable?
+                row_classes << "cursor-pointer" if clickable
+                row_classes << "cursor-not-allowed opacity-60" unless clickable
+              %>
+              <tr class="<%= row_classes.join(' ') %>" 
+                  <% if clickable %>
+                    onclick="window.location.href='<%= prepare_path(prepare) %>'"
+                  <% end %>>
+                <!-- Prepare ID -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">
+                    <%= prepare.prepare_id %>
+                    <% unless clickable %>
+                      <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                        Past Date
+                      </span>
+                    <% end %>
+                  </div>
+                </td>
+                <!-- Product -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900"><%= prepare.product.name %></div>
+                </td>
+                <!-- Date -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">
+                    <%= prepare.prepare_date.strftime("%m/%d/%Y") %>
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    <%= time_ago_in_words(prepare.prepare_date) %>
+                    <%= prepare.prepare_date.past? ? 'ago' : 'from now' %>
+                  </div>
+                </td>
+                <!-- Status -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                    <%= case prepare.status
+                        when 'unchecked' then 'bg-yellow-100 text-yellow-800'
+                        when 'checking' then 'bg-blue-100 text-blue-800'
+                        when 'checked' then 'bg-green-100 text-green-800'
+                        when 'cancelled' then 'bg-red-100 text-red-800'
+                        end %>">
+                    <%= prepare.status.humanize %>
+                  </span>
+                </td>
+                <!-- Progress -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">
+                    <%= prepare.checking_progress %>
+                  </div>
+                  <% if prepare.prepare_ingredients.any? && !prepare.cancelled? %>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                      <div class="<%= prepare.checked? ? 'bg-green-600' : 'bg-blue-600' %> h-1.5 rounded-full" 
+                           style="width: <%= (prepare.prepare_ingredients.checked.count.to_f / prepare.prepare_ingredients.count * 100).round(1) %>%"></div>
+                    </div>
+                  <% end %>
+                </td>
+                <!-- Created By -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900"><%= prepare.created_by.email_address %></div>
+                  <div class="text-xs text-gray-500 capitalize"><%= prepare.created_by.role %></div>
+                </td>
+                <!-- Checked By -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if prepare.checked_by %>
+                    <div class="text-sm text-gray-900"><%= prepare.checked_by.email_address %></div>
+                    <div class="text-xs text-gray-500 capitalize"><%= prepare.checked_by.role %></div>
+                  <% else %>
+                    <span class="text-sm text-gray-400">-</span>
+                  <% end %>
+                </td>
+                <!-- Actions -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2" onclick="event.stopPropagation()">
+                  <%= link_to prepare_path(prepare), 
+                      class: "text-blue-600 hover:text-blue-900" do %>
+                    View
+                  <% end %>
+                  <% if Current.user&.worker? && prepare.can_be_checked_by?(Current.user) && clickable %>
+                    <%= link_to check_prepare_path(prepare), method: :patch,
+                        class: "text-green-600 hover:text-green-900" do %>
+                      Start
+                    <% end %>
+                  <% elsif Current.user&.worker? && prepare.checked_by == Current.user && prepare.checking? && clickable %>
+                    <%= link_to checking_prepare_path(prepare),
+                        class: "text-blue-600 hover:text-blue-900" do %>
+                      Continue
+                    <% end %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <!-- Empty State -->
+      <div class="px-6 py-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+        <h3 class="mt-2 text-sm font-semibold text-gray-900">No preparations</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          <% if Current.user&.can_create_prepares? %>
+            Get started by creating a new preparation.
+          <% else %>
+            No preparations have been created yet.
+          <% end %>
+        </p>
+        <% if Current.user&.can_create_prepares? %>
+          <div class="mt-6">
+            <%= link_to new_prepare_path, 
+                class: "inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500" do %>
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              New Preparation
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <!-- Statistics -->
+  <% if @prepares.any? %>
+    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-4">
+      <!-- Unchecked -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Unchecked</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  <%= @prepares.where(status: :unchecked).count %>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Checking -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">In Progress</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  <%= @prepares.where(status: :checking).count %>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Checked -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Completed</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  <%= @prepares.where(status: :checked).count %>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Cancelled -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Cancelled</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  <%= @prepares.where(status: :cancelled).count %>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

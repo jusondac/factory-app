@@ -2,6 +2,8 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
   has_many :products, dependent: :destroy
+  has_many :created_prepares, class_name: "Prepare", foreign_key: "created_by_id", dependent: :destroy
+  has_many :checked_prepares, class_name: "Prepare", foreign_key: "checked_by_id", dependent: :nullify
 
   validates :email_address, presence: true, uniqueness: { case_sensitive: false }
   validates :password, length: { minimum: 6 }, if: -> { new_record? || !password.nil? }
@@ -12,5 +14,13 @@ class User < ApplicationRecord
 
   def can_create_products?
     manager? || head?
+  end
+
+  def can_create_prepares?
+    supervisor? || manager? || head?
+  end
+
+  def can_check_prepares?
+    worker?
   end
 end

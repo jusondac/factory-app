@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_25_004849) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_25_061906) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -19,6 +19,32 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_004849) do
     t.index ["name"], name: "index_ingredients_on_name"
     t.index ["product_id", "created_at"], name: "index_ingredients_on_product_id_and_created_at"
     t.index ["product_id"], name: "index_ingredients_on_product_id"
+  end
+
+  create_table "prepare_ingredients", force: :cascade do |t|
+    t.integer "prepare_id", null: false
+    t.string "ingredient_name", null: false
+    t.boolean "checked", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["prepare_id", "ingredient_name"], name: "index_prepare_ingredients_on_prepare_id_and_ingredient_name"
+    t.index ["prepare_id"], name: "index_prepare_ingredients_on_prepare_id"
+  end
+
+  create_table "prepares", force: :cascade do |t|
+    t.integer "product_id", null: false
+    t.date "prepare_date", null: false
+    t.string "prepare_id", null: false
+    t.integer "status", default: 0
+    t.integer "checked_by_id"
+    t.integer "created_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["checked_by_id"], name: "index_prepares_on_checked_by_id"
+    t.index ["created_by_id"], name: "index_prepares_on_created_by_id"
+    t.index ["prepare_id"], name: "index_prepares_on_prepare_id", unique: true
+    t.index ["product_id", "prepare_date"], name: "index_prepares_on_product_id_and_prepare_date", unique: true
+    t.index ["product_id"], name: "index_prepares_on_product_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -50,6 +76,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_004849) do
   end
 
   add_foreign_key "ingredients", "products"
+  add_foreign_key "prepare_ingredients", "prepares"
+  add_foreign_key "prepares", "products"
+  add_foreign_key "prepares", "users", column: "checked_by_id"
+  add_foreign_key "prepares", "users", column: "created_by_id"
   add_foreign_key "products", "users"
   add_foreign_key "sessions", "users"
 end

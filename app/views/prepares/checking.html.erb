@@ -1,0 +1,172 @@
+<% content_for :title, "Checking #{@prepare.prepare_id}" %>
+<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <div class="flex items-center space-x-3 mb-4">
+      <%= link_to @prepare, class: "text-gray-400 hover:text-gray-600" do %>
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      <% end %>
+      <h1 class="text-2xl font-bold text-gray-900">Checking Preparation <%= @prepare.prepare_id %></h1>
+      <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800">
+        <%= @prepare.status.humanize %>
+      </span>
+    </div>
+    <!-- Progress Info -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-medium text-gray-900">Progress</h3>
+          <p class="mt-1 text-sm text-gray-600">
+            <%= @prepare.checking_progress %> ingredients checked
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm text-gray-600">Product: <span class="font-medium"><%= @prepare.product.name %></span></p>
+          <p class="text-sm text-gray-600">Date: <span class="font-medium"><%= @prepare.prepare_date.strftime("%B %d, %Y") %></span></p>
+        </div>
+      </div>
+      <!-- Progress Bar -->
+      <div class="mt-4">
+        <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+          <span>Completion Progress</span>
+          <span><%= (@prepare.prepare_ingredients.checked.count.to_f / @prepare.prepare_ingredients.count * 100).round(1) %>% complete</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+               style="width: <%= (@prepare.prepare_ingredients.checked.count.to_f / @prepare.prepare_ingredients.count * 100).round(1) %>%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Instructions -->
+  <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-blue-800">Instructions</h3>
+        <div class="mt-2 text-sm text-blue-700">
+          <p>Check each ingredient by clicking the checkbox next to it. Once all ingredients are checked, the preparation will be automatically marked as completed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Ingredients Checklist -->
+  <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-medium text-gray-900">Ingredient Checklist</h2>
+        <span class="text-sm text-gray-500"><%= @prepare_ingredients.count %> ingredient(s)</span>
+      </div>
+      <% if @prepare_ingredients.any? %>
+        <div class="space-y-3">
+          <% @prepare_ingredients.each_with_index do |prepare_ingredient, index| %>
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow 
+                        <%= 'bg-green-50 border-green-200' if prepare_ingredient.checked? %>">
+              <div class="flex items-center">
+                <!-- Checkbox -->
+                <%= form_with url: update_check_prepare_path(@prepare), method: :patch, local: true, class: "flex items-center flex-1" do |form| %>
+                  <%= hidden_field_tag :prepare_ingredient_id, prepare_ingredient.id %>
+                  <label class="flex items-center cursor-pointer flex-1">
+                    <div class="relative">
+                      <input type="checkbox" 
+                             <%= 'checked' if prepare_ingredient.checked? %>
+                             onchange="this.form.submit()"
+                             class="sr-only">
+                      <div class="w-6 h-6 border-2 border-gray-300 rounded flex items-center justify-center transition-colors
+                                  <%= prepare_ingredient.checked? ? 'bg-green-500 border-green-500' : 'hover:border-gray-400' %>">
+                        <% if prepare_ingredient.checked? %>
+                          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        <% end %>
+                      </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                      <h3 class="text-base font-medium text-gray-900 flex items-center">
+                        <%= prepare_ingredient.ingredient_name %>
+                        <% if prepare_ingredient.checked? %>
+                          <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            Checked
+                          </span>
+                        <% else %>
+                          <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Pending
+                          </span>
+                        <% end %>
+                      </h3>
+                      <p class="mt-1 text-sm text-gray-600">
+                        Click to <%= prepare_ingredient.checked? ? 'uncheck' : 'check' %> this ingredient
+                      </p>
+                    </div>
+                  </label>
+                <% end %>
+                <!-- Number Badge -->
+                <div class="ml-4 flex-shrink-0">
+                  <div class="flex items-center justify-center h-8 w-8 rounded-full 
+                              <%= prepare_ingredient.checked? ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600' %> 
+                              text-sm font-medium">
+                    <%= index + 1 %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <!-- Summary -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">
+                <span class="font-medium text-green-600"><%= @prepare.prepare_ingredients.checked.count %></span>
+                of 
+                <span class="font-medium"><%= @prepare.prepare_ingredients.count %></span>
+                ingredients checked
+              </p>
+            </div>
+            <% if @prepare.all_ingredients_checked? %>
+              <div class="flex items-center text-green-600">
+                <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-sm font-medium">All ingredients checked!</span>
+              </div>
+            <% else %>
+              <div class="flex items-center text-yellow-600">
+                <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-sm font-medium">
+                  <%= @prepare.prepare_ingredients.unchecked.count %> ingredient(s) remaining
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4m-12 0h4m8 0V9a2 2 0 00-2-2H8a2 2 0 00-2 2v4" />
+          </svg>
+          <h3 class="mt-2 text-sm font-semibold text-gray-900">No ingredients</h3>
+          <p class="mt-1 text-sm text-gray-500">This product doesn't have any ingredients defined yet.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <!-- Back Button -->
+  <div class="mt-6 flex justify-center">
+    <%= link_to @prepare, 
+        class: "inline-flex items-center rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500" do %>
+      <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to Preparation Details
+    <% end %>
+  </div>
+</div>
