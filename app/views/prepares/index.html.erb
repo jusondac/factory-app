@@ -1,341 +1,337 @@
 <% content_for :title, "Preparations" %>
-<!-- Modern Dashboard Layout -->
-<div class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <!-- Header Section -->
-    <div class="mb-8">
-      <div class="md:flex md:items-center md:justify-between">
-        <div class="min-w-0 flex-1">
-          <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Production Preparations</h1>
-          <p class="mt-2 text-lg text-gray-600">
-            Monitor and manage ingredient preparation workflows
-          </p>
+
+<!-- Two-Column Layout -->
+<div class="bg-gray-50 w-screen">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- Page Header -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Production Preparations</h1>
+          <p class="mt-1 text-sm text-gray-600">Monitor and manage ingredient preparation workflows</p>
         </div>
-        <div class="mt-6 flex flex-col sm:flex-row gap-3 md:ml-4 md:mt-0">
-          <% if Current.user&.can_create_prepares? %>
-            <%= link_to new_prepare_path, 
-                class: "inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:from-indigo-500 hover:to-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transform hover:scale-105 transition-all duration-200" do %>
-              <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              New Preparation
-            <% end %>
+        <% if Current.user&.can_create_prepares? %>
+          <%= link_to new_prepare_path, 
+              class: "inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Preparation
           <% end %>
-        </div>
+        <% end %>
       </div>
     </div>
-    <!-- Search Section -->
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
-      <%= search_form_for @q, local: true, class: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" do |f| %>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Preparation ID</label>
-          <%= f.search_field :prepare_id_cont, placeholder: "Search by prep ID...", 
-              class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-12 gap-6">
+      
+      <!-- Left Sidebar: Filters & Info -->
+      <div class="col-span-12 lg:col-span-4 space-y-6">
+        
+        <!-- Filter Card -->
+        <div class="relative bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 rounded-2xl shadow-lg border border-indigo-100 p-6 backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 rounded-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.121A1 1 0 013 6.414V4z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-lg font-bold text-gray-900">Smart Filters</h3>
+                <p class="text-xs text-gray-600">Find preparations quickly</p>
+              </div>
+            </div>
+            
+            <%= search_form_for @q, local: true, class: "space-y-4" do |f| %>
+              <!-- Preparation ID -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                  Preparation ID
+                </label>
+                <%= f.search_field :prepare_id_cont, 
+                    placeholder: "PRP-20250826-1", 
+                    class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" %>
+              </div>
+              
+              <!-- Product Name -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                  Product Name
+                </label>
+                <%= f.search_field :unit_batch_product_name_cont, 
+                    placeholder: "Search products...", 
+                    class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" %>
+              </div>
+              
+              <!-- Status -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  Status
+                </label>
+                <%= f.select :status_eq, 
+                    options_for_select([
+                      ['All Statuses', ''],
+                      ['Unchecked', Prepare.statuses['unchecked']],
+                      ['Checking', Prepare.statuses['checking']],
+                      ['Checked', Prepare.statuses['checked']],
+                      ['Cancelled', Prepare.statuses['cancelled']]
+                    ], @q.status_eq),
+                    {},
+                    { class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" } %>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="flex space-x-3 pt-2">
+                <%= f.submit "🔍 Search", class: "flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-3 rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold" %>
+                <%= link_to "Clear", prepares_path, class: "px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-white/80 transition-all duration-200 shadow-sm hover:shadow-md bg-white/50 backdrop-blur-sm" %>
+              </div>
+            <% end %>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-          <%= f.search_field :unit_batch_product_name_cont, placeholder: "Search by product...", 
-              class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-          <%= f.select :status_eq, 
-              options_for_select([
-                ['All Statuses', ''],
-                ['Unchecked', 'unchecked'],
-                ['Checking', 'checking'],
-                ['Checked', 'checked'],
-                ['Cancelled', 'cancelled']
-              ], @q.status_eq),
-              {},
-              { class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
-        </div>
-        <div class="flex items-end gap-2">
-          <%= f.submit "Search", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors duration-200" %>
-          <%= link_to "Clear", prepares_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200" %>
-        </div>
-      <% end %>
-    </div>
-    <!-- Quick Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
+
+        <!-- Quick Actions -->
+        <div class="relative bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 rounded-2xl shadow-lg border border-rose-100 p-6 backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-fuchsia-500/5 rounded-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-lg font-bold text-gray-900">Quick Filters</h3>
+                <p class="text-xs text-gray-600">One-click shortcuts</p>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <%= link_to prepares_path(q: { prepare_date_eq: Date.current }), 
+                  class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">📅</span>
+                  <span class="group-hover:text-gray-900 transition-colors">Today's Preparations</span>
+                </span>
+              <% end %>
+              <%= link_to prepares_path(q: { status_eq: Prepare.statuses['unchecked'] }), 
+                  class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">⏳</span>
+                  <span class="group-hover:text-gray-900 transition-colors">Unchecked Only</span>
+                </span>
+              <% end %>
+              <%= link_to prepares_path(q: { status_eq: Prepare.statuses['checked'] }), 
+                  class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">✅</span>
+                  <span class="group-hover:text-gray-900 transition-colors">Completed Only</span>
+                </span>
+              <% end %>
             </div>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500">Total Preparations</p>
-            <p class="text-2xl font-bold text-gray-900"><%= @prepares.total_count %></p>
-          </div>
         </div>
+        
       </div>
-      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
+
+      <!-- Right Content: Records & Pagination -->
+      <div class="col-span-12 lg:col-span-8 space-y-6">
+        
+        <!-- Quick Stats -->
+        <div class="relative bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl shadow-lg border border-emerald-100 p-6 backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5 rounded-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-lg font-bold text-gray-900">Quick Stats</h3>
+                <p class="text-xs text-gray-600">Real-time overview</p>
+              </div>
             </div>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500">Completed</p>
-            <p class="text-2xl font-bold text-gray-900"><%= Prepare.where(status: :checked).count %></p>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="flex flex-col items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center mb-1">
+                  <span class="w-3 h-3 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
+                  Total
+                </span>
+                <span class="font-bold text-gray-900 text-xl"><%= @prepares.total_count %></span>
+              </div>
+              <div class="flex flex-col items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center mb-1">
+                  <span class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                  Completed
+                </span>
+                <span class="font-bold text-green-600 text-xl"><%= Prepare.where(status: :checked).count %></span>
+              </div>
+              <div class="flex flex-col items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center mb-1">
+                  <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2 animate-pulse"></span>
+                  In Progress
+                </span>
+                <span class="font-bold text-yellow-600 text-xl"><%= Prepare.where(status: [:unchecked, :checking]).count %></span>
+              </div>
+              <div class="flex flex-col items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center mb-1">
+                  <span class="w-3 h-3 bg-red-500 rounded-full mr-2 animate-pulse"></span>
+                  Cancelled
+                </span>
+                <span class="font-bold text-red-600 text-xl"><%= Prepare.where(status: :cancelled).count %></span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500">In Progress</p>
-            <p class="text-2xl font-bold text-gray-900"><%= Prepare.where(status: [:unchecked, :checking]).count %></p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-500">Cancelled</p>
-            <p class="text-2xl font-bold text-gray-900"><%= Prepare.where(status: :cancelled).count %></p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Main Data Table -->
-    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      <% if @prepares.any? %>
-        <!-- Table Header -->
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-xl font-semibold text-gray-900">Preparation Records</h3>
-              <p class="mt-1 text-sm text-gray-600">Click on any row to view details</p>
-            </div>
-            <div class="text-right">
-              <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-                <%= @prepares.count %> total records
+
+        <!-- Table Card -->
+        <div class="relative bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 rounded-2xl shadow-lg border border-gray-100 overflow-hidden backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-slate-500/5 to-zinc-500/5 rounded-2xl"></div>
+          
+          <!-- Header -->
+          <div class="relative px-6 py-4 border-b border-gray-200/50 bg-white/30 backdrop-blur-sm">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-r from-slate-600 to-gray-700 rounded-lg flex items-center justify-center shadow-md mr-3">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900">Preparation Records</h3>
+              </div>
+              <span class="text-sm text-gray-600 bg-white/50 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/20">
+                Showing <%= @prepares.count %> of <%= @prepares.total_count %> records
               </span>
             </div>
           </div>
-        </div>
-        <!-- Table -->
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Preparation ID / Batch ID
-                </th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Product
-                </th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Date
-                </th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Progress
-                </th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Team
-                </th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <% @prepares.each do |prepare| %>
-                <% 
-                  row_classes = ["transition-all duration-200 border-l-4"]
-                  row_classes << case prepare.status
-                                when 'checked' then 'bg-green-50 hover:bg-green-100 border-l-green-500'
-                                when 'cancelled' then 'bg-red-50 hover:bg-red-100 border-l-red-500'
-                                when 'checking' then 'bg-blue-50 hover:bg-blue-100 border-l-blue-500'
-                                else 'bg-yellow-50 hover:bg-yellow-100 border-l-yellow-500'
-                                end
-                  
-                  clickable = prepare.clickable?
-                  row_classes << "cursor-pointer hover:shadow-md" if clickable
-                  row_classes << "cursor-not-allowed opacity-75" unless clickable
-                %>
-                <tr class="<%= row_classes.join(' ') %>" 
-                    <% if clickable %>
-                      onclick="window.location.href='<%= prepare_path(prepare) %>'"
-                    <% end %>>
-                  <!-- Prepare ID -->
-                  <td class="px-6 py-5 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0 w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                      </div>
-                      <div class="ml-4">
-                        <div class="text-sm font-semibold text-gray-900">
-                          <%= prepare.prepare_id %>
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          Batch: <%= prepare.unit_batch.unit_id %>
-                        </div>
+
+          <% if @prepares.any? %>
+            <!-- Table -->
+            <div class="relative overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200/50">
+                <thead class="bg-gradient-to-r from-gray-50 to-slate-50 backdrop-blur-sm">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ID / Product</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Progress</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white/40 backdrop-blur-sm divide-y divide-gray-200/30">
+                  <% @prepares.each do |prepare| %>
+                    <% 
+                      clickable = prepare.clickable?
+                      
+                      # Status-based row coloring
+                      status_classes = case prepare.status
+                                      when 'checked' then 'bg-green-50 hover:bg-green-100'
+                                      when 'unchecked' then 'bg-gray-50 hover:bg-gray-100'
+                                      when 'cancelled' then 'bg-red-50 hover:bg-red-100'
+                                      when 'checking' then 'bg-yellow-50 hover:bg-yellow-100'
+                                      else 'bg-white hover:bg-gray-50'
+                                      end
+                      
+                      row_classes = [status_classes, "transition-all duration-200"]
+                      row_classes << "cursor-pointer" if clickable
+                      row_classes << "opacity-75" unless clickable
+                    %>
+                    <tr class="<%= row_classes.join(' ') %>" 
+                        <% if clickable %>onclick="window.location.href='<%= prepare_path(prepare) %>'"<% end %>>
+                      
+                      <!-- ID / Product -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900"><%= prepare.prepare_id %></div>
+                        <div class="text-sm text-gray-500"><%= prepare.product.name %></div>
                         <% unless clickable %>
-                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-600 mt-1">
-                            Past Date
-                          </span>
+                          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 mt-1">Past Date</span>
                         <% end %>
-                      </div>
-                    </div>
-                  </td>
-                  <!-- Product -->
-                  <td class="px-6 py-5 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900"><%= prepare.product.name %></div>
-                    <div class="text-xs text-gray-500">
-                      <%= prepare.product.ingredients.count %> ingredients
-                    </div>
-                  </td>
-                  <!-- Date -->
-                  <td class="px-6 py-5 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">
-                      <%= prepare.prepare_date.strftime("%b %d, %Y") %>
-                    </div>
-                    <div class="text-xs text-gray-500">
-                      <%= time_ago_in_words(prepare.prepare_date) %>
-                      <%= prepare.prepare_date.past? ? 'ago' : 'from now' %>
-                    </div>
-                  </td>
-                  <!-- Status -->
-                  <td class="px-6 py-5 whitespace-nowrap">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold 
-                      <%= case prepare.status
-                          when 'unchecked' then 'bg-yellow-200 text-yellow-800'
-                          when 'checking' then 'bg-blue-200 text-blue-800'
-                          when 'checked' then 'bg-green-200 text-green-800'
-                          when 'cancelled' then 'bg-red-200 text-red-800'
-                          end %>">
-                      <div class="w-2 h-2 rounded-full mr-2
-                        <%= case prepare.status
-                            when 'unchecked' then 'bg-yellow-500'
-                            when 'checking' then 'bg-blue-500'
-                            when 'checked' then 'bg-green-500'
-                            when 'cancelled' then 'bg-red-500'
-                            end %>"></div>
-                      <%= prepare.status.humanize %>
-                    </span>
-                  </td>
-                  <!-- Progress -->
-                  <td class="px-6 py-5 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">
-                      <%= prepare.checking_progress %>
-                    </div>
-                    <% if prepare.prepare_ingredients.any? && !prepare.cancelled? %>
-                      <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-                        <div class="<%= prepare.checked? ? 'bg-green-500' : 'bg-blue-500' %> h-2 rounded-full transition-all duration-300" 
-                             style="width: <%= (prepare.prepare_ingredients.checked.count.to_f / prepare.prepare_ingredients.count * 100).round(1) %>%"></div>
-                      </div>
-                      <div class="text-xs text-gray-500 mt-1">
-                        <%= (prepare.prepare_ingredients.checked.count.to_f / prepare.prepare_ingredients.count * 100).round(1) %>% complete
-                      </div>
-                    <% end %>
-                  </td>
-                  <!-- Team -->
-                  <td class="px-6 py-5 whitespace-nowrap">
-                    <div class="text-sm">
-                      <div class="text-gray-900 font-medium">Created by:</div>
-                      <div class="text-gray-600 text-xs">
-                        <%= prepare.created_by.email_address.split('@').first %>
-                        <span class="capitalize ml-1 px-1 py-0.5 bg-gray-100 rounded text-xs">
-                          <%= prepare.created_by.role %>
-                        </span>
-                      </div>
-                      <% if prepare.checked_by %>
-                        <div class="text-gray-900 font-medium mt-1">Checked by:</div>
-                        <div class="text-gray-600 text-xs">
-                          <%= prepare.checked_by.email_address.split('@').first %>
+                      </td>
+                      
+                      <!-- Date -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900"><%= prepare.prepare_date.strftime("%b %d, %Y") %></div>
+                        <div class="text-xs text-gray-500">
+                          <%= time_ago_in_words(prepare.prepare_date) %>
+                          <%= prepare.prepare_date.past? ? 'ago' : 'from now' %>
                         </div>
-                      <% end %>
-                    </div>
-                  </td>
-                  <!-- Actions -->
-                  <td class="px-6 py-5 whitespace-nowrap text-sm font-medium space-x-2" onclick="event.stopPropagation()">
-                    <%= link_to prepare_path(prepare), 
-                        class: "inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition-colors duration-200" do %>
-                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                      </svg>
-                      View
-                    <% end %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-        <!-- Pagination -->
-        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-          <div class="flex items-center justify-between">
-            <div class="flex-1 flex justify-between sm:hidden">
-              <%= paginate @prepares%>
+                      </td>
+                      
+                      <!-- Status -->
+                      <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                          <%= case prepare.status
+                              when 'unchecked' then 'bg-yellow-100 text-yellow-800'
+                              when 'checking' then 'bg-blue-100 text-blue-800'
+                              when 'checked' then 'bg-green-100 text-green-800'
+                              when 'cancelled' then 'bg-red-100 text-red-800'
+                              end %>">
+                          <%= prepare.status.humanize %>
+                        </span>
+                      </td>
+                      
+                      <!-- Progress -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900"><%= prepare.checking_progress %></div>
+                        <% if prepare.prepare_ingredients.any? && !prepare.cancelled? %>
+                          <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                            <div class="<%= prepare.checked? ? 'bg-green-500' : 'bg-blue-500' %> h-1.5 rounded-full" 
+                                 style="width: <%= (prepare.prepare_ingredients.checked.count.to_f / prepare.prepare_ingredients.count * 100).round(1) %>%"></div>
+                          </div>
+                        <% end %>
+                      </td>
+                      
+                      <!-- Actions -->
+                      <td class="px-6 py-4 text-sm" onclick="event.stopPropagation()">
+                        <%= link_to "View", prepare_path(prepare), 
+                            class: "text-indigo-600 hover:text-indigo-900 transition-colors" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
             </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p class="text-sm text-gray-700">
-                  Showing
-                  <span class="font-medium"><%= @prepares.offset_value + 1 %></span>
-                  to
-                  <span class="font-medium"><%= [@prepares.offset_value + @prepares.limit_value, @prepares.total_count].min %></span>
-                  of
-                  <span class="font-medium"><%= @prepares.total_count %></span>
-                  results
-                </p>
-              </div>
-              <div>
-                <%= paginate @prepares %>
+            
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                  Showing <%= @prepares.offset_value + 1 %> to 
+                  <%= [@prepares.offset_value + @prepares.limit_value, @prepares.total_count].min %> of 
+                  <%= @prepares.total_count %> results
+                </div>
+                <div>
+                  <%= paginate @prepares %>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      <% else %>
-        <!-- Empty State -->
-        <div class="text-center py-16">
-          <div class="mx-auto w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
-            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">No preparations yet</h3>
-          <p class="text-gray-600 mb-6">Get started by creating your first preparation checklist.</p>
-          <% if Current.user&.can_create_prepares? %>
-            <%= link_to new_prepare_path, 
-                class: "inline-flex items-center rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:from-indigo-500 hover:to-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transform hover:scale-105 transition-all duration-200" do %>
-              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            
+          <% else %>
+            <!-- Empty State -->
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
               </svg>
-              Create First Preparation
-            <% end %>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No preparations found</h3>
+              <p class="mt-1 text-sm text-gray-500">Try adjusting your search criteria.</p>
+            </div>
           <% end %>
+          
         </div>
-      <% end %>
+        <!-- End of Table Card -->
+        
+      </div>
+      <!-- End of Right Content -->
+      
     </div>
   </div>
 </div>

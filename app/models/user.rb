@@ -16,6 +16,10 @@ class User < ApplicationRecord
     manager? || head?
   end
 
+  def can_edit_product?(product)
+    (manager? || head?) || product.user == self
+  end
+
   def can_create_prepares?
     supervisor? || manager? || head?
   end
