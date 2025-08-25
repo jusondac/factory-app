@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+chocolate_cake:
+  name: "Chocolate Cake"
+  user: manager
+
+vanilla_cookies:
+  name: "Vanilla Cookies"
+  user: manager
+
+premium_bread:
+  name: "Premium Bread"
+  user: head

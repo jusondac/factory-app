@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+dark_chocolate:
+  name: "Dark Chocolate"
+  product: chocolate_cake
+
+flour:
+  name: "Flour"
+  product: chocolate_cake
+
+sugar:
+  name: "Sugar"
+  product: vanilla_cookies
+
+butter:
+  name: "Butter"
+  product: vanilla_cookies
+
+bread_flour:
+  name: "Bread Flour"
+  product: premium_bread
+
+yeast:
+  name: "Yeast"
+  product: premium_bread
