@@ -1,7 +1,7 @@
 class PreparesController < ApplicationController
-  before_action :set_prepare, only: [ :show, :check, :update_check, :checking ]
+  before_action :set_prepare, only: [ :show, :check, :update_check, :checking, :cancel ]
   before_action :require_supervisor, only: [ :new, :create ]
-  before_action :require_worker_for_check, only: [ :check, :checking, :update_check ]
+  before_action :require_worker_for_check, only: [ :check, :checking, :update_check, :cancel ]
 
   def index
     @prepares = Prepare.includes(:product, :created_by, :checked_by, :prepare_ingredients)
@@ -58,6 +58,15 @@ class PreparesController < ApplicationController
       redirect_to prepares_path, notice: "Preparation has been completed!"
     else
       redirect_to checking_prepare_path(@prepare), notice: "Ingredient status updated."
+    end
+  end
+
+  def cancel
+    if @prepare.status == "checking" && @prepare.checked_by == Current.user
+      @prepare.update(status: :cancelled, checked_by: nil)
+      redirect_to prepares_path, notice: "Preparation has been cancelled."
+    else
+      redirect_to prepares_path, alert: "You cannot cancel this preparation."
     end
   end
 
