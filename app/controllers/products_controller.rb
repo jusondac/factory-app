@@ -3,7 +3,14 @@ class ProductsController < ApplicationController
   before_action :require_manager_or_head, only: [ :new, :create, :edit, :update, :destroy ]
 
   def index
-    @products = Product.includes(:user, :ingredients).order(created_at: :desc)
+    # Set up Ransack search
+    @q = Product.includes(:user, :ingredients).ransack(params[:q])
+
+    # Get the results with pagination
+    @products = @q.result
+                  .order(created_at: :desc)
+                  .page(params[:page])
+                  .per(8)  # 8 items per page
   end
 
   def show

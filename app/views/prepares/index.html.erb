@@ -24,6 +24,38 @@
         </div>
       </div>
     </div>
+    <!-- Search Section -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
+      <%= search_form_for @q, local: true, class: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" do |f| %>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Preparation ID</label>
+          <%= f.search_field :prepare_id_cont, placeholder: "Search by prep ID...", 
+              class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+          <%= f.search_field :unit_batch_product_name_cont, placeholder: "Search by product...", 
+              class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+          <%= f.select :status_eq, 
+              options_for_select([
+                ['All Statuses', ''],
+                ['Unchecked', 'unchecked'],
+                ['Checking', 'checking'],
+                ['Checked', 'checked'],
+                ['Cancelled', 'cancelled']
+              ], @q.status_eq),
+              {},
+              { class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
+        </div>
+        <div class="flex items-end gap-2">
+          <%= f.submit "Search", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors duration-200" %>
+          <%= link_to "Clear", prepares_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200" %>
+        </div>
+      <% end %>
+    </div>
     <!-- Quick Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -37,7 +69,7 @@
           </div>
           <div class="ml-4">
             <p class="text-sm font-medium text-gray-500">Total Preparations</p>
-            <p class="text-2xl font-bold text-gray-900"><%= @prepares.count %></p>
+            <p class="text-2xl font-bold text-gray-900"><%= @prepares.total_count %></p>
           </div>
         </div>
       </div>
@@ -52,7 +84,7 @@
           </div>
           <div class="ml-4">
             <p class="text-sm font-medium text-gray-500">Completed</p>
-            <p class="text-2xl font-bold text-gray-900"><%= @prepares.where(status: :checked).count %></p>
+            <p class="text-2xl font-bold text-gray-900"><%= Prepare.where(status: :checked).count %></p>
           </div>
         </div>
       </div>
@@ -67,7 +99,7 @@
           </div>
           <div class="ml-4">
             <p class="text-sm font-medium text-gray-500">In Progress</p>
-            <p class="text-2xl font-bold text-gray-900"><%= @prepares.where(status: [:unchecked, :checking]).count %></p>
+            <p class="text-2xl font-bold text-gray-900"><%= Prepare.where(status: [:unchecked, :checking]).count %></p>
           </div>
         </div>
       </div>
@@ -82,7 +114,7 @@
           </div>
           <div class="ml-4">
             <p class="text-sm font-medium text-gray-500">Cancelled</p>
-            <p class="text-2xl font-bold text-gray-900"><%= @prepares.where(status: :cancelled).count %></p>
+            <p class="text-2xl font-bold text-gray-900"><%= Prepare.where(status: :cancelled).count %></p>
           </div>
         </div>
       </div>
@@ -110,7 +142,7 @@
             <thead class="bg-gray-50">
               <tr>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Preparation ID
+                  Preparation ID / Batch ID
                 </th>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Product
@@ -162,6 +194,9 @@
                       <div class="ml-4">
                         <div class="text-sm font-semibold text-gray-900">
                           <%= prepare.prepare_id %>
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          Batch: <%= prepare.unit_batch.unit_id %>
                         </div>
                         <% unless clickable %>
                           <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-600 mt-1">
@@ -255,6 +290,30 @@
               <% end %>
             </tbody>
           </table>
+        </div>
+        <!-- Pagination -->
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+          <div class="flex items-center justify-between">
+            <div class="flex-1 flex justify-between sm:hidden">
+              <%= paginate @prepares%>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700">
+                  Showing
+                  <span class="font-medium"><%= @prepares.offset_value + 1 %></span>
+                  to
+                  <span class="font-medium"><%= [@prepares.offset_value + @prepares.limit_value, @prepares.total_count].min %></span>
+                  of
+                  <span class="font-medium"><%= @prepares.total_count %></span>
+                  results
+                </p>
+              </div>
+              <div>
+                <%= paginate @prepares %>
+              </div>
+            </div>
+          </div>
         </div>
       <% else %>
         <!-- Empty State -->

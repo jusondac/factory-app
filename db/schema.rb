@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_25_175921) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_25_193854) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -70,6 +70,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_175921) do
     t.integer "product_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "status", default: 0, null: false
     t.index ["product_id"], name: "index_unit_batches_on_product_id"
   end
 

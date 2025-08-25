@@ -94,31 +94,65 @@ puts "Clearing existing prepare and unit batch data..."
 Prepare.destroy_all
 UnitBatch.destroy_all
 
-# Create a unit batch and prepare for today for Chocolate Cake
-unit_batch1 = UnitBatch.create!(product: chocolate_cake)
-prepare1 = Prepare.create!(
-  unit_batch: unit_batch1,
-  prepare_date: Date.current,
-  created_by: supervisor
-)
+# Get all products for variety
+products = [ chocolate_cake, vanilla_cookies, strawberry_muffin, premium_bread, artisan_pizza ]
 
-# Create a unit batch and prepare for tomorrow for Artisan Pizza
-unit_batch2 = UnitBatch.create!(product: artisan_pizza)
-prepare2 = Prepare.create!(
-  unit_batch: unit_batch2,
-  prepare_date: Date.current + 1.day,
-  created_by: supervisor
-)
+# Create 15 prepare records with various statuses and dates
+prepare_data = [
+  # Today's preparations (some unchecked, some checking)
+  { product: chocolate_cake, date: Date.current, status: :unchecked, checked_by: nil },
+  { product: vanilla_cookies, date: Date.current, status: :checking, checked_by: worker },
+  { product: artisan_pizza, date: Date.current, status: :unchecked, checked_by: nil },
 
-# Create a unit batch and prepare for yesterday that's already being checked
-unit_batch3 = UnitBatch.create!(product: vanilla_cookies)
-prepare3 = Prepare.create!(
-  unit_batch: unit_batch3,
-  prepare_date: Date.current - 1.day,
-  created_by: supervisor,
-  status: :checking,
-  checked_by: worker
-)
+  # Tomorrow's preparations (all unchecked)
+  { product: strawberry_muffin, date: Date.current + 1.day, status: :unchecked, checked_by: nil },
+  { product: premium_bread, date: Date.current + 1.day, status: :unchecked, checked_by: nil },
+  { product: chocolate_cake, date: Date.current + 1.day, status: :unchecked, checked_by: nil },
+
+  # Yesterday's preparations (should be auto-cancelled due to past date)
+  { product: vanilla_cookies, date: Date.current - 1.day, status: :checked, checked_by: worker },
+  { product: artisan_pizza, date: Date.current - 1.day, status: :cancelled, checked_by: nil },
+  { product: strawberry_muffin, date: Date.current - 1.day, status: :checked, checked_by: worker },
+
+  # Day before yesterday (completed and cancelled)
+  { product: premium_bread, date: Date.current - 2.days, status: :checked, checked_by: worker },
+  { product: chocolate_cake, date: Date.current - 2.days, status: :cancelled, checked_by: nil },
+
+  # Future preparations (next week)
+  { product: vanilla_cookies, date: Date.current + 3.days, status: :unchecked, checked_by: nil },
+  { product: artisan_pizza, date: Date.current + 4.days, status: :unchecked, checked_by: nil },
+  { product: strawberry_muffin, date: Date.current + 5.days, status: :unchecked, checked_by: nil },
+  { product: premium_bread, date: Date.current + 6.days, status: :unchecked, checked_by: nil }
+]
+
+prepare_data.each_with_index do |data, index|
+  # Create unit batch first
+  unit_batch = UnitBatch.create!(product: data[:product])
+
+  # Create prepare
+  prepare = Prepare.create!(
+    unit_batch: unit_batch,
+    prepare_date: data[:date],
+    created_by: supervisor,
+    status: data[:status],
+    checked_by: data[:checked_by]
+  )
+
+  # If the prepare is checked, mark some ingredients as checked
+  if data[:status] == :checked
+    prepare.prepare_ingredients.limit(prepare.prepare_ingredients.count).each do |ingredient|
+      ingredient.update!(checked: true)
+    end
+  elsif data[:status] == :checking
+    # For checking status, mark some ingredients as checked (partial progress)
+    checked_count = prepare.prepare_ingredients.count / 2
+    prepare.prepare_ingredients.limit(checked_count).each do |ingredient|
+      ingredient.update!(checked: true)
+    end
+  end
+
+  puts "Created prepare #{index + 1}/#{prepare_data.length}: #{prepare.prepare_id} - #{prepare.product.name} (#{prepare.status})"
+end
 
 puts "Created #{UnitBatch.count} unit batches and #{Prepare.count} prepare records"
 

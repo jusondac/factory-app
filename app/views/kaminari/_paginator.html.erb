@@ -1,0 +1,38 @@
+<%# The container tag
+  - available local variables
+    current_page:  a page object for the currently displayed page
+    total_pages:   total number of pages
+    per_page:      number of items to fetch per page
+    remote:        data-remote
+    paginator:     the paginator that renders the pagination tags inside
+-%>
+<%= paginator.render do -%>
+  <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-b-2xl" aria-label="Pagination">
+    <div class="hidden sm:block">
+      <p class="text-sm text-gray-700">
+        Showing page
+        <span class="font-medium"><%= current_page.number %></span>
+        of
+        <span class="font-medium"><%= total_pages %></span>
+        (<%= per_page %> per page)
+      </p>
+    </div>
+    <div class="flex flex-1 justify-between sm:justify-end">
+      <div class="flex items-center space-x-1">
+        <%= first_page_tag unless current_page.first? %>
+        <%= prev_page_tag unless current_page.first? %>
+        <% each_page do |page| -%>
+          <% if page.display_tag? -%>
+            <%= page_tag page %>
+          <% elsif !page.was_truncated? -%>
+            <%= gap_tag %>
+          <% end -%>
+        <% end -%>
+        <% unless current_page.out_of_range? %>
+          <%= next_page_tag unless current_page.last? %>
+          <%= last_page_tag unless current_page.last? %>
+        <% end %>
+      </div>
+    </div>
+  </nav>
+<% end -%>

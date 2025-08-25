@@ -2,6 +2,13 @@ class UnitBatch < ApplicationRecord
   belongs_to :product
   has_one :prepare, dependent: :destroy
 
+  enum :status, {
+    preparation: 0,
+    production: 1,
+    testing: 2,
+    packing: 3
+  }
+
   validates :unit_id, presence: true, uniqueness: true
   validates :product_id, presence: true
 
@@ -12,6 +19,14 @@ class UnitBatch < ApplicationRecord
 
   def prepare_date
     prepare&.prepare_date
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["created_at", "id", "id_value", "product_id", "status", "unit_id", "updated_at"]
+  end
+
+   def self.ransackable_associations(auth_object = nil)
+    ["prepare", "product"]
   end
 
   private

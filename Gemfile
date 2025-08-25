@@ -66,3 +66,9 @@ end
 
 gem "awesome_print", "~> 1.9"
 gem "byebug", "~> 12.0"
+
+# Search functionality
+gem "ransack"
+
+# Pagination
+gem "kaminari"

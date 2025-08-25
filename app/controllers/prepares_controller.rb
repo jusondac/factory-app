@@ -4,14 +4,20 @@ class PreparesController < ApplicationController
   before_action :require_worker_for_check, only: [ :check, :checking, :update_check, :cancel ]
 
   def index
-    @prepares = Prepare.includes({ unit_batch: :product }, :created_by, :checked_by, :prepare_ingredients)
-                      .order(prepare_date: :desc, created_at: :desc)
+    # Set up Ransack search
+    @q = Prepare.includes({ unit_batch: :product }, :created_by, :checked_by, :prepare_ingredients)
+                .ransack(params[:q])
 
-    # Auto-cancel old unchecked/checking prepares
+    # Get the results and order them
+    @prepares = @q.result
+                  .order(prepare_date: :desc, created_at: :desc)
+                  .page(params[:page])
+                  .per(10)  # 10 items per page
+
+    # Auto-cancel old unchecked/checking prepares (only for current page to avoid performance issues)
     @prepares.each(&:auto_cancel_if_needed!)
 
-    # Reload to get updated statuses
-    @prepares = @prepares.reload
+    # Note: No need to reload since Kaminari handles the pagination
   end
 
   def show
@@ -37,7 +43,7 @@ class PreparesController < ApplicationController
     end
 
     # Create UnitBatch first
-    @unit_batch = UnitBatch.new(product: product)
+    @unit_batch = UnitBatch.new(product: product, status: :preparation)
 
     if @unit_batch.save
       # Then create Prepare
@@ -50,11 +56,15 @@ class PreparesController < ApplicationController
       else
         @unit_batch.destroy # Clean up if prepare creation fails
         @products = Product.all.order(:name)
+        # Set the product_id for form redisplay
+        @prepare.temp_product_id = prepare_params[:product_id]
         render :new, status: :unprocessable_entity
       end
     else
       @products = Product.all.order(:name)
-      @prepare = Prepare.new(prepare_params)
+      @prepare = Prepare.new(prepare_params.except(:product_id))
+      # Set the product_id for form redisplay
+      @prepare.temp_product_id = prepare_params[:product_id]
       render :new, status: :unprocessable_entity
     end
   end

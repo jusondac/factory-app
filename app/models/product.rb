@@ -8,4 +8,12 @@ class Product < ApplicationRecord
   validates :user, presence: true
 
   scope :by_manager, ->(user) { where(user: user) if user&.can_create_products? }
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["created_at", "id", "id_value", "name", "updated_at", "user_id"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["ingredients", "prepares", "unit_batches", "user"]
+  end
 end

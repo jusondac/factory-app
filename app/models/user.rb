@@ -23,4 +23,8 @@ class User < ApplicationRecord
   def can_check_prepares?
     worker?
   end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["created_at", "email_address", "id", "id_value", "password_digest", "role", "updated_at"]
+  end
 end

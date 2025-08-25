@@ -17,7 +17,19 @@ class Prepare < ApplicationRecord
   scope :for_product, ->(product) { joins(:unit_batch).where(unit_batches: { product: product }) }
 
   # Delegate product to unit_batch
-  delegate :product, to: :unit_batch
+  delegate :product, to: :unit_batch, allow_nil: true
+
+  # Delegate product_id to unit_batch for form compatibility
+  def product_id
+    unit_batch&.product_id || @temp_product_id
+  end
+
+  # Allow setting product_id for form handling (virtual attribute)
+  attr_accessor :temp_product_id
+
+  def product_id=(value)
+    @temp_product_id = value
+  end
 
   def can_be_checked_by?(user)
     user.worker? && status != :checked && status != :cancelled
@@ -38,6 +50,14 @@ class Prepare < ApplicationRecord
     "#{checked_count}/#{total}"
   end
 
+  def self.ransackable_attributes(auth_object = nil)
+    [ "checked_by_id", "created_at", "created_by_id", "id", "id_value", "prepare_date", "prepare_id", "status", "unit_batch_id", "updated_at" ]
+  end
+
+   def self.ransackable_associations(auth_object = nil)
+    ["checked_by", "created_by", "prepare_ingredients", "unit_batch"]
+  end
+
   def clickable?
     prepare_date >= Date.current
   end
@@ -54,10 +74,13 @@ class Prepare < ApplicationRecord
 
   def generate_prepare_id
     return if prepare_id.present?
-    return unless unit_batch&.unit_id.present?
 
-    # Use the unit_batch unit_id as the prepare_id
-    self.prepare_id = unit_batch.unit_id
+    date_str = prepare_date.strftime("%Y%m%d")
+
+    # Find the next number for this date
+    existing_count = Prepare.where("prepare_id LIKE ?", "PRP-#{date_str}-%").count
+
+    self.prepare_id = "PRP-#{date_str}-#{existing_count + 1}"
   end
 
   def create_prepare_ingredients
