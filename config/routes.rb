@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       get :checking
       patch :update_check
       patch :cancel
+      patch :complete
     end
   end
 
