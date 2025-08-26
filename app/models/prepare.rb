@@ -1,11 +1,21 @@
 class Prepare < ApplicationRecord
-  # prepare_date	date
-  # prepare_id	string
-  # status	integer
-  # checked_by_id	integer
-  # created_by_id	integer
-  # unit_batch_id	integer
-  # index	checked_by_id,created_by_id,prepare_id,unit_batch_id
+  # id: integer (PK)
+  # prepare_date: date - not null
+  # prepare_id: string - not null
+  # status: integer - default: 0
+  # checked_by_id: integer (FK)
+  # created_by_id: integer (FK) - not null
+  # created_at: datetime - not null
+  # updated_at: datetime - not null
+  # unit_batch_id: integer (FK) - not null
+  # prepare_ingredients_count: integer - default: 0
+  # checked_ingredients_count: integer - default: 0
+
+  # Indexes
+  # index_prepares_on_unit_batch_id (unit_batch_id)
+  # index_prepares_on_prepare_id (prepare_id) (unique)
+  # index_prepares_on_created_by_id (created_by_id)
+  # index_prepares_on_checked_by_id (checked_by_id)
 
   belongs_to :unit_batch
   belongs_to :created_by, class_name: "User"

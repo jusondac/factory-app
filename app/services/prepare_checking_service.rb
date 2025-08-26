@@ -27,8 +27,23 @@ class PrepareCheckingService
   def complete_checking
     return false unless can_complete_checking?
 
-    prepare.update!(status: :checked)
+    ActiveRecord::Base.transaction do
+      prepare.update!(status: :checked)
+
+      # Transition unit batch to production and create produce record
+      if prepare.unit_batch.preparation?
+        prepare.unit_batch.update!(status: :production)
+
+        # Create produce record
+        prepare.unit_batch.create_produce!(
+          product_date: Date.current
+        )
+      end
+    end
+
     true
+  rescue ActiveRecord::RecordInvalid
+    false
   end
 
   def toggle_ingredient_check
@@ -77,10 +92,24 @@ class PrepareCheckingService
 
   def complete_checking_if_all_done
     if prepare.all_ingredients_checked?
-      prepare.update!(status: :checked)
+      ActiveRecord::Base.transaction do
+        prepare.update!(status: :checked)
+
+        # Transition unit batch to production and create produce record
+        if prepare.unit_batch.preparation?
+          prepare.unit_batch.update!(status: :production)
+
+          # Create produce record
+          prepare.unit_batch.create_produce!(
+            product_date: Date.current
+          )
+        end
+      end
       :completed
     else
       :in_progress
     end
+  rescue ActiveRecord::RecordInvalid
+    :error
   end
 end

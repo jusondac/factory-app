@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_26_020724) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_26_191810) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -37,6 +37,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_020724) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "allocation"
   end
 
   create_table "prepare_ingredients", force: :cascade do |t|
@@ -64,6 +65,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_020724) do
     t.index ["created_by_id"], name: "index_prepares_on_created_by_id"
     t.index ["prepare_id"], name: "index_prepares_on_prepare_id", unique: true
     t.index ["unit_batch_id"], name: "index_prepares_on_unit_batch_id"
+  end
+
+  create_table "produces", force: :cascade do |t|
+    t.date "product_date", null: false
+    t.string "product_id", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "unit_batch_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_date"], name: "index_produces_on_product_date"
+    t.index ["product_id"], name: "index_produces_on_product_id", unique: true
+    t.index ["unit_batch_id"], name: "index_produces_on_unit_batch_id", unique: true
   end
 
   create_table "products", force: :cascade do |t|
@@ -109,6 +122,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_020724) do
   add_foreign_key "prepares", "unit_batches"
   add_foreign_key "prepares", "users", column: "checked_by_id"
   add_foreign_key "prepares", "users", column: "created_by_id"
+  add_foreign_key "produces", "unit_batches"
   add_foreign_key "products", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "unit_batches", "products"

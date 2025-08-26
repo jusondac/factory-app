@@ -26,6 +26,13 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :produces do
+    member do
+      patch :start_production
+      patch :complete_production
+    end
+  end
+
   resources :machines
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
