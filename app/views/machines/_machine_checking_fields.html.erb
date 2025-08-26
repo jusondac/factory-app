@@ -7,7 +7,6 @@
       </svg>
     </button>
   </div>
-  
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <div>
       <%= f.label :checking_name, "Checking Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
@@ -15,7 +14,6 @@
           class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
           placeholder: "e.g., Temperature Check" %>
     </div>
-    
     <div>
       <%= f.label :checking_type, "Checking Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
       <%= f.select :checking_type, 
@@ -24,7 +22,6 @@
           class: "checking-type-select w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
           data: { action: "change->machine-checkings#updateCheckingType" } %>
     </div>
-    
     <div class="checking-value-container">
       <%= f.label :checking_value, "Checking Value", class: "block text-sm font-medium text-gray-700 mb-1" %>
       <%= f.text_field :checking_value, 
@@ -35,6 +32,5 @@
       </p>
     </div>
   </div>
-  
   <%= f.hidden_field :_destroy %>
 </div>

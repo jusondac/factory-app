@@ -11,7 +11,7 @@ export default class extends Controller {
 
   add(event) {
     event.preventDefault()
-    
+
     const content = this.templateTarget.innerHTML.replace(/NEW_RECORD/g, this.indexValue)
     this.containerTarget.insertAdjacentHTML("beforeend", content)
     this.indexValue++
@@ -19,10 +19,10 @@ export default class extends Controller {
 
   remove(event) {
     event.preventDefault()
-    
+
     const item = event.target.closest(".machine-checking-item")
     const destroyInput = item.querySelector("input[name*='_destroy']")
-    
+
     if (destroyInput) {
       // For existing records, mark for destruction
       destroyInput.value = "1"
@@ -37,7 +37,7 @@ export default class extends Controller {
     const checkingItem = event.target.closest(".machine-checking-item")
     const valueInput = checkingItem.querySelector(".checking-value-input")
     const valueHelp = checkingItem.querySelector(".checking-value-help")
-    
+
     if (event.target.value === "text") {
       valueInput.placeholder = "Leave empty for text input"
       valueHelp.textContent = "Leave empty for free text input"

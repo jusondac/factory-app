@@ -1,6 +1,5 @@
 <div class="bg-gray-50 min-h-screen">
   <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6">
-    
     <!-- Page Header -->
     <div class="mb-6">
       <div class="flex items-center justify-between">
@@ -26,22 +25,18 @@
         </div>
       </div>
     </div>
-
     <!-- Machine Details Card -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold text-gray-900 mb-4">Machine Details</h2>
-      
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <dt class="text-sm font-medium text-gray-500">Name</dt>
           <dd class="mt-1 text-sm text-gray-900"><%= @machine.name %></dd>
         </div>
-        
         <div>
           <dt class="text-sm font-medium text-gray-500">Serial Number</dt>
           <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @machine.serial_number %></dd>
         </div>
-        
         <div>
           <dt class="text-sm font-medium text-gray-500">Status</dt>
           <dd class="mt-1">
@@ -57,11 +52,9 @@
         </div>
       </div>
     </div>
-
     <!-- Machine Checkings -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-xl font-semibold text-gray-900 mb-4">Machine Checkings</h2>
-      
       <% if @machine.machine_checkings.any? %>
         <div class="space-y-4">
           <% @machine.machine_checkings.each do |checking| %>
@@ -71,7 +64,6 @@
                   <dt class="text-sm font-medium text-gray-500">Checking Name</dt>
                   <dd class="mt-1 text-sm text-gray-900"><%= checking.checking_name %></dd>
                 </div>
-                
                 <div>
                   <dt class="text-sm font-medium text-gray-500">Type</dt>
                   <dd class="mt-1">
@@ -81,7 +73,6 @@
                     </span>
                   </dd>
                 </div>
-                
                 <div>
                   <dt class="text-sm font-medium text-gray-500">
                     <%= checking.checking_type == 'option' ? 'Available Options' : 'Input Type' %>
