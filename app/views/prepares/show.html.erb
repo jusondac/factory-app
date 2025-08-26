@@ -1,166 +1,349 @@
 <% content_for :title, "Preparation #{@prepare.prepare_id}" %>
-<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
-  <!-- Header -->
-  <div class="mb-8">
-    <div class="flex items-center space-x-3 mb-4">
-      <%= link_to prepares_path, class: "text-gray-400 hover:text-gray-600" do %>
-        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-      <% end %>
-      <h1 class="text-2xl font-bold text-gray-900">Preparation <%= @prepare.prepare_id %></h1>
-      <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium <%= @presenter.status_badge_class %>">
-        <%= @prepare.status.humanize %>
-      </span>
-    </div>
-    <!-- Preparation Info -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <h3 class="text-sm font-medium text-gray-900">Product</h3>
-          <p class="mt-1 text-lg text-gray-700"><%= @presenter.product_name %></p>
-        </div>
-        <div>
-          <h3 class="text-sm font-medium text-gray-900">Preparation Date</h3>
-          <p class="mt-1 text-lg text-gray-700"><%= @presenter.formatted_date %></p>
-        </div>
-        <div>
-          <h3 class="text-sm font-medium text-gray-900">Created By</h3>
-          <p class="mt-1 text-lg text-gray-700"><%= @presenter.created_by_info %></p>
-        </div>
-        <% if @presenter.checked_by_info %>
-          <div>
-            <h3 class="text-sm font-medium text-gray-900">Checked By</h3>
-            <p class="mt-1 text-lg text-gray-700"><%= @presenter.checked_by_info %></p>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
-  <!-- Action Buttons for Workers -->
-  <% if Current.user.worker? && !@prepare.checked?%>
-    <div class="mb-6 flex space-x-3">
-      <% if @prepare.can_be_checked_by?(Current.user) %>
-        <%= button_to check_prepare_path(@prepare), method: :patch,
-            class: "inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500",
-            data: { confirm: "Are you sure you want to start checking this preparation?" } do %>
-          <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Start Checking
-        <% end %>
-      <% elsif @prepare.checked_by == Current.user && @prepare.checking? %>
-        <%= link_to checking_prepare_path(@prepare),
-            class: "inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500" do %>
-          <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-          Continue Checking
-        <% end %>
-      <% end %>
-    </div>
-  <% end %>
-  <!-- Ingredients List -->
-  <div class="bg-white shadow-sm rounded-lg border border-gray-200">
-    <div class="px-4 py-5 sm:p-6">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-lg font-medium text-gray-900">Ingredients to Check</h2>
-        <div class="text-sm text-gray-500">
-          <span><%= @prepare_ingredients.count %> ingredient(s)</span>
-          <% if @prepare_ingredients.any? %>
-            <span class="ml-2">Progress: <%= @prepare.checking_progress %></span>
+        <div class="flex items-center space-x-4">
+          <%= link_to prepares_path, class: "inline-flex items-center p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200" do %>
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
           <% end %>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Preparation <%= @prepare.prepare_id %></h1>
+            <p class="text-sm text-gray-600 mt-1">Detailed preparation overview</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold <%= @presenter.status_badge_class %> shadow-sm">
+            <% case @prepare.status %>
+            <% when 'unchecked' %>
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            <% when 'checking' %>
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            <% when 'checked' %>
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            <% when 'cancelled' %>
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            <% end %>
+            <%= @prepare.status.humanize %>
+          </span>
         </div>
       </div>
-      <% if @prepare_ingredients.any? %>
-        <div class="space-y-4">
-          <% @prepare_ingredients.each_with_index do |prepare_ingredient, index| %>
-            <div class="border border-gray-200 rounded-lg p-4 <%= 'bg-green-50 border-green-200' if prepare_ingredient.checked? %>">
-              <div class="flex items-center justify-between">
-                <div class="flex-1">
-                  <h3 class="text-base font-medium text-gray-900 flex items-center">
-                    <%= prepare_ingredient.ingredient_name %>
-                    <% if prepare_ingredient.checked? %>
-                      <svg class="ml-2 h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column - Main Info -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Preparation Details Card -->
+        <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+              <svg class="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Preparation Details
+            </h2>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                       </svg>
-                    <% end %>
-                  </h3>
-                  <p class="mt-1 text-sm text-gray-600">
-                    Status: 
-                    <span class="<%= prepare_ingredient.checked? ? 'text-green-600 font-semibold' : 'text-yellow-600' %>">
-                      <%= prepare_ingredient.checked? ? 'Checked' : 'Not checked' %>
-                    </span>
-                  </p>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-500">Product</h3>
+                    <p class="text-lg font-semibold text-gray-900"><%= @presenter.product_name %></p>
+                  </div>
                 </div>
-                <div class="ml-4 flex-shrink-0 flex items-center space-x-3">
-                  <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 text-sm font-medium">
-                    <%= index + 1 %>
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <svg class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100-4 2 2 0 000 4zm0 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6a2 2 0 012-2h2a2 2 0 012 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-500">Created By</h3>
+                    <p class="text-lg font-semibold text-gray-900"><%= @presenter.created_by_info %></p>
                   </div>
                 </div>
               </div>
+              <div class="space-y-4">
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <svg class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100-4 2 2 0 000 4zm0 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6a2 2 0 012-2h2a2 2 0 012 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-500">Preparation Date</h3>
+                    <p class="text-lg font-semibold text-gray-900"><%= @presenter.formatted_date %></p>
+                  </div>
+                </div>
+                <% if @presenter.checked_by_info %>
+                  <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <svg class="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 class="text-sm font-medium text-gray-500">Checked By</h3>
+                      <p class="text-lg font-semibold text-gray-900"><%= @presenter.checked_by_info %></p>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
             </div>
-          <% end %>
+          </div>
         </div>
-      <% else %>
-        <div class="text-center py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4m-12 0h4m8 0V9a2 2 0 00-2-2H8a2 2 0 00-2 2v4" />
-          </svg>
-          <h3 class="mt-2 text-sm font-semibold text-gray-900">No ingredients</h3>
-          <p class="mt-1 text-sm text-gray-500">This product doesn't have any ingredients defined yet.</p>
+
+        <!-- Ingredients List -->
+        <% if @prepare.prepare_ingredients.any? %>
+          <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                  <svg class="h-5 w-5 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Ingredients List
+                </h2>
+                <span class="text-sm text-gray-600">
+                  <%= @prepare.prepare_ingredients.count %> total ingredients
+                </span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <% @prepare.prepare_ingredients.each_with_index do |ingredient, index| %>
+                  <div class="flex items-center space-x-3 p-3 rounded-lg border <%= ingredient.checked? ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200' %> transition-all duration-200">
+                    <div class="flex-shrink-0">
+                      <% if ingredient.checked? %>
+                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      <% else %>
+                        <div class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
+                          <span class="text-xs font-medium text-gray-600"><%= index + 1 %></span>
+                        </div>
+                      <% end %>
+                    </div>
+                    <div class="flex-1">
+                      <p class="text-sm font-medium <%= ingredient.checked? ? 'text-green-900' : 'text-gray-900' %>">
+                        <%= ingredient.ingredient_name %>
+                      </p>
+                      <p class="text-xs <%= ingredient.checked? ? 'text-green-600' : 'text-gray-500' %>">
+                        <%= ingredient.checked? ? 'Checked' : 'Pending' %>
+                      </p>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Right Column - Status & Actions -->
+      <div class="space-y-6">
+        <!-- Progress Card -->
+        <% if @presenter.can_show_progress? %>
+          <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="h-5 w-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 002 2v2a2 2 0 002 2h2a2 2 0 012-2V7a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 00-2 2h-2a2 2 0 00-2 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2z" />
+                </svg>
+                Progress Overview
+              </h2>
+            </div>
+            <div class="p-6">
+              <div class="text-center mb-4">
+                <div class="text-3xl font-bold text-gray-900 mb-1">
+                  <%= @presenter.progress_percentage %>%
+                </div>
+                <p class="text-sm text-gray-600">
+                  <%= @presenter.progress_text %> completed
+                </p>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                <div class="<%= @presenter.progress_bar_class %> h-3 rounded-full transition-all duration-500 shadow-sm" 
+                     style="width: <%= @presenter.progress_percentage %>%"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="bg-gray-50 rounded-lg p-3">
+                  <div class="text-lg font-semibold text-green-600">
+                    <%= @prepare.prepare_ingredients.checked.count %>
+                  </div>
+                  <div class="text-xs text-gray-600">Completed</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                  <div class="text-lg font-semibold text-orange-600">
+                    <%= @prepare.prepare_ingredients.unchecked.count %>
+                  </div>
+                  <div class="text-xs text-gray-600">Remaining</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Action Buttons -->
+        <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-slate-50 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+              <svg class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4a2 2 0 104 0m-4 0a2 2 0 104 0m-4 0a2 2 0 014 0m6 0a2 2 0 100-4m0 4a2 2 0 100 4m0-4a2 2 0 104 0m-4 0a2 2 0 104 0m-4 0a2 2 0 014 0" />
+              </svg>
+              Actions
+            </h2>
+          </div>
+          <div class="p-6">
+            <% if Current.user.worker? && !@prepare.checked? %>
+              <div class="space-y-3">
+                <% if @prepare.can_be_checked_by?(Current.user) %>
+                  <%= button_to check_prepare_path(@prepare), method: :patch,
+                      class: "w-full inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 transition-all duration-200 hover:shadow-md",
+                      data: { confirm: "Are you sure you want to start checking this preparation?" } do %>
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Start Checking Process
+                  <% end %>
+                <% elsif @prepare.checked_by == Current.user && @prepare.checking? %>
+                  <%= link_to checking_prepare_path(@prepare),
+                      class: "w-full inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:shadow-md" do %>
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Continue Checking
+                  <% end %>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-4">
+                <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0h-2m9-5a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-sm text-gray-500">No actions available</p>
+              </div>
+            <% end %>
+          </div>
         </div>
-      <% end %>
+
+        <!-- Quick Info Card -->
+        <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+              <svg class="h-5 w-5 mr-2 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Quick Info
+            </h2>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600">Preparation ID</span>
+              <span class="font-mono text-sm font-semibold text-gray-900"><%= @prepare.prepare_id %></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600">Unit Batch</span>
+              <span class="font-mono text-sm font-semibold text-gray-900">#<%= @prepare.unit_batch_id %></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600">Created</span>
+              <span class="text-sm text-gray-900"><%= @prepare.created_at.strftime("%m/%d/%Y") %></span>
+            </div>
+            <% if @prepare.updated_at != @prepare.created_at %>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Last Updated</span>
+                <span class="text-sm text-gray-900"><%= time_ago_in_words(@prepare.updated_at) %> ago</span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <!-- Status Information -->
-  <% if @prepare.checked_by == Current.user %>
-    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-blue-800">You are checking this preparation</h3>
-          <div class="mt-2 text-sm text-blue-700">
-            <p>Please verify all ingredients listed above. Click "Continue Checking" to proceed with the detailed inspection.</p>
+    <!-- Status Information Banner -->
+    <% if @prepare.checked_by == Current.user %>
+      <div class="mt-6 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6 shadow-sm">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+              <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-blue-900">You are checking this preparation</h3>
+            <div class="mt-2 text-blue-800">
+              <p>Please verify all ingredients listed above. Use the "Continue Checking" button to proceed with the detailed inspection process.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  <% elsif @prepare.checked? %>
-    <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-green-800">This preparation has been completed</h3>
-          <div class="mt-2 text-sm text-green-700">
-            <p>All ingredient checks have been completed by <%= @prepare.checked_by.email_address %>.</p>
+    <% elsif @prepare.checked? %>
+      <div class="mt-6 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-xl p-6 shadow-sm">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+              <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-green-900">Preparation completed successfully</h3>
+            <div class="mt-2 text-green-800">
+              <p>All ingredient checks have been completed by <span class="font-semibold"><%= @prepare.checked_by.email_address %></span>. This preparation is ready for the next stage.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  <% elsif @prepare.cancelled? %>
-    <div class="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-red-800">This preparation has been cancelled</h3>
-          <div class="mt-2 text-sm text-red-700">
-            <p>This preparation was automatically cancelled because it was not completed by the end of the preparation date.</p>
+    <% elsif @prepare.cancelled? %>
+      <div class="mt-6 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-xl p-6 shadow-sm">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
+              <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-red-900">Preparation cancelled</h3>
+            <div class="mt-2 text-red-800">
+              <p>This preparation was automatically cancelled because it was not completed by the end of the preparation date. Please contact your supervisor for further instructions.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>
