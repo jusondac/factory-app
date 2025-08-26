@@ -1,0 +1,131 @@
+<div class="bg-gray-50 min-h-screen">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- Page Header -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900"><%= @machine.name %></h1>
+          <p class="mt-1 text-sm text-gray-600">Serial Number: <%= @machine.serial_number %></p>
+        </div>
+        <div class="flex space-x-3">
+          <%= link_to machines_path, 
+              class: "inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Machines
+          <% end %>
+          <%= link_to edit_machine_path(@machine), 
+              class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit Machine
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Machine Details Card -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Machine Details</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @machine.name %></dd>
+        </div>
+        
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Serial Number</dt>
+          <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @machine.serial_number %></dd>
+        </div>
+        
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Status</dt>
+          <dd class="mt-1">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+              <%= case @machine.status
+                  when 'active' then 'bg-green-100 text-green-800'
+                  when 'inactive' then 'bg-gray-100 text-gray-800'
+                  when 'under_maintenance' then 'bg-yellow-100 text-yellow-800'
+                  end %>">
+              <%= @machine.status.humanize %>
+            </span>
+          </dd>
+        </div>
+      </div>
+    </div>
+
+    <!-- Machine Checkings -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Machine Checkings</h2>
+      
+      <% if @machine.machine_checkings.any? %>
+        <div class="space-y-4">
+          <% @machine.machine_checkings.each do |checking| %>
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Checking Name</dt>
+                  <dd class="mt-1 text-sm text-gray-900"><%= checking.checking_name %></dd>
+                </div>
+                
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Type</dt>
+                  <dd class="mt-1">
+                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium
+                      <%= checking.checking_type == 'option' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' %>">
+                      <%= checking.checking_type&.humanize %>
+                    </span>
+                  </dd>
+                </div>
+                
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">
+                    <%= checking.checking_type == 'option' ? 'Available Options' : 'Input Type' %>
+                  </dt>
+                  <dd class="mt-1 text-sm text-gray-900">
+                    <% if checking.checking_type == 'option' %>
+                      <% if checking.checking_value.present? %>
+                        <div class="flex flex-wrap gap-1">
+                          <% checking.checking_options.each do |option| %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
+                              <%= option %>
+                            </span>
+                          <% end %>
+                        </div>
+                      <% else %>
+                        <span class="text-gray-400 italic">No options defined</span>
+                      <% end %>
+                    <% else %>
+                      <span class="text-gray-600">Free text input</span>
+                    <% end %>
+                  </dd>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-8">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No checkings configured</h3>
+          <p class="mt-1 text-sm text-gray-500">This machine doesn't have any checking configurations yet.</p>
+          <div class="mt-6">
+            <%= link_to edit_machine_path(@machine), 
+                class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Checkings
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

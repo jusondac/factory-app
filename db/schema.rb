@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_25_193854) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_26_020724) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -19,6 +19,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_193854) do
     t.index ["name"], name: "index_ingredients_on_name"
     t.index ["product_id", "created_at"], name: "index_ingredients_on_product_id_and_created_at"
     t.index ["product_id"], name: "index_ingredients_on_product_id"
+  end
+
+  create_table "machine_checkings", force: :cascade do |t|
+    t.integer "machine_id", null: false
+    t.string "checking_name"
+    t.integer "checking_type"
+    t.text "checking_value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["machine_id"], name: "index_machine_checkings_on_machine_id"
+  end
+
+  create_table "machines", force: :cascade do |t|
+    t.string "name"
+    t.string "serial_number"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "prepare_ingredients", force: :cascade do |t|
@@ -40,6 +58,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_193854) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "unit_batch_id", null: false
+    t.integer "prepare_ingredients_count", default: 0
+    t.integer "checked_ingredients_count", default: 0
     t.index ["checked_by_id"], name: "index_prepares_on_checked_by_id"
     t.index ["created_by_id"], name: "index_prepares_on_created_by_id"
     t.index ["prepare_id"], name: "index_prepares_on_prepare_id", unique: true
@@ -84,6 +104,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_193854) do
   end
 
   add_foreign_key "ingredients", "products"
+  add_foreign_key "machine_checkings", "machines"
   add_foreign_key "prepare_ingredients", "prepares"
   add_foreign_key "prepares", "unit_batches"
   add_foreign_key "prepares", "users", column: "checked_by_id"

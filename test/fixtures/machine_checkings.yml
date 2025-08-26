@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  machine: one
+  checking_name: MyString
+  checking_type: 1
+  checking_value: MyText
+
+two:
+  machine: two
+  checking_name: MyString
+  checking_type: 1
+  checking_value: MyText

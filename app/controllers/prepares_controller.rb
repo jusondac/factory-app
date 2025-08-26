@@ -4,74 +4,60 @@ class PreparesController < ApplicationController
   before_action :require_worker_for_check, only: [ :check, :checking, :update_check, :cancel ]
 
   def index
-    # Set up Ransack search
-    @q = Prepare.includes({ unit_batch: :product }, :created_by, :checked_by, :prepare_ingredients)
-                .ransack(params[:q])
-
-    # Get the results and order them
+    # Build the query with all necessary includes upfront
+    @q = Prepare.with_includes.ransack(params[:q])
+    
+    # Get paginated results 
     @prepares = @q.result
                   .order(prepare_date: :desc, created_at: :desc)
                   .page(params[:page])
-                  .per(10)  # 10 items per page
+                  .per(10)
 
-    # Auto-cancel old unchecked/checking prepares (only for current page to avoid performance issues)
-    @prepares.each(&:auto_cancel_if_needed!)
-
-    # Note: No need to reload since Kaminari handles the pagination
+    # Auto-cancel outdated preparations in a single batch query
+    outdated_ids = @prepares.select { |p| p.prepare_date < Date.current && (p.unchecked? || p.checking?) }.map(&:id)
+    if outdated_ids.any?
+      Prepare.where(id: outdated_ids).update_all(status: :cancelled, checked_by_id: nil)
+      # Update in-memory objects
+      @prepares.each { |p| p.status = 'cancelled' if outdated_ids.include?(p.id) }
+    end
   end
 
   def show
+    # Preload ingredients with proper ordering to avoid N+1
     @prepare_ingredients = @prepare.prepare_ingredients.order(:ingredient_name)
+    @presenter = PreparePresenter.new(@prepare)
   end
 
   def new
     @prepare = Prepare.new
-    @products = Product.all.order(:name)
+    @products = Product.order(:name)
   end
 
   def create
-    product = Product.find(prepare_params[:product_id])
+    service = PrepareService.new(
+      product_id: prepare_params[:product_id],
+      prepare_date: prepare_params[:prepare_date],
+      created_by: Current.user
+    )
 
-    # Check if there's already a unit batch for this product on this date
-    existing_unit_batch = UnitBatch.joins(:prepare)
-                                   .where(product: product, prepares: { prepare_date: prepare_params[:prepare_date] })
-                                   .first
-
-    if existing_unit_batch
-      redirect_to prepares_path, alert: "A preparation for this product on this date already exists."
-      return
-    end
-
-    # Create UnitBatch first
-    @unit_batch = UnitBatch.new(product: product, status: :preparation)
-
-    if @unit_batch.save
-      # Then create Prepare
-      @prepare = Prepare.new(prepare_params.except(:product_id))
-      @prepare.unit_batch = @unit_batch
-      @prepare.created_by = Current.user
-
-      if @prepare.save
-        redirect_to prepares_path, notice: "Preparation was successfully created."
-      else
-        @unit_batch.destroy # Clean up if prepare creation fails
-        @products = Product.all.order(:name)
-        # Set the product_id for form redisplay
-        @prepare.temp_product_id = prepare_params[:product_id]
-        render :new, status: :unprocessable_entity
-      end
+    if service.call
+      redirect_to prepares_path, notice: "Preparation was successfully created."
     else
-      @products = Product.all.order(:name)
-      @prepare = Prepare.new(prepare_params.except(:product_id))
-      # Set the product_id for form redisplay
+      @prepare = service.prepare || Prepare.new(prepare_params.except(:product_id))
       @prepare.temp_product_id = prepare_params[:product_id]
+      @products = Product.order(:name)
+      
+      # Transfer service errors to prepare object for form display
+      service.errors.each { |error| @prepare.errors.add(:base, error.message) }
+      
       render :new, status: :unprocessable_entity
     end
   end
 
   def check
-    if @prepare.can_be_checked_by?(Current.user)
-      @prepare.update(status: :checking, checked_by: Current.user)
+    service = PrepareCheckingService.new(prepare: @prepare, user: Current.user)
+    
+    if service.start_checking
       redirect_to checking_prepare_path(@prepare), notice: "You are now checking this preparation."
     else
       redirect_to prepares_path, alert: "You cannot check this preparation."
@@ -79,25 +65,33 @@ class PreparesController < ApplicationController
   end
 
   def checking
+    # Preload ingredients with proper ordering to avoid N+1
     @prepare_ingredients = @prepare.prepare_ingredients.order(:ingredient_name)
   end
 
   def update_check
-    prepare_ingredient = @prepare.prepare_ingredients.find(params[:prepare_ingredient_id])
-    prepare_ingredient.toggle_checked!
-
-    # Check if all ingredients are checked
-    if @prepare.all_ingredients_checked?
-      @prepare.update(status: :checked)
+    service = PrepareCheckingService.new(
+      prepare: @prepare, 
+      user: Current.user, 
+      prepare_ingredient_id: params[:prepare_ingredient_id]
+    )
+    
+    result = service.toggle_ingredient_check
+    
+    case result
+    when :completed
       redirect_to prepares_path, notice: "Preparation has been completed!"
-    else
+    when :in_progress
       redirect_to checking_prepare_path(@prepare), notice: "Ingredient status updated."
+    else
+      redirect_to checking_prepare_path(@prepare), alert: "Unable to update ingredient status."
     end
   end
 
   def cancel
-    if @prepare.status == "checking" && @prepare.checked_by == Current.user
-      @prepare.update(status: :cancelled, checked_by: nil)
+    service = PrepareCheckingService.new(prepare: @prepare, user: Current.user)
+    
+    if service.cancel_checking
       redirect_to prepares_path, notice: "Preparation has been cancelled."
     else
       redirect_to prepares_path, alert: "You cannot cancel this preparation."
@@ -107,7 +101,13 @@ class PreparesController < ApplicationController
   private
 
   def set_prepare
-    @prepare = Prepare.find(params[:id])
+    # Preload associations to avoid N+1 queries
+    @prepare = Prepare.includes(
+      { unit_batch: :product }, 
+      :created_by, 
+      :checked_by, 
+      :prepare_ingredients
+    ).find(params[:id])
   end
 
   def prepare_params
