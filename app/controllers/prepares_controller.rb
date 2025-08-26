@@ -1,7 +1,7 @@
 class PreparesController < ApplicationController
-  before_action :set_prepare, only: [ :show, :check, :update_check, :checking, :cancel ]
+  before_action :set_prepare, only: [ :show, :check, :update_check, :checking, :cancel, :complete ]
   before_action :require_supervisor, only: [ :new, :create ]
-  before_action :require_worker_for_check, only: [ :check, :checking, :update_check, :cancel ]
+  before_action :require_worker_for_check, only: [ :check, :checking, :update_check, :cancel, :complete ]
 
   def index
     # Build the query with all necessary includes upfront
@@ -96,6 +96,16 @@ class PreparesController < ApplicationController
       redirect_to prepares_path, notice: "Preparation has been cancelled."
     else
       redirect_to prepares_path, alert: "You cannot cancel this preparation."
+    end
+  end
+
+  def complete
+    service = PrepareCheckingService.new(prepare: @prepare, user: Current.user)
+
+    if service.complete_checking
+      redirect_to prepares_path, notice: "Preparation has been completed!"
+    else
+      redirect_to checking_prepare_path(@prepare), alert: "You cannot complete this preparation."
     end
   end
 
