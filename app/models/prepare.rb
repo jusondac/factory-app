@@ -53,6 +53,10 @@ class Prepare < ApplicationRecord
     prepare_ingredients_count > 0 && checked_ingredients_count == prepare_ingredients_count
   end
 
+  def checked_ingredients_count
+    prepare_ingredients.count(&:checked)
+  end
+
   def checking_progress
     @checking_progress ||= begin
       total = prepare_ingredients.size # Use preloaded association
@@ -69,11 +73,6 @@ class Prepare < ApplicationRecord
       checked_count = prepare_ingredients.count(&:checked)
       (checked_count.to_f / total * 100).round(1)
     end
-  end
-
-  def all_ingredients_checked?
-    prepare_ingredients.present? && prepare_ingredients.all?(&:checked)
-    update_prepare_status_to_check
   end
 
   def update_prepare_status_to_check
