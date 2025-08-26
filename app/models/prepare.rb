@@ -1,4 +1,12 @@
 class Prepare < ApplicationRecord
+  # prepare_date	date
+  # prepare_id	string
+  # status	integer
+  # checked_by_id	integer
+  # created_by_id	integer
+  # unit_batch_id	integer
+  # index	checked_by_id,created_by_id,prepare_id,unit_batch_id
+
   belongs_to :unit_batch
   belongs_to :created_by, class_name: "User"
   belongs_to :checked_by, class_name: "User", optional: true
@@ -15,6 +23,8 @@ class Prepare < ApplicationRecord
 
   scope :for_date, ->(date) { where(prepare_date: date) }
   scope :for_product, ->(product) { joins(:unit_batch).where(unit_batches: { product: product }) }
+  scope :with_includes, -> { includes(unit_batch: :product, created_by: [], checked_by: [], prepare_ingredients: []) }
+  scope :outdated_and_incomplete, -> { where(prepare_date: ...Date.current).where(status: [:unchecked, :checking]) }
 
   # Delegate product to unit_batch
   delegate :product, to: :unit_batch, allow_nil: true
@@ -40,14 +50,29 @@ class Prepare < ApplicationRecord
   end
 
   def all_ingredients_checked?
-    prepare_ingredients.exists? && prepare_ingredients.unchecked.empty?
+    prepare_ingredients_count > 0 && checked_ingredients_count == prepare_ingredients_count
   end
 
   def checking_progress
-    return "0/0" unless prepare_ingredients.exists?
-    total = prepare_ingredients.count
-    checked_count = prepare_ingredients.checked.count
-    "#{checked_count}/#{total}"
+    @checking_progress ||= begin
+      total = prepare_ingredients.size # Use preloaded association
+      checked_count = prepare_ingredients.count(&:checked)
+      "#{checked_count}/#{total}"
+    end
+  end
+
+  def checking_percentage
+    @checking_percentage ||= begin
+      total = prepare_ingredients.size # Use preloaded association
+      return 0 if total.zero?
+      
+      checked_count = prepare_ingredients.count(&:checked)
+      (checked_count.to_f / total * 100).round(1)
+    end
+  end
+
+  def all_ingredients_checked?
+    prepare_ingredients.present? && prepare_ingredients.all?(&:checked)
   end
 
   def self.ransackable_attributes(auth_object = nil)
@@ -84,11 +109,20 @@ class Prepare < ApplicationRecord
   end
 
   def create_prepare_ingredients
-    unit_batch.product.ingredients.find_each do |ingredient|
-      prepare_ingredients.create!(
+    ingredients = unit_batch.product.ingredients
+    created_ingredients = []
+    
+    ingredients.find_each do |ingredient|
+      created_ingredients << prepare_ingredients.create!(
         ingredient_name: ingredient.name,
         checked: false
       )
     end
+    
+    # Update counter cache after creating all ingredients
+    update_columns(
+      prepare_ingredients_count: created_ingredients.size,
+      checked_ingredients_count: 0
+    )
   end
 end

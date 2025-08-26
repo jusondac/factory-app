@@ -40,16 +40,10 @@
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
               <%= link_to "Prepares", prepares_path, 
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
-              <% if Current.session.user.can_create_products? %>
-                <%= link_to new_product_path, 
-                    class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" do %>
-                  <svg class="inline h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                  New Product
-                <% end %>
+              <% if Current.session.user.manager? || Current.session.user.head? %>
+                <%= link_to "Machines", machines_path, 
+                    class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
               <% end %>
-              
             <% end %>
           </div>
           <!-- User Menu -->
@@ -105,6 +99,10 @@
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
               <%= link_to "Prepares", prepares_path, 
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
+              <% if Current.session.user.manager? || Current.session.user.head? %>
+                <%= link_to "Machines", machines_path, 
+                    class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
+              <% end %>
               <% if Current.session.user.can_create_products? %>
                 <%= link_to "New Product", new_product_path, 
                     class: "bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md text-base font-medium" %>

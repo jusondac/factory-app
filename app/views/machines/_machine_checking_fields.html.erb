@@ -1,0 +1,40 @@
+<div class="machine-checking-item bg-gray-50 p-4 rounded-lg border border-gray-200">
+  <div class="flex items-center justify-between mb-4">
+    <h4 class="text-sm font-medium text-gray-700">Machine Checking</h4>
+    <button type="button" data-action="click->machine-checkings#remove" class="text-red-600 hover:text-red-800">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <%= f.label :checking_name, "Checking Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :checking_name, 
+          class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          placeholder: "e.g., Temperature Check" %>
+    </div>
+    
+    <div>
+      <%= f.label :checking_type, "Checking Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :checking_type, 
+          options_for_select(MachineChecking.checking_types.map { |key, value| [key.humanize, key] }, f.object.checking_type),
+          { prompt: "Select type" },
+          class: "checking-type-select w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          data: { action: "change->machine-checkings#updateCheckingType" } %>
+    </div>
+    
+    <div class="checking-value-container">
+      <%= f.label :checking_value, "Checking Value", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :checking_value, 
+          class: "checking-value-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          placeholder: (f.object.checking_type == "option") ? "Good, Fair, Poor (comma separated)" : "Leave empty for text input" %>
+      <p class="checking-value-help text-xs text-gray-500 mt-1">
+        <%= (f.object.checking_type == "option") ? "For options: enter comma-separated values" : "Leave empty for free text input" %>
+      </p>
+    </div>
+  </div>
+  
+  <%= f.hidden_field :_destroy %>
+</div>

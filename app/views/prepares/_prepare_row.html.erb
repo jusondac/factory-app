@@ -1,0 +1,50 @@
+<% 
+  presenter = PreparePresenter.new(prepare)
+  row_status_classes = case prepare.status
+                      when 'checked' then 'bg-green-50 hover:bg-green-100'
+                      when 'unchecked' then 'bg-gray-50 hover:bg-gray-100'
+                      when 'cancelled' then 'bg-red-50 hover:bg-red-100'
+                      when 'checking' then 'bg-yellow-50 hover:bg-yellow-100'
+                      else 'bg-white hover:bg-gray-50'
+                      end
+%>
+<tr class="<%= [row_status_classes, presenter.row_classes].join(' ') %>" 
+    <% if presenter.is_clickable? %>onclick="window.location.href='<%= prepare_path(prepare) %>'"<% end %>>
+  <!-- ID / Product -->
+  <td class="px-6 py-4">
+    <div class="text-sm font-medium text-gray-900"><%= prepare.prepare_id %></div>
+    <div class="text-sm text-gray-500"><%= presenter.product_name %></div>
+    <% unless presenter.is_clickable? %>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 mt-1">Past Date</span>
+    <% end %>
+  </td>
+  <!-- Date -->
+  <td class="px-6 py-4">
+    <div class="text-sm text-gray-900"><%= prepare.prepare_date.strftime("%b %d, %Y") %></div>
+    <div class="text-xs text-gray-500">
+      <%= time_ago_in_words(prepare.prepare_date) %>
+      <%= prepare.prepare_date.past? ? 'ago' : 'from now' %>
+    </div>
+  </td>
+  <!-- Status -->
+  <td class="px-6 py-4">
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= presenter.status_badge_class %>">
+      <%= prepare.status.humanize %>
+    </span>
+  </td>
+  <!-- Progress -->
+  <td class="px-6 py-4">
+    <div class="text-sm text-gray-900"><%= presenter.progress_text %></div>
+    <% if presenter.can_show_progress? %>
+      <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+        <div class="<%= presenter.progress_bar_class %> h-1.5 rounded-full" 
+             style="width: <%= presenter.progress_percentage %>%"></div>
+      </div>
+    <% end %>
+  </td>
+  <!-- Actions -->
+  <td class="px-6 py-4 text-sm" onclick="event.stopPropagation()">
+    <%= link_to "View", prepare_path(prepare), 
+        class: "text-indigo-600 hover:text-indigo-900 transition-colors" %>
+  </td>
+</tr>

@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  get "machines/index"
+  get "machines/show"
+  get "machines/new"
+  get "machines/create"
+  get "machines/edit"
+  get "machines/update"
+  get "machines/destroy"
   get "home/index"
   root to: "home#index"
   resource :session
@@ -17,6 +24,8 @@ Rails.application.routes.draw do
       patch :cancel
     end
   end
+
+  resources :machines
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
