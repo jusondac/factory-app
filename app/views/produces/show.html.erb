@@ -1,0 +1,127 @@
+<% content_for :title, "Produce #{@produce.product_id}" %>
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-3xl font-bold text-gray-900">Produce <%= @produce.product_id %></h1>
+  <div class="space-x-2">
+    <%= link_to "Back to Produces", produces_path, class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" %>
+    <% if Current.user.can_edit_produces? %>
+      <%= link_to "Edit", edit_produce_path(@produce), class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+    <% end %>
+  </div>
+</div>
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">Produce Information</h3>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">Details about this production batch.</p>
+  </div>
+  <dl class="divide-y divide-gray-200">
+    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <dt class="text-sm font-medium text-gray-500">Product ID</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @produce.product_id %></dd>
+    </div>
+    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <dt class="text-sm font-medium text-gray-500">Product Date</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @produce.product_date.strftime("%B %d, %Y") %></dd>
+    </div>
+    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <dt class="text-sm font-medium text-gray-500">Status</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+          <%= case @produce.status
+              when 'unproduce' then 'bg-gray-100 text-gray-800'
+              when 'producing' then 'bg-yellow-100 text-yellow-800'
+              when 'produced' then 'bg-green-100 text-green-800'
+              end %>">
+          <%= @produce.status.humanize %>
+        </span>
+      </dd>
+    </div>
+    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <dt class="text-sm font-medium text-gray-500">Unit Batch</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @produce.unit_batch.unit_id %></dd>
+    </div>
+    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <dt class="text-sm font-medium text-gray-500">Product</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @produce.product.name %></dd>
+    </div>
+    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <dt class="text-sm font-medium text-gray-500">Batch Status</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+          <%= case @produce.unit_batch.status
+              when 'preparation' then 'bg-blue-100 text-blue-800'
+              when 'production' then 'bg-yellow-100 text-yellow-800'
+              when 'testing' then 'bg-purple-100 text-purple-800'
+              when 'packing' then 'bg-green-100 text-green-800'
+              end %>">
+          <%= @produce.unit_batch.status.humanize %>
+        </span>
+      </dd>
+    </div>
+    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <dt class="text-sm font-medium text-gray-500">Created At</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @produce.created_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+    </div>
+    <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @produce.updated_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+    </div>
+  </dl>
+</div>
+<!-- Action Buttons for Workers -->
+<% if Current.user.can_edit_produces? %>
+  <div class="mt-6 bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Production Actions</h3>
+      <div class="space-x-3">
+        <% if @produce.unproduce? %>
+          <%= link_to "Start Production", start_production_produce_path(@produce), 
+                      method: :patch,
+                      confirm: "Are you sure you want to start production for this batch?",
+                      class: "bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded" %>
+        <% elsif @produce.producing? %>
+          <%= link_to "Complete Production", complete_production_produce_path(@produce), 
+                      method: :patch,
+                      confirm: "Are you sure you want to mark this production as completed?",
+                      class: "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" %>
+        <% elsif @produce.produced? %>
+          <p class="text-green-600 font-semibold">✓ Production completed successfully</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+<!-- Related Prepare Information -->
+<% if @produce.prepare %>
+  <div class="mt-6 bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Related Preparation</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Information about the preparation phase.</p>
+    </div>
+    <dl class="divide-y divide-gray-200">
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">Prepare ID</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+          <%= link_to @produce.prepare.prepare_id, prepare_path(@produce.prepare), class: "text-blue-600 hover:text-blue-900" %>
+        </dd>
+      </div>
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">Prepare Date</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @produce.prepare.prepare_date.strftime("%B %d, %Y") %></dd>
+      </div>
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">Prepare Status</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+          <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+            <%= case @produce.prepare.status
+                when 'unchecked' then 'bg-gray-100 text-gray-800'
+                when 'checking' then 'bg-yellow-100 text-yellow-800'
+                when 'checked' then 'bg-green-100 text-green-800'
+                when 'cancelled' then 'bg-red-100 text-red-800'
+                end %>">
+            <%= @produce.prepare.status.humanize %>
+          </span>
+        </dd>
+      </div>
+    </dl>
+  </div>
+<% end %>

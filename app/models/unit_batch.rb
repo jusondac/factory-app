@@ -1,6 +1,7 @@
 class UnitBatch < ApplicationRecord
   belongs_to :product
   has_one :prepare, dependent: :destroy
+  has_one :produce, dependent: :destroy
 
   enum :status, {
     preparation: 0,
@@ -22,11 +23,11 @@ class UnitBatch < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "id", "id_value", "product_id", "status", "unit_id", "updated_at"]
+    [ "created_at", "id", "id_value", "product_id", "status", "unit_id", "updated_at" ]
   end
 
    def self.ransackable_associations(auth_object = nil)
-    ["prepare", "product"]
+    [ "prepare", "product", "produce" ]
   end
 
   private

@@ -28,7 +28,15 @@ class User < ApplicationRecord
     worker?
   end
 
+  def can_view_produces?
+    supervisor? || worker? || manager? || head?
+  end
+
+  def can_edit_produces?
+    worker?
+  end
+
   def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "email_address", "id", "id_value", "password_digest", "role", "updated_at"]
+    [ "created_at", "email_address", "id", "id_value", "password_digest", "role", "updated_at" ]
   end
 end
