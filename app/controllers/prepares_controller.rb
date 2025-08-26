@@ -6,8 +6,8 @@ class PreparesController < ApplicationController
   def index
     # Build the query with all necessary includes upfront
     @q = Prepare.with_includes.ransack(params[:q])
-    
-    # Get paginated results 
+
+    # Get paginated results
     @prepares = @q.result
                   .order(prepare_date: :desc, created_at: :desc)
                   .page(params[:page])
@@ -18,11 +18,12 @@ class PreparesController < ApplicationController
     if outdated_ids.any?
       Prepare.where(id: outdated_ids).update_all(status: :cancelled, checked_by_id: nil)
       # Update in-memory objects
-      @prepares.each { |p| p.status = 'cancelled' if outdated_ids.include?(p.id) }
+      @prepares.each { |p| p.status = "cancelled" if outdated_ids.include?(p.id) }
     end
   end
 
   def show
+    redirect_to checking_prepare_path(@prepare) if @prepare.checking? && Current.user&.can_check_prepares?
     # Preload ingredients with proper ordering to avoid N+1
     @prepare_ingredients = @prepare.prepare_ingredients.order(:ingredient_name)
     @presenter = PreparePresenter.new(@prepare)
@@ -46,17 +47,17 @@ class PreparesController < ApplicationController
       @prepare = service.prepare || Prepare.new(prepare_params.except(:product_id))
       @prepare.temp_product_id = prepare_params[:product_id]
       @products = Product.order(:name)
-      
+
       # Transfer service errors to prepare object for form display
       service.errors.each { |error| @prepare.errors.add(:base, error.message) }
-      
+
       render :new, status: :unprocessable_entity
     end
   end
 
   def check
     service = PrepareCheckingService.new(prepare: @prepare, user: Current.user)
-    
+
     if service.start_checking
       redirect_to checking_prepare_path(@prepare), notice: "You are now checking this preparation."
     else
@@ -71,13 +72,13 @@ class PreparesController < ApplicationController
 
   def update_check
     service = PrepareCheckingService.new(
-      prepare: @prepare, 
-      user: Current.user, 
+      prepare: @prepare,
+      user: Current.user,
       prepare_ingredient_id: params[:prepare_ingredient_id]
     )
-    
+
     result = service.toggle_ingredient_check
-    
+
     case result
     when :completed
       redirect_to prepares_path, notice: "Preparation has been completed!"
@@ -90,7 +91,7 @@ class PreparesController < ApplicationController
 
   def cancel
     service = PrepareCheckingService.new(prepare: @prepare, user: Current.user)
-    
+
     if service.cancel_checking
       redirect_to prepares_path, notice: "Preparation has been cancelled."
     else
@@ -103,9 +104,9 @@ class PreparesController < ApplicationController
   def set_prepare
     # Preload associations to avoid N+1 queries
     @prepare = Prepare.includes(
-      { unit_batch: :product }, 
-      :created_by, 
-      :checked_by, 
+      { unit_batch: :product },
+      :created_by,
+      :checked_by,
       :prepare_ingredients
     ).find(params[:id])
   end

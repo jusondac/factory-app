@@ -24,7 +24,7 @@ class Prepare < ApplicationRecord
   scope :for_date, ->(date) { where(prepare_date: date) }
   scope :for_product, ->(product) { joins(:unit_batch).where(unit_batches: { product: product }) }
   scope :with_includes, -> { includes(unit_batch: :product, created_by: [], checked_by: [], prepare_ingredients: []) }
-  scope :outdated_and_incomplete, -> { where(prepare_date: ...Date.current).where(status: [:unchecked, :checking]) }
+  scope :outdated_and_incomplete, -> { where(prepare_date: ...Date.current).where(status: [ :unchecked, :checking ]) }
 
   # Delegate product to unit_batch
   delegate :product, to: :unit_batch, allow_nil: true
@@ -65,7 +65,7 @@ class Prepare < ApplicationRecord
     @checking_percentage ||= begin
       total = prepare_ingredients.size # Use preloaded association
       return 0 if total.zero?
-      
+
       checked_count = prepare_ingredients.count(&:checked)
       (checked_count.to_f / total * 100).round(1)
     end
@@ -73,6 +73,11 @@ class Prepare < ApplicationRecord
 
   def all_ingredients_checked?
     prepare_ingredients.present? && prepare_ingredients.all?(&:checked)
+    update_prepare_status_to_check
+  end
+
+  def update_prepare_status_to_check
+    update(status: :checked)
   end
 
   def self.ransackable_attributes(auth_object = nil)
@@ -80,7 +85,7 @@ class Prepare < ApplicationRecord
   end
 
    def self.ransackable_associations(auth_object = nil)
-    ["checked_by", "created_by", "prepare_ingredients", "unit_batch"]
+    [ "checked_by", "created_by", "prepare_ingredients", "unit_batch" ]
   end
 
   def clickable?
@@ -111,14 +116,14 @@ class Prepare < ApplicationRecord
   def create_prepare_ingredients
     ingredients = unit_batch.product.ingredients
     created_ingredients = []
-    
+
     ingredients.find_each do |ingredient|
       created_ingredients << prepare_ingredients.create!(
         ingredient_name: ingredient.name,
         checked: false
       )
     end
-    
+
     # Update counter cache after creating all ingredients
     update_columns(
       prepare_ingredients_count: created_ingredients.size,

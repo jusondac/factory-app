@@ -36,23 +36,23 @@ class PrepareCheckingService
 
   def can_start_checking?
     return false unless prepare.can_be_checked_by?(user)
-    
+
     if errors.any?
       errors.add(:base, "You cannot check this preparation.")
       return false
     end
-    
+
     true
   end
 
   def can_cancel_checking?
     return false unless prepare.checking? && prepare.checked_by == user
-    
+
     if errors.any?
       errors.add(:base, "You cannot cancel this preparation.")
       return false
     end
-    
+
     true
   end
 
