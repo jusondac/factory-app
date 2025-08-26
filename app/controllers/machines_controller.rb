@@ -1,8 +1,8 @@
 class MachinesController < ApplicationController
   before_action :require_authentication
   before_action :require_machine_access
-  before_action :require_manager_access, only: [:new, :create, :destroy]
-  before_action :set_machine, only: [:show, :edit, :update, :destroy]
+  before_action :require_manager_access, only: [ :new, :create, :destroy ]
+  before_action :set_machine, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @q = Machine.includes(:machine_checkings).ransack(params[:q])
@@ -19,9 +19,9 @@ class MachinesController < ApplicationController
 
   def create
     @machine = Machine.new(machine_params)
-    
+
     if @machine.save
-      redirect_to @machine, notice: 'Machine was successfully created.'
+      redirect_to @machine, notice: "Machine was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -32,7 +32,7 @@ class MachinesController < ApplicationController
 
   def update
     if @machine.update(machine_params)
-      redirect_to @machine, notice: 'Machine was successfully updated.'
+      redirect_to @machine, notice: "Machine was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -40,7 +40,7 @@ class MachinesController < ApplicationController
 
   def destroy
     @machine.destroy
-    redirect_to machines_url, notice: 'Machine was successfully deleted.'
+    redirect_to machines_url, notice: "Machine was successfully deleted."
   end
 
   private
@@ -57,20 +57,20 @@ class MachinesController < ApplicationController
       # Manager/head can edit all fields except allocation
       params.require(:machine).permit(
         :name, :status,
-        machine_checkings_attributes: [:id, :checking_name, :checking_type, :checking_value, :_destroy]
+        machine_checkings_attributes: [ :id, :checking_name, :checking_type, :checking_value, :_destroy ]
       )
     end
   end
 
   def require_machine_access
     unless Current.user&.supervisor? || Current.user&.manager? || Current.user&.head?
-      redirect_to root_path, alert: 'Access denied. Supervisor privileges or higher required.'
+      redirect_to root_path, alert: "Access denied. Supervisor privileges or higher required."
     end
   end
 
   def require_manager_access
     unless Current.user&.manager? || Current.user&.head?
-      redirect_to root_path, alert: 'Access denied. Manager privileges required.'
+      redirect_to root_path, alert: "Access denied. Manager privileges required."
     end
   end
 end

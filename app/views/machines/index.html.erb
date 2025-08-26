@@ -16,13 +16,13 @@
           </p>
         </div>
         <% unless Current.user.supervisor? %>
-        <%= link_to new_machine_path, 
+          <%= link_to new_machine_path, 
             class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New Machine
-        <% end %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Machine
+          <% end %>
         <% end %>
       </div>
     </div>
@@ -57,31 +57,30 @@
                     placeholder: "Search machines...", 
                     class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" %>
               </div>
-
               <% if Current.user.supervisor? %>
-              <!-- Allocation Filter for Supervisor -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                  <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                  Allocation
-                </label>
-                <%= f.select :allocation_eq, 
+                <!-- Allocation Filter for Supervisor -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                    Allocation
+                  </label>
+                  <%= f.select :allocation_eq, 
                     options_for_select([['All Allocations', ''], ['Production', 'production'], ['Testing', 'testing'], ['Packing', 'packing']], params.dig(:q, :allocation_eq)),
                     {},
                     class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" %>
-              </div>
+                </div>
               <% else %>
-              <!-- Status Filter for Manager -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                  <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  Status
-                </label>
-                <%= f.select :status_eq, 
+                <!-- Status Filter for Manager -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    Status
+                  </label>
+                  <%= f.select :status_eq, 
                     options_for_select([['All Statuses', ''], ['Active', 'active'], ['Inactive', 'inactive'], ['Under Maintenance', 'under_maintenance']], params.dig(:q, :status_eq)),
                     {},
                     class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" %>
-              </div>
+                </div>
               <% end %>
               <!-- Serial Number -->
               <div>
@@ -267,9 +266,9 @@
                           <%= machine.name %>
                         </h4>
                         <% unless Current.user.supervisor? %>
-                        <p class="text-sm text-gray-600 font-mono">
-                          Serial: <%= machine.serial_number %>
-                        </p>
+                          <p class="text-sm text-gray-600 font-mono">
+                            Serial: <%= machine.serial_number %>
+                          </p>
                         <% end %>
                       </div>
                       <% if Current.user.supervisor? %>
@@ -333,15 +332,15 @@
                         <%= Current.user.supervisor? ? "Edit Allocation" : "Edit" %>
                       <% end %>
                       <% unless Current.user.supervisor? %>
-                      <%= button_to machine_path(machine), method: :delete,
+                        <%= button_to machine_path(machine), method: :delete,
                           confirm: "Are you sure you want to delete this machine?",
                           class: "flex-1 text-center px-3 py-2 bg-red-50 text-red-700 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors duration-200 border border-red-200",
                           form: { class: "inline" } do %>
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                        Delete
-                      <% end %>
+                          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                          Delete
+                        <% end %>
                       <% end %>
                     </div>
                   </div>
@@ -377,13 +376,13 @@
               </p>
               <div class="mt-6">
                 <% unless Current.user.supervisor? %>
-                <%= link_to new_machine_path, 
+                  <%= link_to new_machine_path, 
                     class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                  New Machine
-                <% end %>
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    New Machine
+                  <% end %>
                 <% end %>
               </div>
             </div>

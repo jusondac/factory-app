@@ -11,14 +11,14 @@ class Machine < ApplicationRecord
   before_validation :generate_serial_number, on: :create
 
   def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "id", "id_value", "name", "serial_number", "status", "allocation", "updated_at"]
+    [ "created_at", "id", "id_value", "name", "serial_number", "status", "allocation", "updated_at" ]
   end
 
   private
 
   def generate_serial_number
     return if serial_number.present?
-    
+
     loop do
       self.serial_number = SecureRandom.hex(5).upcase
       break unless Machine.exists?(serial_number: serial_number)
