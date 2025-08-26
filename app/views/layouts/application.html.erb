@@ -40,7 +40,7 @@
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
               <%= link_to "Prepares", prepares_path, 
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
-              <% if Current.session.user.manager? || Current.session.user.head? %>
+              <% if Current.session.user.supervisor? || Current.session.user.manager? || Current.session.user.head? %>
                 <%= link_to "Machines", machines_path, 
                     class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
               <% end %>
@@ -99,7 +99,7 @@
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
               <%= link_to "Prepares", prepares_path, 
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
-              <% if Current.session.user.manager? || Current.session.user.head? %>
+              <% if Current.session.user.supervisor? || Current.session.user.manager? || Current.session.user.head? %>
                 <%= link_to "Machines", machines_path, 
                     class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
               <% end %>

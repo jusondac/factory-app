@@ -20,7 +20,7 @@
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            Edit Machine
+            <%= Current.user.supervisor? ? "Edit Allocation" : "Edit Machine" %>
           <% end %>
         </div>
       </div>
@@ -28,7 +28,8 @@
     <!-- Machine Details Card -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold text-gray-900 mb-4">Machine Details</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-<%= Current.user.supervisor? ? '2' : '3' %> gap-6">
+        <% unless Current.user.supervisor? %>
         <div>
           <dt class="text-sm font-medium text-gray-500">Name</dt>
           <dd class="mt-1 text-sm text-gray-900"><%= @machine.name %></dd>
@@ -50,8 +51,29 @@
             </span>
           </dd>
         </div>
+        <% else %>
+        <!-- Supervisor View -->
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Machine Name</dt>
+          <dd class="mt-1 text-lg font-semibold text-gray-900"><%= @machine.name %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Current Allocation</dt>
+          <dd class="mt-1">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+              <%= case @machine.allocation
+                  when 'production' then 'bg-blue-100 text-blue-800'
+                  when 'testing' then 'bg-yellow-100 text-yellow-800'
+                  when 'packing' then 'bg-green-100 text-green-800'
+                  end %>">
+              <%= @machine.allocation.humanize %>
+            </span>
+          </dd>
+        </div>
+        <% end %>
       </div>
     </div>
+    <% unless Current.user.supervisor? %>
     <!-- Machine Checkings -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-xl font-semibold text-gray-900 mb-4">Machine Checkings</h2>
@@ -118,5 +140,6 @@
         </div>
       <% end %>
     </div>
+    <% end %>
   </div>
 </div>

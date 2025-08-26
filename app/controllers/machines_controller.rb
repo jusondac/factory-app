@@ -1,6 +1,7 @@
 class MachinesController < ApplicationController
   before_action :require_authentication
-  before_action :require_manager_access
+  before_action :require_machine_access
+  before_action :require_manager_access, only: [:new, :create, :destroy]
   before_action :set_machine, only: [:show, :edit, :update, :destroy]
 
   def index
@@ -49,10 +50,22 @@ class MachinesController < ApplicationController
   end
 
   def machine_params
-    params.require(:machine).permit(
-      :name, :status,
-      machine_checkings_attributes: [:id, :checking_name, :checking_type, :checking_value, :_destroy]
-    )
+    if Current.user&.supervisor?
+      # Supervisor can only edit allocation
+      params.require(:machine).permit(:allocation)
+    else
+      # Manager/head can edit all fields except allocation
+      params.require(:machine).permit(
+        :name, :status,
+        machine_checkings_attributes: [:id, :checking_name, :checking_type, :checking_value, :_destroy]
+      )
+    end
+  end
+
+  def require_machine_access
+    unless Current.user&.supervisor? || Current.user&.manager? || Current.user&.head?
+      redirect_to root_path, alert: 'Access denied. Supervisor privileges or higher required.'
+    end
   end
 
   def require_manager_access
