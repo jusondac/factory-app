@@ -38,6 +38,8 @@
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
               <%= link_to "Products", products_path, 
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
+              <%= link_to "Unit Batches", unit_batches_path, 
+                  class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
               <%= link_to "Prepares", prepares_path, 
                   class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
               <% if Current.user.can_view_produces? %>
@@ -100,6 +102,8 @@
               <%= link_to "Dashboard", root_path, 
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
               <%= link_to "Products", products_path, 
+                  class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
+              <%= link_to "Unit Batches", unit_batches_path, 
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
               <%= link_to "Prepares", prepares_path, 
                   class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
