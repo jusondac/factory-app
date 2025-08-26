@@ -24,13 +24,19 @@ class PrepareCheckingService
     true
   end
 
+  def complete_checking
+    return false unless can_complete_checking?
+
+    prepare.update!(status: :checked)
+    true
+  end
+
   def toggle_ingredient_check
     return false unless prepare_ingredient_id.present?
     return false unless prepare.checking?
 
     ingredient = prepare.prepare_ingredients.find(prepare_ingredient_id)
     ingredient.toggle_checked!
-
     complete_checking_if_all_done
   end
 
@@ -50,6 +56,17 @@ class PrepareCheckingService
 
     if errors.any?
       errors.add(:base, "You cannot cancel this preparation.")
+      return false
+    end
+
+    true
+  end
+
+  def can_complete_checking?
+    return false unless prepare.checking? && prepare.checked_by == user
+
+    if errors.any?
+      errors.add(:base, "You cannot complete this preparation.")
       return false
     end
 
