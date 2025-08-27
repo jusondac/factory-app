@@ -9,12 +9,14 @@
           <h1 class="text-3xl font-bold text-gray-900">Unit Batch Management</h1>
           <p class="mt-1 text-sm text-gray-600">Track and manage production unit batches throughout the manufacturing process</p>
         </div>
-        <%= link_to new_unit_batch_path, 
-            class: "inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200" do %>
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New Unit Batch
+        <% if Current.session&.user&.can_create_unit_batches? %>
+          <%= link_to new_unit_batch_path, 
+              class: "inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Unit Batch
+          <% end %>
         <% end %>
       </div>
     </div>
@@ -214,7 +216,9 @@
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Progress</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Created</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                    <% if Current.session&.user&.can_create_unit_batches? || Current.session&.user&.can_start_preparing? %>
+                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                    <% end %>
                   </tr>
                 </thead>
                 <tbody class="bg-white/40 backdrop-blur-sm divide-y divide-gray-200/30">
@@ -279,14 +283,22 @@
                         <div class="text-xs text-gray-500"><%= time_ago_in_words(unit_batch.created_at) %> ago</div>
                       </td>
                       <!-- Actions -->
-                      <td class="px-6 py-4 text-sm" onclick="event.stopPropagation()">
-                        <div class="flex space-x-2">
-                          <%= link_to "View", unit_batch_path(unit_batch), 
-                            class: "text-blue-600 hover:text-blue-900 transition-colors" %>
-                          <%= link_to "Edit", edit_unit_batch_path(unit_batch), 
-                            class: "text-indigo-600 hover:text-indigo-900 transition-colors" %>
-                        </div>
-                      </td>
+                      <% if Current.session&.user&.can_create_unit_batches? || Current.session&.user&.can_start_preparing? %>
+                        <td class="px-6 py-4 text-sm" onclick="event.stopPropagation()">
+                          <div class="flex space-x-2">
+                            <% if Current.session&.user&.can_start_preparing? && unit_batch.prepare.nil? %>
+                              <%= button_to "Start Preparing", start_preparing_unit_batch_path(unit_batch), 
+                                method: :patch,
+                                class: "inline-flex items-center px-3 py-1 bg-green-600 text-white text-xs font-medium rounded-md hover:bg-green-700 transition-colors",
+                                data: { confirm: "Start preparation for this unit batch?" } %>
+                            <% end %>
+                            <% if Current.session&.user&.can_create_unit_batches? %>
+                              <%= link_to "Edit", edit_unit_batch_path(unit_batch), 
+                                class: "text-indigo-600 hover:text-indigo-900 transition-colors" %>
+                            <% end %>
+                          </div>
+                        </td>
+                      <% end %>
                     </tr>
                   <% end %>
                 </tbody>

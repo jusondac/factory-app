@@ -34,7 +34,11 @@ Rails.application.routes.draw do
 
   resources :machines
 
-  resources :unit_batches
+  resources :unit_batches do
+    member do
+      patch :start_preparing
+    end
+  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

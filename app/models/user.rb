@@ -36,6 +36,14 @@ class User < ApplicationRecord
     worker?
   end
 
+  def can_create_unit_batches?
+    supervisor? || manager? || head?
+  end
+
+  def can_start_preparing?
+    supervisor? || manager? || head?
+  end
+
   def self.ransackable_attributes(auth_object = nil)
     [ "created_at", "email_address", "id", "id_value", "password_digest", "role", "updated_at" ]
   end
