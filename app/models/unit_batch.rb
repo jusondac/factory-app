@@ -26,7 +26,7 @@ class UnitBatch < ApplicationRecord
     [ "created_at", "id", "id_value", "product_id", "status", "unit_id", "updated_at" ]
   end
 
-   def self.ransackable_associations(auth_object = nil)
+  def self.ransackable_associations(auth_object = nil)
     [ "prepare", "product", "produce" ]
   end
 
