@@ -144,6 +144,103 @@
                 </div>
               </div>
             </div>
+            <!-- Machine Selection and Actions for Workers -->
+            <% if Current.user.worker? && !@produce.produced? %>
+              <div class="border-t border-gray-200 pt-6 mt-6">
+                <% unless @produce.machine.present? %>
+                  <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Select Production Machine</h4>
+                    <% if @available_machines.any? %>
+                      <div class="space-y-2">
+                        <% @available_machines.each do |machine| %>
+                          <%= button_to select_machine_produce_path(@produce, machine_id: machine.id), method: :patch,
+                            class: "w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-500 transition-all duration-200",
+                            data: { confirm: "Select #{machine.name} for this production?" } do %>
+                            <div class="flex items-center justify-between">
+                              <div>
+                                <div class="font-medium text-gray-900"><%= machine.name %></div>
+                                <div class="text-sm text-gray-500">Serial: <%= machine.serial_number %></div>
+                              </div>
+                              <div class="text-green-600">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </div>
+                            </div>
+                          <% end %>
+                        <% end %>
+                      </div>
+                    <% else %>
+                      <p class="text-sm text-gray-500 italic">No active production machines available.</p>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Machine</h4>
+                    <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div class="flex items-center justify-between">
+                        <div>
+                          <div class="font-medium text-green-900"><%= @produce.machine.name %></div>
+                          <div class="text-sm text-green-700">Serial: <%= @produce.machine.serial_number %></div>
+                        </div>
+                        <div class="text-green-600">
+                          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Machine Checking Button -->
+                  <% unless @produce.machine_check? %>
+                    <div class="mb-4">
+                      <%= link_to machine_checking_produce_path(@produce),
+                        class: "w-full inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 transition-all duration-200 hover:shadow-md" do %>
+                        <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4" />
+                        </svg>
+                        Machine Checking
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <div class="mb-4">
+                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center">
+                          <svg class="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span class="text-sm font-medium text-green-900">Machine checking completed</span>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                  <!-- Production Action Buttons -->
+                  <% if @produce.machine_check? %>
+                    <div class="space-y-3">
+                      <% if @produce.unproduce? %>
+                        <%= button_to start_production_produce_path(@produce), method: :patch,
+                          class: "w-full inline-flex items-center justify-center rounded-lg bg-yellow-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 transition-all duration-200 hover:shadow-md",
+                          data: { confirm: "Are you sure you want to start production for this batch?" } do %>
+                          <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10v4m6-4v4m-6-4H7.586a1 1 0 00-.707.293L4.465 12.707A1 1 0 004 13.414V16a1 1 0 001 1h1.586a1 1 0 00.707-.293L9 14.414V14" />
+                          </svg>
+                          Start Production
+                        <% end %>
+                      <% elsif @produce.producing? %>
+                        <%= button_to complete_production_produce_path(@produce), method: :patch,
+                          class: "w-full inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 transition-all duration-200 hover:shadow-md",
+                          data: { confirm: "Are you sure you want to mark this production as completed?" } do %>
+                          <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          Complete Production
+                        <% end %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
           </div>
         </div>
         <!-- Related Preparation Card -->
@@ -241,51 +338,6 @@
             </div>
           </div>
         </div>
-        <!-- Production Actions -->
-        <% if Current.user.can_edit_produces? && !@produce.produced? %>
-          <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
-            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-slate-50 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                <svg class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4a2 2 0 104 0m-4 0a2 2 0 104 0m-4 0a2 2 0 014 0m6 0a2 2 0 100-4m0 4a2 2 0 100 4m0-4a2 2 0 104 0m-4 0a2 2 0 104 0m-4 0a2 2 0 014 0" />
-                </svg>
-                Production Actions
-              </h2>
-            </div>
-            <div class="p-6">
-              <div class="space-y-3">
-                <% if @produce.unproduce? %>
-                  <%= button_to start_production_produce_path(@produce), method: :patch,
-                    class: "w-full inline-flex items-center justify-center rounded-lg bg-yellow-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 transition-all duration-200 hover:shadow-md",
-                    data: { confirm: "Are you sure you want to start production for this batch?" } do %>
-                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10v4m6-4v4m-6-4H7.586a1 1 0 00-.707.293L4.465 12.707A1 1 0 004 13.414V16a1 1 0 001 1h1.586a1 1 0 00.707-.293L9 14.414V14" />
-                    </svg>
-                    Start Production
-                  <% end %>
-                <% elsif @produce.producing? %>
-                  <%= button_to complete_production_produce_path(@produce), method: :patch,
-                    class: "w-full inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 transition-all duration-200 hover:shadow-md",
-                    data: { confirm: "Are you sure you want to mark this production as completed?" } do %>
-                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Complete Production
-                  <% end %>
-                <% end %>
-                <% if Current.user.can_edit_produces? %>
-                  <%= link_to edit_produce_path(@produce),
-                    class: "w-full inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-all duration-200 hover:shadow-md" do %>
-                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Edit Production
-                  <% end %>
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
         <!-- Quick Info Card -->
         <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
           <div class="px-6 py-4 bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-gray-200">
@@ -307,6 +359,18 @@
                 <%= link_to @produce.unit_batch.unit_id, unit_batch_path(@produce.unit_batch), class: "text-blue-600 hover:text-blue-700" %>
               </span>
             </div>
+            <% if @produce.machine.present? %>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Machine</span>
+                <span class="text-sm text-gray-900"><%= @produce.machine.name %></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Machine Status</span>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= @produce.machine_check? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                  <%= @produce.machine_check? ? 'Checked' : 'Pending Check' %>
+                </span>
+              </div>
+            <% end %>
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-600">Created</span>
               <span class="text-sm text-gray-900"><%= @produce.created_at.strftime("%m/%d/%Y") %></span>

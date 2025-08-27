@@ -30,6 +30,9 @@ Rails.application.routes.draw do
     member do
       patch :start_production
       patch :complete_production
+      get :machine_checking
+      patch :update_machine_checking
+      patch :select_machine
     end
   end
 

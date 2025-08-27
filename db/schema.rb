@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_26_191810) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_27_064137) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -37,7 +37,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_191810) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "allocation"
     t.integer "allocation"
   end
 
@@ -68,6 +67,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_191810) do
     t.index ["unit_batch_id"], name: "index_prepares_on_unit_batch_id"
   end
 
+  create_table "produce_machine_checks", force: :cascade do |t|
+    t.integer "produce_id", null: false
+    t.integer "machine_checking_id", null: false
+    t.string "question"
+    t.text "answer"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["machine_checking_id"], name: "index_produce_machine_checks_on_machine_checking_id"
+    t.index ["produce_id"], name: "index_produce_machine_checks_on_produce_id"
+  end
+
   create_table "produces", force: :cascade do |t|
     t.date "product_date", null: false
     t.string "product_id", null: false
@@ -75,6 +85,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_191810) do
     t.integer "unit_batch_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "machine_id"
+    t.boolean "machine_check", default: false
+    t.index ["machine_id"], name: "index_produces_on_machine_id"
     t.index ["product_date"], name: "index_produces_on_product_date"
     t.index ["product_id"], name: "index_produces_on_product_id", unique: true
     t.index ["unit_batch_id"], name: "index_produces_on_unit_batch_id", unique: true
@@ -123,6 +136,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_191810) do
   add_foreign_key "prepares", "unit_batches"
   add_foreign_key "prepares", "users", column: "checked_by_id"
   add_foreign_key "prepares", "users", column: "created_by_id"
+  add_foreign_key "produce_machine_checks", "machine_checkings"
+  add_foreign_key "produce_machine_checks", "produces"
+  add_foreign_key "produces", "machines"
   add_foreign_key "produces", "unit_batches"
   add_foreign_key "products", "users"
   add_foreign_key "sessions", "users"

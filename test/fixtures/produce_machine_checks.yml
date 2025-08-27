@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  produce: one
+  machine_checking: one
+  question: MyString
+  answer: MyText
+
+two:
+  produce: two
+  machine_checking: two
+  question: MyString
+  answer: MyText

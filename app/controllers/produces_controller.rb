@@ -1,8 +1,8 @@
 class ProducesController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_view!
-  before_action :set_produce, only: [ :show, :edit, :update, :destroy ]
-  before_action :authorize_edit!, only: [ :edit, :update, :destroy ]
+  before_action :set_produce, only: [ :show, :edit, :update, :destroy, :machine_checking, :update_machine_checking, :select_machine ]
+  before_action :authorize_edit!, only: [ :edit, :update, :destroy, :machine_checking, :update_machine_checking, :select_machine ]
 
   def index
     @q = Produce.ransack(params[:q])
@@ -17,6 +17,7 @@ class ProducesController < ApplicationController
   end
 
   def show
+    @available_machines = Machine.where(status: :active, allocation: :production) if Current.user.worker?
   end
 
   def new
@@ -38,10 +39,19 @@ class ProducesController < ApplicationController
 
   def edit
     authorize_edit_specific!
+
+    if @produce.machine_check?
+      redirect_to @produce, alert: "Cannot edit production after machine checking is completed."
+    end
   end
 
   def update
     authorize_edit_specific!
+
+    if @produce.machine_check?
+      redirect_to @produce, alert: "Cannot edit production after machine checking is completed."
+      return
+    end
 
     if @produce.update(produce_params)
       redirect_to @produce, notice: "Produce was successfully updated."
@@ -111,6 +121,83 @@ class ProducesController < ApplicationController
     end
   end
 
+  def machine_checking
+    authorize_edit_specific!
+
+    unless @produce.machine.present?
+      redirect_to @produce, alert: "Please select a machine first."
+      return
+    end
+
+    @machine_checkings = @produce.machine.machine_checkings
+    @produce_machine_checks = {}
+
+    # Initialize existing answers
+    @produce.produce_machine_checks.includes(:machine_checking).each do |check|
+      @produce_machine_checks[check.machine_checking_id] = check.answer
+    end
+  end
+
+  def update_machine_checking
+    authorize_edit_specific!
+
+    unless @produce.machine.present?
+      redirect_to @produce, alert: "Please select a machine first."
+      return
+    end
+
+    # Clear existing checks for this produce
+    @produce.produce_machine_checks.destroy_all
+
+    # Create new checks from the submitted form
+    machine_checking_params.each do |checking_id, answer|
+      next if answer.blank?
+
+      machine_checking = MachineChecking.find(checking_id)
+
+      # Handle array answers (from checkboxes) by joining them
+      final_answer = answer.is_a?(Array) ? answer.reject(&:blank?).join(", ") : answer
+      next if final_answer.blank?
+
+      @produce.produce_machine_checks.create!(
+        machine_checking: machine_checking,
+        question: machine_checking.checking_name,
+        answer: final_answer
+      )
+    end
+
+    # Mark machine check as completed
+    @produce.update!(machine_check: true)
+
+    redirect_to @produce, notice: "Machine checking completed successfully."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to machine_checking_produce_path(@produce), alert: "Error saving machine checks: #{e.message}"
+  end
+
+  def select_machine
+    authorize_edit_specific!
+
+    if @produce.machine_check?
+      redirect_to @produce, alert: "Machine checking has already been completed."
+      return
+    end
+
+    machine = Machine.find(params[:machine_id])
+
+    unless machine.active? && machine.production?
+      redirect_to @produce, alert: "Selected machine is not available for production."
+      return
+    end
+
+    # Clear any existing machine checks if changing machine
+    if @produce.machine.present? && @produce.machine != machine
+      @produce.produce_machine_checks.destroy_all
+    end
+
+    @produce.update!(machine: machine)
+    redirect_to @produce, notice: "Machine selected successfully."
+  end
+
   private
 
   def set_produce
@@ -118,7 +205,11 @@ class ProducesController < ApplicationController
   end
 
   def produce_params
-    params.require(:produce).permit(:unit_batch_id, :status)
+    params.require(:produce).permit(:unit_batch_id, :status, :machine_id)
+  end
+
+  def machine_checking_params
+    params.permit(machine_checking: {}).fetch(:machine_checking, {})
   end
 
   def authorize_view!

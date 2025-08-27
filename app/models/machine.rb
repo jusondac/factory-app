@@ -1,5 +1,6 @@
 class Machine < ApplicationRecord
   has_many :machine_checkings, dependent: :destroy
+  has_many :produces, dependent: :nullify
   accepts_nested_attributes_for :machine_checkings, allow_destroy: true, reject_if: :all_blank
 
   validates :name, presence: true

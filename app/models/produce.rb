@@ -4,6 +4,8 @@ class Produce < ApplicationRecord
   # product_id: string - not null
   # status: integer - default: 0, not null
   # unit_batch_id: integer (FK) - not null
+  # machine_id: integer (FK) - nullable
+  # machine_check: boolean - default: false
   # created_at: datetime - not null
   # updated_at: datetime - not null
 
@@ -13,6 +15,8 @@ class Produce < ApplicationRecord
   # index_produces_on_unit_batch_id (unit_batch_id) (unique)
 
   belongs_to :unit_batch
+  belongs_to :machine, optional: true
+  has_many :produce_machine_checks, dependent: :destroy
 
   validates :product_date, presence: true
   validates :product_id, presence: true, uniqueness: true
@@ -33,11 +37,11 @@ class Produce < ApplicationRecord
   delegate :prepare, to: :unit_batch, allow_nil: true
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "created_at", "id", "product_date", "product_id", "status", "unit_batch_id", "updated_at" ]
+    [ "created_at", "id", "machine_check", "machine_id", "product_date", "product_id", "status", "unit_batch_id", "updated_at" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    [ "unit_batch" ]
+    [ "machine", "produce_machine_checks", "unit_batch" ]
   end
 
   private
