@@ -5,7 +5,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold text-gray-900">Unit Batch Management</h1>
-          <p class="mt-1 text-sm text-gray-600">Track and manage production unit batches</p>
+          <p class="mt-1 text-sm text-gray-600">Track and manage production unit batches throughout the manufacturing process</p>
         </div>
         <%= link_to new_unit_batch_path, 
             class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
@@ -16,7 +16,6 @@
         <% end %>
       </div>
     </div>
-
     <!-- Two Column Layout -->
     <div class="grid grid-cols-12 gap-6">
       <!-- Left Sidebar: Filters & Info -->
@@ -48,7 +47,6 @@
                     placeholder: "Search by unit ID...", 
                     class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" %>
               </div>
-
               <!-- Product -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
@@ -60,7 +58,6 @@
                     { prompt: "All Products" },
                     { class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" } %>
               </div>
-
               <!-- Status -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
@@ -78,173 +75,256 @@
                     {},
                     { class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" } %>
               </div>
-
-              <!-- Search Button -->
-              <div class="flex space-x-3">
-                <%= f.submit "Search", 
-                    class: "flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105" %>
-                <%= link_to unit_batches_path, 
-                    class: "flex-1 bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl hover:bg-gray-300 transition-all duration-200 text-center" do %>
-                  Reset
-                <% end %>
+              <!-- Action Buttons -->
+              <div class="flex space-x-3 pt-2">
+                <%= f.submit "🔍 Search", class: "flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold" %>
+                <%= link_to "Clear", unit_batches_path, class: "px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-white/80 transition-all duration-200 shadow-sm hover:shadow-md bg-white/50 backdrop-blur-sm" %>
               </div>
             <% end %>
           </div>
         </div>
-
-        <!-- Statistics Card -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-            Quick Stats
-          </h3>
-          <div class="space-y-3">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">Total Unit Batches</span>
-              <span class="font-bold text-gray-900"><%= @unit_batches.total_count %></span>
+        <!-- Quick Actions -->
+        <div class="relative bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 rounded-2xl shadow-lg border border-rose-100 p-6 backdrop-blur-sm mb-8">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-fuchsia-500/5 rounded-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-lg font-bold text-gray-900">Quick Filters</h3>
+                <p class="text-xs text-gray-600">One-click shortcuts</p>
+              </div>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">Preparation</span>
-              <span class="font-bold text-yellow-600"><%= UnitBatch.preparation.count %></span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">Production</span>
-              <span class="font-bold text-blue-600"><%= UnitBatch.production.count %></span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">Testing</span>
-              <span class="font-bold text-orange-600"><%= UnitBatch.testing.count %></span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-600">Packing</span>
-              <span class="font-bold text-green-600"><%= UnitBatch.packing.count %></span>
+            <div class="space-y-2">
+              <%= link_to unit_batches_path(q: { status_eq: 'preparation' }), 
+                class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">⚠️</span>
+                  <span class="group-hover:text-gray-900 transition-colors">In Preparation</span>
+                </span>
+              <% end %>
+              <%= link_to unit_batches_path(q: { status_eq: 'production' }), 
+                class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">🏭</span>
+                  <span class="group-hover:text-gray-900 transition-colors">In Production</span>
+                </span>
+              <% end %>
+              <%= link_to unit_batches_path(q: { created_at_gteq: 7.days.ago }), 
+                class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">🕒</span>
+                  <span class="group-hover:text-gray-900 transition-colors">Recent (7 days)</span>
+                </span>
+              <% end %>
+              <%= link_to unit_batches_path, 
+                class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">📦</span>
+                  <span class="group-hover:text-gray-900 transition-colors">All Unit Batches</span>
+                </span>
+              <% end %>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Right Main Content: Unit Batches Grid -->
+      <!-- Right Content: Records & Pagination -->
       <div class="col-span-12 lg:col-span-8">
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100">
-          <div class="p-6 border-b border-gray-100">
-            <h2 class="text-xl font-bold text-gray-900 flex items-center">
-              <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-              Unit Batches
-            </h2>
-          </div>
-
-          <% if @unit_batches.any? %>
-            <div class="p-6">
-              <div class="grid gap-6 md:grid-cols-2">
-                <% @unit_batches.each do |unit_batch| %>
-                  <div class="group relative bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 hover:border-blue-300 hover:scale-105">
-                    <!-- Status Badge -->
-                    <div class="absolute top-4 right-4">
-                      <% case unit_batch.status %>
-                      <% when 'preparation' %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                          Preparation
-                        </span>
-                      <% when 'production' %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                          Production
-                        </span>
-                      <% when 'testing' %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                          <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                          Testing
-                        </span>
-                      <% when 'packing' %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                          Packing
-                        </span>
-                      <% end %>
-                    </div>
-
-                    <!-- Unit Batch Info -->
-                    <div class="mb-4">
-                      <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
-                        <%= unit_batch.unit_id %>
-                      </h3>
-                      <p class="text-sm text-gray-600 mb-2">
-                        <span class="font-medium">Product:</span> <%= unit_batch.product.name %>
-                      </p>
-                      <p class="text-xs text-gray-500">
-                        Created: <%= unit_batch.created_at.strftime("%B %d, %Y at %I:%M %p") %>
-                      </p>
-                    </div>
-
-                    <!-- Prepare/Produce Info -->
-                    <div class="mb-4 space-y-2">
-                      <% if unit_batch.prepare %>
-                        <div class="text-xs text-gray-600">
-                          <span class="font-medium">Prepare Date:</span> <%= unit_batch.prepare.prepare_date.strftime("%B %d, %Y") if unit_batch.prepare.prepare_date %>
-                        </div>
-                      <% end %>
-                      <% if unit_batch.produce %>
-                        <div class="text-xs text-gray-600">
-                          <span class="font-medium">Production:</span> <%= unit_batch.produce.status.humanize %>
-                        </div>
-                      <% end %>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex space-x-2">
-                      <%= link_to unit_batch_path(unit_batch), 
-                          class: "flex-1 text-center px-3 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors duration-200" do %>
-                        View Details
-                      <% end %>
-                      <%= link_to edit_unit_batch_path(unit_batch), 
-                          class: "flex-1 text-center px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200" do %>
-                        Edit
-                      <% end %>
-                      <%= link_to unit_batch_path(unit_batch), 
-                          method: :delete,
-                          data: { 
-                            confirm: "Are you sure you want to delete this unit batch?",
-                            turbo_method: :delete
-                          },
-                          class: "flex-1 text-center px-3 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors duration-200" do %>
-                        Delete
-                      <% end %>
-                    </div>
-                  </div>
-                <% end %>
+        <!-- Statistics Dashboard -->
+        <div class="relative bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl shadow-lg border border-emerald-100 p-6 backdrop-blur-sm mb-8">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5 rounded-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
               </div>
-
-              <!-- Pagination -->
-              <div class="mt-8 flex justify-center">
-                <%= paginate @unit_batches %>
+              <div class="ml-3">
+                <h3 class="text-lg font-bold text-gray-900">Quick Stats</h3>
+                <p class="text-xs text-gray-600">Unit batch analytics</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex justify-between items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center">
+                  <span class="w-3 h-3 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
+                  Total Batches
+                </span>
+                <span class="font-bold text-gray-900 text-lg"><%= @unit_batches.total_count %></span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center">
+                  <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2 animate-pulse"></span>
+                  Preparation
+                </span>
+                <span class="font-bold text-yellow-600 text-lg"><%= UnitBatch.preparation.count %></span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center">
+                  <span class="w-3 h-3 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
+                  Production
+                </span>
+                <span class="font-bold text-blue-600 text-lg"><%= UnitBatch.production.count %></span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center">
+                  <span class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                  Completed
+                </span>
+                <span class="font-bold text-green-600 text-lg"><%= UnitBatch.packing.count %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 rounded-2xl shadow-lg border border-gray-100 overflow-hidden backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-slate-500/5 to-zinc-500/5 rounded-2xl"></div>
+          <!-- Header -->
+          <div class="relative px-6 py-4 border-b border-gray-200/50 bg-white/30 backdrop-blur-sm">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-r from-slate-600 to-gray-700 rounded-lg flex items-center justify-center shadow-md mr-3">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                  </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900">Unit Batch Records</h3>
+              </div>
+              <span class="text-sm text-gray-600 bg-white/50 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/20">
+                Showing <%= @unit_batches.count %> of <%= @unit_batches.total_count %> records
+              </span>
+            </div>
+          </div>
+          <% if @unit_batches.any? %>
+            <!-- Table -->
+            <div class="relative overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200/50">
+                <thead class="bg-gradient-to-r from-gray-50 to-slate-50 backdrop-blur-sm">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Unit ID</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Product</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Progress</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Created</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white/40 backdrop-blur-sm divide-y divide-gray-200/30">
+                  <% @unit_batches.each do |unit_batch| %>
+                    <tr class="hover:bg-white/60 transition-all duration-200 cursor-pointer" onclick="window.location.href='<%= unit_batch_path(unit_batch) %>'">
+                      <!-- Unit ID -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900"><%= unit_batch.unit_id %></div>
+                        <div class="text-sm text-gray-500">ID: <%= unit_batch.id %></div>
+                      </td>
+                      <!-- Product -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900"><%= unit_batch.product.name %></div>
+                        <div class="text-xs text-gray-500"><%= pluralize(unit_batch.product.ingredients.count, 'ingredient') %></div>
+                      </td>
+                      <!-- Status -->
+                      <td class="px-6 py-4">
+                        <% case unit_batch.status %>
+                        <% when 'preparation' %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Preparation
+                          </span>
+                        <% when 'production' %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                            </svg>
+                            Production
+                          </span>
+                        <% when 'testing' %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Testing
+                          </span>
+                        <% when 'packing' %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Packing
+                          </span>
+                        <% end %>
+                      </td>
+                      <!-- Progress -->
+                      <td class="px-6 py-4">
+                        <% if unit_batch.prepare %>
+                          <div class="text-sm text-gray-900">Prepared</div>
+                          <div class="text-xs text-gray-500">
+                            <%= unit_batch.prepare.prepare_date.strftime("%b %d") if unit_batch.prepare.prepare_date %>
+                          </div>
+                        <% else %>
+                          <div class="text-sm text-gray-500">-</div>
+                        <% end %>
+                        <% if unit_batch.produce %>
+                          <div class="text-xs text-blue-600"><%= unit_batch.produce.status.humanize %></div>
+                        <% end %>
+                      </td>
+                      <!-- Created -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900"><%= unit_batch.created_at.strftime("%b %d, %Y") %></div>
+                        <div class="text-xs text-gray-500"><%= time_ago_in_words(unit_batch.created_at) %> ago</div>
+                      </td>
+                      <!-- Actions -->
+                      <td class="px-6 py-4 text-sm" onclick="event.stopPropagation()">
+                        <div class="flex space-x-2">
+                          <%= link_to "View", unit_batch_path(unit_batch), 
+                            class: "text-blue-600 hover:text-blue-900 transition-colors" %>
+                          <%= link_to "Edit", edit_unit_batch_path(unit_batch), 
+                            class: "text-indigo-600 hover:text-indigo-900 transition-colors" %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                  Showing <%= @unit_batches.offset_value + 1 %> to 
+                  <%= [@unit_batches.offset_value + @unit_batches.limit_value, @unit_batches.total_count].min %> of 
+                  <%= @unit_batches.total_count %> results
+                </div>
+                <div>
+                  <%= paginate @unit_batches %>
+                </div>
               </div>
             </div>
           <% else %>
             <!-- Empty State -->
-            <div class="p-12 text-center">
-              <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No unit batches found</h3>
+              <p class="mt-1 text-sm text-gray-500">Try adjusting your search criteria or create a new unit batch.</p>
+              <div class="mt-6">
+                <%= link_to new_unit_batch_path, 
+                  class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" do %>
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create First Unit Batch
+                <% end %>
               </div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">No unit batches found</h3>
-              <p class="text-gray-500 mb-6">Get started by creating your first unit batch.</p>
-              <%= link_to new_unit_batch_path, 
-                  class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Create Unit Batch
-              <% end %>
             </div>
           <% end %>
         </div>
