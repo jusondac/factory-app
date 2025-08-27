@@ -17,7 +17,10 @@ class ProducesController < ApplicationController
   end
 
   def show
-    @available_machines = Machine.where(status: :active, allocation: :production) if Current.user.worker?
+    if Current.user.worker?
+      @all_production_machines = Machine.where(allocation: :production)
+      @available_machines = @all_production_machines.select { |m| m.status == "inactive" }
+    end
   end
 
   def new

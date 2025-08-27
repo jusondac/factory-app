@@ -17,10 +17,10 @@
         </div>
         <div class="flex items-center space-x-3">
           <span class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold shadow-sm <%= case @produce.status
-              when 'unproduce' then 'bg-gray-100 text-gray-800'
-              when 'producing' then 'bg-yellow-100 text-yellow-800'
-              when 'produced' then 'bg-green-100 text-green-800'
-              end %>">
+            when 'unproduce' then 'bg-gray-100 text-gray-800'
+            when 'producing' then 'bg-yellow-100 text-yellow-800'
+            when 'produced' then 'bg-green-100 text-green-800'
+            end %>">
             <% case @produce.status %>
             <% when 'unproduce' %>
               <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,11 +132,11 @@
                     <h3 class="text-sm font-medium text-gray-500">Batch Status</h3>
                     <p class="text-lg font-semibold text-gray-900">
                       <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= case @produce.unit_batch.status
-                          when 'preparation' then 'bg-blue-100 text-blue-800'
-                          when 'production' then 'bg-yellow-100 text-yellow-800'
-                          when 'testing' then 'bg-purple-100 text-purple-800'
-                          when 'packing' then 'bg-green-100 text-green-800'
-                          end %>">
+                        when 'preparation' then 'bg-blue-100 text-blue-800'
+                        when 'production' then 'bg-yellow-100 text-yellow-800'
+                        when 'testing' then 'bg-purple-100 text-purple-800'
+                        when 'packing' then 'bg-green-100 text-green-800'
+                        end %>">
                         <%= @produce.unit_batch.status.humanize %>
                       </span>
                     </p>
@@ -150,28 +150,46 @@
                 <% unless @produce.machine.present? %>
                   <div class="mb-4">
                     <h4 class="text-sm font-medium text-gray-700 mb-3">Select Production Machine</h4>
-                    <% if @available_machines.any? %>
+                    <% if @all_production_machines.any? %>
                       <div class="space-y-2">
-                        <% @available_machines.each do |machine| %>
-                          <%= button_to select_machine_produce_path(@produce, machine_id: machine.id), method: :patch,
+                        <% @all_production_machines.each do |machine| %>
+                          <% if machine.active? %>
+                            <%= button_to select_machine_produce_path(@produce, machine_id: machine.id), method: :patch,
                             class: "w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-500 transition-all duration-200",
                             data: { confirm: "Select #{machine.name} for this production?" } do %>
-                            <div class="flex items-center justify-between">
-                              <div>
-                                <div class="font-medium text-gray-900"><%= machine.name %></div>
-                                <div class="text-sm text-gray-500">Serial: <%= machine.serial_number %></div>
+                              <div class="flex items-center justify-between">
+                                <div>
+                                  <div class="font-medium text-gray-900"><%= machine.name %></div>
+                                  <div class="text-sm text-gray-500">Serial: <%= machine.serial_number %></div>
+                                  <div class="text-sm text-green-600">Status: Active</div>
+                                </div>
+                                <div class="text-green-600">
+                                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                </div>
                               </div>
-                              <div class="text-green-600">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                            <% end %>
+                          <% else %>
+                            <div class="w-full text-left p-3 border border-gray-200 rounded-lg bg-gray-50 opacity-60 cursor-not-allowed">
+                              <div class="flex items-center justify-between">
+                                <div>
+                                  <div class="font-medium text-gray-500"><%= machine.name %></div>
+                                  <div class="text-sm text-gray-400">Serial: <%= machine.serial_number %></div>
+                                  <div class="text-sm text-red-500">Status: <%= machine.status.humanize %> (Not available)</div>
+                                </div>
+                                <div class="text-gray-400">
+                                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                                  </svg>
+                                </div>
                               </div>
                             </div>
                           <% end %>
                         <% end %>
                       </div>
                     <% else %>
-                      <p class="text-sm text-gray-500 italic">No active production machines available.</p>
+                      <p class="text-sm text-gray-500 italic">No production machines configured.</p>
                     <% end %>
                   </div>
                 <% else %>
@@ -195,7 +213,7 @@
                   <% unless @produce.machine_check? %>
                     <div class="mb-4">
                       <%= link_to machine_checking_produce_path(@produce),
-                        class: "w-full inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 transition-all duration-200 hover:shadow-md" do %>
+                      class: "w-full inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 transition-all duration-200 hover:shadow-md" do %>
                         <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4" />
                         </svg>
@@ -219,8 +237,8 @@
                     <div class="space-y-3">
                       <% if @produce.unproduce? %>
                         <%= button_to start_production_produce_path(@produce), method: :patch,
-                          class: "w-full inline-flex items-center justify-center rounded-lg bg-yellow-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 transition-all duration-200 hover:shadow-md",
-                          data: { confirm: "Are you sure you want to start production for this batch?" } do %>
+                        class: "w-full inline-flex items-center justify-center rounded-lg bg-yellow-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 transition-all duration-200 hover:shadow-md",
+                        data: { confirm: "Are you sure you want to start production for this batch?" } do %>
                           <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10v4m6-4v4m-6-4H7.586a1 1 0 00-.707.293L4.465 12.707A1 1 0 004 13.414V16a1 1 0 001 1h1.586a1 1 0 00.707-.293L9 14.414V14" />
                           </svg>
@@ -228,8 +246,8 @@
                         <% end %>
                       <% elsif @produce.producing? %>
                         <%= button_to complete_production_produce_path(@produce), method: :patch,
-                          class: "w-full inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 transition-all duration-200 hover:shadow-md",
-                          data: { confirm: "Are you sure you want to mark this production as completed?" } do %>
+                        class: "w-full inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 transition-all duration-200 hover:shadow-md",
+                        data: { confirm: "Are you sure you want to mark this production as completed?" } do %>
                           <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                           </svg>
@@ -272,11 +290,11 @@
                   <div class="text-sm font-medium text-gray-600 mb-1">Status</div>
                   <div class="text-lg font-bold text-gray-900">
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= case @produce.prepare.status
-                        when 'unchecked' then 'bg-gray-100 text-gray-800'
-                        when 'checking' then 'bg-yellow-100 text-yellow-800'
-                        when 'checked' then 'bg-green-100 text-green-800'
-                        when 'cancelled' then 'bg-red-100 text-red-800'
-                        end %>">
+                      when 'unchecked' then 'bg-gray-100 text-gray-800'
+                      when 'checking' then 'bg-yellow-100 text-yellow-800'
+                      when 'checked' then 'bg-green-100 text-green-800'
+                      when 'cancelled' then 'bg-red-100 text-red-800'
+                      end %>">
                       <% if @produce.prepare.status == 'checked' %>✓ <% end %>
                       <%= @produce.prepare.status.humanize %>
                     </span>
@@ -303,10 +321,10 @@
             <div class="text-center mb-4">
               <div class="text-3xl font-bold text-gray-900 mb-1">
                 <%= case @produce.status
-                  when 'unproduce' then '0%'
-                  when 'producing' then '50%'
-                  when 'produced' then '100%'
-                end %>
+                when 'unproduce' then '0%'
+                when 'producing' then '50%'
+                when 'produced' then '100%'
+              end %>
               </div>
               <p class="text-sm text-gray-600">
                 Production progress
@@ -314,23 +332,23 @@
             </div>
             <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div class="<%= case @produce.status
-                  when 'unproduce' then 'bg-gray-400'
-                  when 'producing' then 'bg-yellow-500'
-                  when 'produced' then 'bg-green-500'
-                  end %> h-3 rounded-full transition-all duration-500 shadow-sm" 
-                   style="width: <%= case @produce.status
-                      when 'unproduce' then '0'
-                      when 'producing' then '50'
-                      when 'produced' then '100'
-                      end %>%"></div>
+                when 'unproduce' then 'bg-gray-400'
+                when 'producing' then 'bg-yellow-500'
+                when 'produced' then 'bg-green-500'
+                end %> h-3 rounded-full transition-all duration-500 shadow-sm" 
+                  style="width: <%= case @produce.status
+                    when 'unproduce' then '0'
+                    when 'producing' then '50'
+                    when 'produced' then '100'
+                    end %>%"></div>
             </div>
             <div class="grid grid-cols-1 gap-4 text-center">
               <div class="bg-gray-50 rounded-lg p-3">
                 <div class="text-lg font-semibold <%= case @produce.status
-                    when 'unproduce' then 'text-gray-600'
-                    when 'producing' then 'text-yellow-600'
-                    when 'produced' then 'text-green-600'
-                    end %>">
+                  when 'unproduce' then 'text-gray-600'
+                  when 'producing' then 'text-yellow-600'
+                  when 'produced' then 'text-green-600'
+                  end %>">
                   <%= @produce.status.humanize %>
                 </div>
                 <div class="text-xs text-gray-600">Current Status</div>
