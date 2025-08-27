@@ -51,10 +51,7 @@ class ProducesController < ApplicationController
   def update
     authorize_edit_specific!
 
-    if @produce.machine_check?
-      redirect_to @produce, alert: "Cannot edit production after machine checking is completed."
-      return
-    end
+    return redirect_to(@produce, alert: "Cannot edit production after machine checking is completed.") if @produce.machine_check?
 
     if @produce.update(produce_params)
       redirect_to @produce, notice: "Produce was successfully updated."
@@ -85,7 +82,9 @@ class ProducesController < ApplicationController
     authorize_edit_specific!
 
     if @produce.producing? && @produce.update(status: :produced)
-      redirect_to @produce, notice: "Production completed successfully."
+      # Release the machine back to inactive status when production is completed
+      @produce.machine.inactive! if @produce.machine.present?
+      redirect_to @produce, notice: "Production completed successfully. Machine is now available for other productions."
     else
       redirect_to @produce, alert: "Unable to complete production."
     end
@@ -187,18 +186,24 @@ class ProducesController < ApplicationController
 
     machine = Machine.find(params[:machine_id])
 
-    unless machine.active? && machine.production?
-      redirect_to @produce, alert: "Selected machine is not available for production."
+    unless machine.production?
+      redirect_to @produce, alert: "Selected machine is not allocated for production."
+      return
+    end
+
+    # Only allow selecting inactive machines (available machines)
+    unless machine.inactive?
+      redirect_to @produce, alert: "Selected machine is currently in use."
       return
     end
 
     # Clear any existing machine checks if changing machine
-    if @produce.machine.present? && @produce.machine != machine
-      @produce.produce_machine_checks.destroy_all
-    end
+    @produce.produce_machine_checks.destroy_all if @produce.machine.present? && @produce.machine != machine
 
+    # Activate the machine when it's selected for production
+    machine.update!(status: :active)
     @produce.update!(machine: machine)
-    redirect_to @produce, notice: "Machine selected successfully."
+    redirect_to @produce, notice: "Machine selected and activated successfully."
   end
 
   private
