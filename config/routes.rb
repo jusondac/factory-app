@@ -33,6 +33,8 @@ Rails.application.routes.draw do
     end
   end
 
+  patch "produces/move_to_produce/:unit_batch_id", to: "produces#move_to_produce", as: :move_to_produce
+
   resources :machines
 
   resources :unit_batches

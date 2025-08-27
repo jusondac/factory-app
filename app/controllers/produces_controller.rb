@@ -7,6 +7,13 @@ class ProducesController < ApplicationController
   def index
     @q = Produce.ransack(params[:q])
     @produces = @q.result.with_includes.page(params[:page]).per(10)
+
+    # Get checked unit batches that are ready to move to production
+    @checked_unit_batches = UnitBatch.preparation
+                                   .joins(:prepare)
+                                   .where(prepares: { status: :checked })
+                                   .where.missing(:produce)
+                                   .includes(:product, :prepare)
   end
 
   def show
@@ -68,6 +75,39 @@ class ProducesController < ApplicationController
       redirect_to @produce, notice: "Production completed successfully."
     else
       redirect_to @produce, alert: "Unable to complete production."
+    end
+  end
+
+  def move_to_produce
+    authorize_edit!
+
+    @unit_batch = UnitBatch.find(params[:unit_batch_id])
+
+    # Check if unit batch is in preparation status and has a checked prepare
+    unless @unit_batch.preparation? && @unit_batch.prepare&.checked?
+      redirect_to produces_path, alert: "Unit batch is not ready for production."
+      return
+    end
+
+    # Check if produce already exists for this unit batch
+    if @unit_batch.produce.present?
+      redirect_to produces_path, alert: "Production record already exists for this unit batch."
+      return
+    end
+
+    # Create produce record
+    @produce = Produce.new(
+      unit_batch: @unit_batch,
+      product_date: Date.current,
+      status: :unproduce
+    )
+
+    if @produce.save
+      # Update unit batch status to production
+      @unit_batch.update!(status: :production)
+      redirect_to produces_path, notice: "Unit batch successfully moved to production."
+    else
+      redirect_to produces_path, alert: "Failed to create production record."
     end
   end
 
