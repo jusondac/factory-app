@@ -1,11 +1,5 @@
 Rails.application.routes.draw do
-  get "machines/index"
-  get "machines/show"
-  get "machines/new"
-  get "machines/create"
-  get "machines/edit"
-  get "machines/update"
-  get "machines/destroy"
+  resources :machines
   get "home/index"
   root to: "home#index"
   resource :session
