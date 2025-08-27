@@ -221,8 +221,12 @@
       </div>
     </div>
   </div>
+<% elsif Current.session&.user&.supervisor? %>
+  <%= render 'supervisor_dashboard' %>
+<% elsif Current.session&.user&.worker? %>
+  <%= render 'worker_dashboard' %>
 <% else %>
-  <!-- Basic view for Workers, Testers, Supervisors - Full Width -->
+  <!-- Basic view for other roles (Testers) - Full Width -->
   <div class="w-full max-w-none">
     <div class="text-center mb-10">
       <h1 class="text-4xl font-bold text-gray-900 mb-6">
