@@ -60,7 +60,7 @@ class Produce < ApplicationRecord
 
   def update_unit_batch_code
     return unless machine&.line.present?
-    
+
     unit_batch.update_batch_code_with_line(machine.line)
   end
 end

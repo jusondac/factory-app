@@ -73,12 +73,12 @@ class UnitBatch < ApplicationRecord
     date_str = Date.current.strftime("%Y%m%d")
     shift_code = shift&.upcase&.first || "M"
     line_code = "L01" # Default line, will be updated when machine is assigned
-    
+
     # Find the next sequence number for this combination
     pattern = "#{product.product_code}-#{date_str}-#{shift_code}-%-"
     existing_count = UnitBatch.where("batch_code LIKE ?", pattern).count
-    seq = (existing_count + 1).to_s.rjust(3, '0')
-    
+    seq = (existing_count + 1).to_s.rjust(3, "0")
+
     self.batch_code = "#{product.product_code}-#{date_str}-#{shift_code}-#{line_code}-#{seq}"
   end
 
@@ -87,11 +87,11 @@ class UnitBatch < ApplicationRecord
   def update_batch_code_with_line(machine_line)
     return unless batch_code.present? && product.present?
 
-    parts = batch_code.split('-')
+    parts = batch_code.split("-")
     if parts.length == 5
       line_code = "L#{machine_line.to_s.rjust(2, '0')}"
       parts[3] = line_code
-      update_column(:batch_code, parts.join('-'))
+      update_column(:batch_code, parts.join("-"))
     end
   end
 end
