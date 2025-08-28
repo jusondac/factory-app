@@ -221,9 +221,9 @@
         </div>
       </nav>
     <% end %>
-    <!-- Flash Messages - Top Right Corner -->
+    <!-- Flash Messages - Bottom Right Corner -->
     <% if flash.any? %>
-      <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+      <div class="fixed bottom-4 right-4 z-50 space-y-2 max-w-sm">
         <% flash.each do |type, message| %>
           <% case type.to_s %>
           <% when 'notice' %>

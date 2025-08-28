@@ -16,7 +16,7 @@
             Back to List
           <% end %>
           <% if Current.session&.user&.can_start_preparing? && @unit_batch.prepare.nil? %>
-            <%= link_to start_preparing_unit_batch_path(@unit_batch), 
+            <%= button_to start_preparing_unit_batch_path(@unit_batch), 
                 method: :patch,
                 data: { confirm: "Start preparation for this unit batch?" },
                 class: "inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200" do %>
