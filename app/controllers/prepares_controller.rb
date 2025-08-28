@@ -79,13 +79,39 @@ class PreparesController < ApplicationController
 
     result = service.toggle_ingredient_check
 
-    case result
-    when :completed
-      redirect_to prepares_path, notice: "Preparation has been completed!"
-    when :in_progress
-      redirect_to checking_prepare_path(@prepare), notice: "Ingredient status updated."
-    else
-      redirect_to checking_prepare_path(@prepare), alert: "Unable to update ingredient status."
+    respond_to do |format|
+      case result
+      when :completed
+        format.html { redirect_to prepares_path, notice: "Preparation has been completed!" }
+        format.json {
+          render json: {
+            success: true,
+            all_completed: true,
+            message: "Preparation has been completed!",
+            ingredient: ingredient_data,
+            progress: progress_data
+          }
+        }
+      when :in_progress
+        format.html { redirect_to checking_prepare_path(@prepare), notice: "Ingredient status updated." }
+        format.json {
+          render json: {
+            success: true,
+            all_completed: false,
+            message: "Ingredient status updated.",
+            ingredient: ingredient_data,
+            progress: progress_data
+          }
+        }
+      else
+        format.html { redirect_to checking_prepare_path(@prepare), alert: "Unable to update ingredient status." }
+        format.json {
+          render json: {
+            success: false,
+            message: "Unable to update ingredient status."
+          }, status: :unprocessable_entity
+        }
+      end
     end
   end
 
@@ -123,6 +149,26 @@ class PreparesController < ApplicationController
 
   def prepare_params
     params.require(:prepare).permit(:product_id, :prepare_date)
+  end
+
+  def ingredient_data
+    ingredient = @prepare.prepare_ingredients.find(params[:prepare_ingredient_id])
+    {
+      id: ingredient.id,
+      ingredient_name: ingredient.ingredient_name,
+      checked: ingredient.checked
+    }
+  end
+
+  def progress_data
+    total_count = @prepare.prepare_ingredients.count
+    checked_count = @prepare.prepare_ingredients.checked.count
+    {
+      total_count: total_count,
+      checked_count: checked_count,
+      remaining_count: total_count - checked_count,
+      percentage: total_count > 0 ? ((checked_count.to_f / total_count) * 100).round(1) : 0
+    }
   end
 
   def require_supervisor

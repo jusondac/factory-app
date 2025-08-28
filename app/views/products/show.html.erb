@@ -1,186 +1,125 @@
 <% content_for :title, @product.name %>
-<!-- Modern Product Details Page -->
-<div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 min-h-screen">
-  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Flash Messages -->
-    <% if alert = flash[:alert] %>
-      <div class="rounded-2xl bg-red-50 p-4 mb-6 border border-red-200">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-red-800"><%= alert %></p>
-          </div>
+<div class="bg-gray-50 min-h-screen">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Page Header -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Product Details</h1>
+          <p class="mt-1 text-sm text-gray-600">Detailed information about <%= @product.name %></p>
         </div>
-      </div>
-    <% end %>
-    <% if notice = flash[:notice] %>
-      <div class="rounded-2xl bg-green-50 p-4 mb-6 border border-green-200">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.236 4.53L8.2 10.64a.75.75 0 00-1.1 1.02l1.4 1.5a.75.75 0 001.157-.016l3.857-5.393z" clip-rule="evenodd" />
+        <div class="flex space-x-3">
+          <%= link_to products_path, 
+              class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-green-800"><%= notice %></p>
-          </div>
-        </div>
-      </div>
-    <% end %>
-    <!-- Breadcrumb Navigation -->
-    <nav class="flex mb-8" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-          <%= link_to products_path, class: "inline-flex items-center text-sm font-medium text-gray-700 hover:text-emerald-600" do %>
-            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-            </svg>
-            Products
+            Back to List
           <% end %>
-        </li>
-        <li>
-          <div class="flex items-center">
-            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 truncate"><%= @product.name %></span>
-          </div>
-        </li>
-      </ol>
-    </nav>
-    <!-- Product Header -->
-    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mb-8">
-      <div class="bg-gradient-to-r from-emerald-500 to-teal-500 px-8 py-8">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex items-center">
-            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mr-6">
-              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+          <% if Current.session&.user&.can_create_products? && (@product.user == Current.session.user || Current.session.user.head?) %>
+            <%= link_to new_product_ingredient_path(@product), 
+                class: "inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-            </div>
-            <div>
-              <h1 class="text-3xl font-bold text-white mb-2"><%= @product.name %></h1>
-              <div class="flex items-center space-x-4 text-emerald-100">
-                <span class="flex items-center text-sm">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                  </svg>
-                  ID: #<%= @product.id %>
-                </span>
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white">
-                  Active Product
-                </span>
-              </div>
-            </div>
-          </div>
-          <!-- Action Buttons -->
-          <div class="mt-6 lg:mt-0 flex flex-col sm:flex-row gap-3">
-            <% if Current.session&.user&.can_create_products? && (@product.user == Current.session.user || Current.session.user.head?) %>
-              <%= link_to edit_product_path(@product), 
-                  class: "inline-flex items-center justify-center rounded-xl bg-white bg-opacity-20 px-4 py-3 text-sm font-semibold text-white hover:bg-opacity-30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all duration-200" do %>
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-                Edit Product
-              <% end %>
-              <%= link_to new_product_ingredient_path(@product), 
-                  class: "inline-flex items-center justify-center rounded-xl bg-white px-4 py-3 text-sm font-semibold text-emerald-600 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all duration-200" do %>
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Add Ingredient
-              <% end %>
+              Add Ingredient
             <% end %>
-          </div>
+            <%= link_to edit_product_path(@product), 
+                class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit
+            <% end %>
+          <% end %>
         </div>
       </div>
     </div>
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Product Details Card -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div class="flex items-center mb-4">
-            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
-              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    <!-- Main Content -->
+    <div class="space-y-6">
+      <!-- Product Overview Card -->
+      <div class="relative bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl shadow-lg border border-emerald-100 p-6 backdrop-blur-sm">
+        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5 rounded-2xl"></div>
+        <div class="relative">
+          <div class="flex items-center mb-6">
+            <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">Product Details</h3>
+            <div class="ml-4">
+              <h2 class="text-2xl font-bold text-gray-900"><%= @product.name %></h2>
+              <p class="text-sm text-gray-600">Product Overview</p>
+            </div>
+            <div class="ml-auto">
+              <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Active Product
+              </span>
+            </div>
           </div>
-          <div class="space-y-4">
-            <div>
-              <p class="text-sm font-medium text-gray-500">Created by</p>
-              <div class="mt-1 flex items-center">
-                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-3">
-                  <span class="text-xs font-bold text-white">
-                    <%= @product.user.role.first.upcase %>
-                  </span>
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-gray-900 capitalize"><%= @product.user.role %></p>
-                  <p class="text-xs text-gray-600"><%= @product.user.email_address %></p>
-                </div>
-              </div>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div class="text-sm font-medium text-gray-600 mb-1">Product ID</div>
+              <div class="text-lg font-bold text-gray-900 font-mono">#<%= @product.id %></div>
+              <div class="text-xs text-gray-500">Unique identifier</div>
             </div>
-            <div>
-              <p class="text-sm font-medium text-gray-500">Created on</p>
-              <p class="mt-1 text-sm text-gray-900"><%= @product.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
-              <p class="text-xs text-gray-600 mt-1"><%= time_ago_in_words(@product.created_at) %> ago</p>
+            <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div class="text-sm font-medium text-gray-600 mb-1">Created by</div>
+              <div class="text-lg font-bold text-gray-900 capitalize"><%= @product.user.role %></div>
+              <div class="text-xs text-gray-500"><%= @product.user.email_address %></div>
             </div>
-            <div>
-              <p class="text-sm font-medium text-gray-500">Last updated</p>
-              <p class="mt-1 text-sm text-gray-900"><%= @product.updated_at.strftime("%B %d, %Y at %I:%M %p") %></p>
-              <p class="text-xs text-gray-600 mt-1"><%= time_ago_in_words(@product.updated_at) %> ago</p>
+            <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div class="text-sm font-medium text-gray-600 mb-1">Created</div>
+              <div class="text-lg font-bold text-gray-900"><%= @product.created_at.strftime("%b %d, %Y") %></div>
+              <div class="text-xs text-gray-500"><%= time_ago_in_words(@product.created_at) %> ago</div>
             </div>
-            <div class="pt-4 border-t border-gray-200">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-500">Total Ingredients</span>
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                  <%= @product.ingredients.count %> items
-                </span>
-              </div>
+            <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div class="text-sm font-medium text-gray-600 mb-1">Ingredients</div>
+              <div class="text-lg font-bold text-gray-900"><%= @product.ingredients.count %></div>
+              <div class="text-xs text-gray-500">Total items</div>
             </div>
           </div>
         </div>
       </div>
       <!-- Ingredients Section -->
-      <div class="lg:col-span-2">
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+      <div class="relative bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 rounded-2xl shadow-lg border border-purple-100 backdrop-blur-sm">
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-indigo-500/5 rounded-2xl"></div>
+        <div class="relative p-6">
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center">
-              <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
-                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <h2 class="text-xl font-semibold text-gray-900">
-                Ingredients (<%= @product.ingredients.count %>)
-              </h2>
+              <div class="ml-4">
+                <h3 class="text-xl font-bold text-gray-900">Ingredients</h3>
+                <p class="text-sm text-gray-600"><%= pluralize(@product.ingredients.count, 'ingredient') %> defined</p>
+              </div>
             </div>
             <% if Current.session&.user&.can_create_products? && (@product.user == Current.session.user || Current.session.user.head?) %>
               <%= link_to new_product_ingredient_path(@product), 
-                  class: "inline-flex items-center px-3 py-2 text-sm font-semibold text-emerald-700 bg-emerald-100 rounded-lg hover:bg-emerald-200 transition-colors duration-200" do %>
+                  class: "inline-flex items-center px-3 py-2 text-sm font-semibold text-purple-700 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors duration-200" do %>
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 Add Ingredient
               <% end %>
             <% end %>
           </div>
+          
           <% if @product.ingredients.any? %>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <% @product.ingredients.order(:name).each do |ingredient| %>
-                <div class="group bg-gray-50 border border-gray-200 rounded-xl p-4 hover:bg-gray-100 transition-colors duration-200">
+                <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-white/20 group hover:bg-white/60 transition-colors duration-200">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center flex-1 min-w-0">
                       <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
                       </div>
                       <span class="font-medium text-gray-900 truncate"><%= ingredient.name %></span>
@@ -190,7 +129,7 @@
                         <%= link_to edit_product_ingredient_path(@product, ingredient), 
                             class: "inline-flex items-center p-1 text-blue-600 hover:text-blue-800 rounded" do %>
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         <% end %>
                         <%= link_to product_ingredient_path(@product, ingredient), 
@@ -198,7 +137,7 @@
                             data: { confirm: "Remove this ingredient?" }, 
                             class: "inline-flex items-center p-1 text-red-600 hover:text-red-800 rounded" do %>
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                         <% end %>
                       </div>
@@ -209,19 +148,19 @@
             </div>
           <% else %>
             <!-- Empty State for Ingredients -->
-            <div class="text-center py-12">
-              <div class="mx-auto w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
+            <div class="bg-white/40 backdrop-blur-sm rounded-xl p-12 border border-white/20 text-center">
+              <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">No ingredients yet</h3>
-              <p class="text-gray-600 mb-6">Add ingredients to define what goes into this product.</p>
+              <h4 class="text-lg font-medium text-gray-900 mb-2">No ingredients yet</h4>
+              <p class="text-sm text-gray-500 mb-6">Add ingredients to define what goes into this product.</p>
               <% if Current.session&.user&.can_create_products? && (@product.user == Current.session.user || Current.session.user.head?) %>
                 <%= link_to new_product_ingredient_path(@product), 
-                    class: "inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:from-emerald-500 hover:to-teal-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 transform hover:scale-105 transition-all duration-200" do %>
+                    class: "inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:from-purple-500 hover:to-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 transform hover:scale-105 transition-all duration-200" do %>
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
                   Add First Ingredient
                 <% end %>
