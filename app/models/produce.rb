@@ -25,6 +25,7 @@ class Produce < ApplicationRecord
   enum :status, { unproduce: 0, producing: 1, produced: 2 }, default: :unproduce
 
   before_validation :generate_product_id, on: :create
+  after_update :update_unit_batch_code, if: :saved_change_to_machine_id?
 
   scope :for_date, ->(date) { where(product_date: date) }
   scope :for_product, ->(product) { joins(:unit_batch).where(unit_batches: { product: product }) }
@@ -55,5 +56,11 @@ class Produce < ApplicationRecord
     existing_count = Produce.where("product_id LIKE ?", "PROD-#{date_str}-%").count
 
     self.product_id = "PROD-#{date_str}-#{existing_count + 1}"
+  end
+
+  def update_unit_batch_code
+    return unless machine&.line.present?
+    
+    unit_batch.update_batch_code_with_line(machine.line)
   end
 end

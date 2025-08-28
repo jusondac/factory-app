@@ -90,10 +90,10 @@ class Prepare < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "checked_by_id", "created_at", "created_by_id", "id", "id_value", "prepare_date", "prepare_id", "status", "unit_batch_id", "updated_at" ]
+    [ "checked_by_id", "created_at", "created_by_id", "id", "id_value", "notes", "prepare_date", "prepare_id", "status", "unit_batch_id", "updated_at" ]
   end
 
-   def self.ransackable_associations(auth_object = nil)
+  def self.ransackable_associations(auth_object = nil)
     [ "checked_by", "created_by", "prepare_ingredients", "unit_batch" ]
   end
 

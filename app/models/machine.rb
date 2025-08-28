@@ -5,6 +5,7 @@ class Machine < ApplicationRecord
 
   validates :name, presence: true
   validates :serial_number, presence: true, uniqueness: true
+  validates :line, presence: true, numericality: { greater_than: 0 }
 
   enum :status, { inactive: 0, active: 1, under_maintenance: 2 }, default: :inactive
   enum :allocation, { production: 0, testing: 1, packing: 2 }, default: :production
@@ -12,7 +13,7 @@ class Machine < ApplicationRecord
   before_validation :generate_serial_number, on: :create
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "created_at", "id", "id_value", "name", "serial_number", "status", "allocation", "updated_at" ]
+    [ "allocation", "created_at", "id", "id_value", "line", "name", "serial_number", "status", "updated_at" ]
   end
 
   private

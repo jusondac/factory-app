@@ -56,7 +56,7 @@ class MachinesController < ApplicationController
     else
       # Manager/head can edit all fields except allocation
       params.require(:machine).permit(
-        :name, :status,
+        :name, :status, :line,
         machine_checkings_attributes: [ :id, :checking_name, :checking_type, :checking_value, :_destroy ]
       )
     end

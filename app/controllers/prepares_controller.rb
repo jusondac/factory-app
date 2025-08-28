@@ -148,7 +148,7 @@ class PreparesController < ApplicationController
   end
 
   def prepare_params
-    params.require(:prepare).permit(:product_id, :prepare_date)
+    params.require(:prepare).permit(:product_id, :prepare_date, :notes)
   end
 
   def ingredient_data

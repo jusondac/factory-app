@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_27_064137) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_28_134617) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -38,6 +38,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_27_064137) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "allocation"
+    t.integer "line"
   end
 
   create_table "prepare_ingredients", force: :cascade do |t|
@@ -61,6 +62,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_27_064137) do
     t.integer "unit_batch_id", null: false
     t.integer "prepare_ingredients_count", default: 0
     t.integer "checked_ingredients_count", default: 0
+    t.string "notes"
     t.index ["checked_by_id"], name: "index_prepares_on_checked_by_id"
     t.index ["created_by_id"], name: "index_prepares_on_created_by_id"
     t.index ["prepare_id"], name: "index_prepares_on_prepare_id", unique: true
@@ -98,6 +100,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_27_064137) do
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "product_code"
     t.index ["name"], name: "index_products_on_name"
     t.index ["user_id", "created_at"], name: "index_products_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_products_on_user_id"
@@ -118,6 +121,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_27_064137) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
+    t.integer "quantity"
+    t.integer "package_type"
+    t.integer "shift"
+    t.string "batch_code"
     t.index ["product_id"], name: "index_unit_batches_on_product_id"
   end
 
