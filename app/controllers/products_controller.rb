@@ -59,6 +59,43 @@ class ProductsController < ApplicationController
     redirect_to products_path, notice: "Product was successfully deleted."
   end
 
+  def add_ingredient
+    @product = Product.find(params[:id])
+
+    unless can_edit_product?
+      render json: { error: "You can only edit your own products." }, status: :forbidden
+      return
+    end
+
+    @ingredient = @product.ingredients.build(ingredient_params)
+
+    if @ingredient.save
+      render json: {
+        id: @ingredient.id,
+        name: @ingredient.name,
+        success: true
+      }
+    else
+      render json: {
+        errors: @ingredient.errors.full_messages,
+        success: false
+      }, status: :unprocessable_entity
+    end
+  end
+
+  def remove_ingredient
+    @product = Product.find(params[:id])
+    @ingredient = @product.ingredients.find(params[:ingredient_id])
+
+    unless can_edit_product?
+      render json: { error: "You can only edit your own products." }, status: :forbidden
+      return
+    end
+
+    @ingredient.destroy
+    render json: { success: true }
+  end
+
   private
 
   def set_product
@@ -67,6 +104,10 @@ class ProductsController < ApplicationController
 
   def product_params
     params.require(:product).permit(:name)
+  end
+
+  def ingredient_params
+    params.require(:ingredient).permit(:name)
   end
 
   def require_manager_or_head

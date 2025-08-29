@@ -1,26 +1,161 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <% if alert = flash[:alert] %>
-    <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
-  <% end %>
-  <h1 class="font-bold text-4xl mb-6">New Product</h1>
-  <%= form_with model: @product, class: "contents" do |form| %>
-    <% if @product.errors.any? %>
-      <div class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
-        <h2><%= pluralize(@product.errors.count, "error") %> prohibited this product from being saved:</h2>
-        <ul class="list-disc list-inside">
-          <% @product.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
+<% content_for :title, "Create New Product" %>
+<div class="bg-gray-50 min-h-screen">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Create New Product</h1>
+          <p class="mt-1 text-sm text-gray-600">Add a new product to your catalog</p>
+        </div>
+        <div class="flex space-x-3">
+          <%= link_to products_path, 
+              class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Products
           <% end %>
-        </ul>
+        </div>
       </div>
-    <% end %>
-    <div class="my-5">
-      <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
-      <%= form.text_field :name, required: true, autofocus: true, placeholder: "Enter product name", class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
     </div>
-    <div class="flex gap-4">
-      <%= form.submit "Create Product", class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
-      <%= link_to "Cancel", products_path, class: "rounded-md px-3.5 py-2.5 bg-gray-300 hover:bg-gray-400 text-gray-700 inline-block font-medium" %>
+    <!-- Main Form Card -->
+    <div class="relative bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl shadow-lg border border-emerald-100 backdrop-blur-sm">
+      <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5 rounded-2xl"></div>
+      <div class="relative p-8">
+        <!-- Form Header -->
+        <div class="flex items-center mb-8">
+          <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <h2 class="text-2xl font-bold text-gray-900">Product Information</h2>
+            <p class="text-sm text-gray-600">Enter the details for your new product</p>
+          </div>
+        </div>
+        <!-- Alert Messages -->
+        <% if alert = flash[:alert] %>
+          <div class="mb-6">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-red-800 font-medium"><%= alert %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        <!-- Form -->
+        <%= form_with model: @product, local: true, class: "space-y-6" do |form| %>
+          <!-- Error Messages -->
+          <% if @product.errors.any? %>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">
+                    <%= pluralize(@product.errors.count, "error") %> prohibited this product from being saved:
+                  </h3>
+                  <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc list-inside space-y-1">
+                      <% @product.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <!-- Product Name Field -->
+          <div class="bg-white/40 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <div class="space-y-4">
+              <%= form.label :name, class: "block text-sm font-semibold text-gray-900" do %>
+                <div class="flex items-center">
+                  <svg class="w-4 h-4 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  Product Name
+                </div>
+              <% end %>
+              <div class="relative">
+                <%= form.text_field :name, 
+                    required: true, 
+                    autofocus: true, 
+                    placeholder: "Enter a descriptive product name", 
+                    class: "block w-full rounded-lg border border-gray-300 bg-white/80 px-4 py-3 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200 shadow-sm" %>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+              </div>
+              <p class="text-xs text-gray-600">Choose a unique and descriptive name for your product</p>
+            </div>
+          </div>
+          <!-- Tips Card -->
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">💡 Tips for Creating Products</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                  <ul class="list-disc list-inside space-y-1">
+                    <li>Use clear, descriptive names that make sense to your team</li>
+                    <li>After creating the product, you can add ingredients to define what goes into it</li>
+                    <li>Products can be used in production processes and batch tracking</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-white/20">
+            <%= link_to products_path, 
+                class: "inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200 shadow-sm" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Cancel
+            <% end %>
+            <%= form.submit "Create Product", 
+                class: "inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
     </div>
-  <% end %>
+    <!-- What's Next Card -->
+    <div class="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-sm font-medium text-purple-900">What's Next?</h3>
+          <p class="mt-1 text-sm text-purple-700">
+            After creating your product, you'll be able to add ingredients, create production batches, and track the manufacturing process.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

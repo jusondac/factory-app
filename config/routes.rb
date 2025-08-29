@@ -8,6 +8,10 @@ Rails.application.routes.draw do
 
   resources :products do
     resources :ingredients, except: [ :show ]
+    member do
+      post :add_ingredient
+      delete :remove_ingredient
+    end
   end
 
   resources :prepares do
