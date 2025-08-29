@@ -161,27 +161,6 @@
               </p>
             <% end %>
           </div>
-          <!-- Batch Code -->
-          <div>
-            <%= f.label :batch_code, class: "block text-sm font-semibold text-gray-700 mb-3" do %>
-              <span class="flex items-center">
-                <span class="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
-                Batch Code <span class="text-red-500 ml-1">*</span>
-              </span>
-            <% end %>
-            <%= f.text_field :batch_code, 
-                class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 #{@unit_batch.errors[:batch_code].any? ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}",
-                placeholder: "Enter batch code (leave empty for auto-generation)" %>
-            <% if @unit_batch.errors[:batch_code].any? %>
-              <p class="mt-2 text-sm text-red-600">
-                <%= @unit_batch.errors[:batch_code].first %>
-              </p>
-            <% else %>
-              <p class="mt-2 text-sm text-gray-500">
-                Leave empty to auto-generate batch code
-              </p>
-            <% end %>
-          </div>
           <!-- Status Selection -->
           <div>
             <%= f.label :status, class: "block text-sm font-semibold text-gray-700 mb-3" do %>
