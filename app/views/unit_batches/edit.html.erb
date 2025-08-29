@@ -109,6 +109,92 @@
               </p>
             <% end %>
           </div>
+          <!-- Quantity -->
+          <div>
+            <%= f.label :quantity, class: "block text-sm font-semibold text-gray-700 mb-3" do %>
+              <span class="flex items-center">
+                <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Quantity <span class="text-red-500 ml-1">*</span>
+              </span>
+            <% end %>
+            <%= f.number_field :quantity, 
+                min: 1,
+                class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 #{@unit_batch.errors[:quantity].any? ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}",
+                placeholder: "Enter quantity" %>
+            <% if @unit_batch.errors[:quantity].any? %>
+              <p class="mt-2 text-sm text-red-600">
+                <%= @unit_batch.errors[:quantity].first %>
+              </p>
+            <% end %>
+          </div>
+          <!-- Package Type -->
+          <div>
+            <%= f.label :package_type, class: "block text-sm font-semibold text-gray-700 mb-3" do %>
+              <span class="flex items-center">
+                <span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                Package Type <span class="text-red-500 ml-1">*</span>
+              </span>
+            <% end %>
+            <%= f.select :package_type, 
+                options_for_select([
+                  ['Box', 'box'],
+                  ['Bottle', 'bottle'],
+                  ['Pouch', 'pouch'],
+                  ['Can', 'can'],
+                  ['Jar', 'jar'],
+                  ['Sachet', 'sachet'],
+                  ['Pack', 'pack'],
+                  ['Cup', 'cup'],
+                  ['Tube', 'tube'],
+                  ['Bucket', 'bucket']
+                ], @unit_batch.package_type),
+                { prompt: "Select package type..." },
+                { 
+                  class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 #{@unit_batch.errors[:package_type].any? ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}"
+                } %>
+            <% if @unit_batch.errors[:package_type].any? %>
+              <p class="mt-2 text-sm text-red-600">
+                <%= @unit_batch.errors[:package_type].first %>
+              </p>
+            <% end %>
+          </div>
+          <!-- Shift -->
+          <div>
+            <%= f.label :shift, class: "block text-sm font-semibold text-gray-700 mb-3" do %>
+              <span class="flex items-center">
+                <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                Shift <span class="text-red-500 ml-1">*</span>
+              </span>
+            <% end %>
+            <%= f.select :shift, 
+                options_for_select([
+                  ['Morning (06:00 - 14:00)', 'morning'],
+                  ['Afternoon (14:00 - 22:00)', 'afternoon'],
+                  ['Night (22:00 - 06:00)', 'night']
+                ], @unit_batch.shift),
+                { prompt: "Select shift..." },
+                { 
+                  class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 #{@unit_batch.errors[:shift].any? ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}"
+                } %>
+            <% if @unit_batch.errors[:shift].any? %>
+              <p class="mt-2 text-sm text-red-600">
+                <%= @unit_batch.errors[:shift].first %>
+              </p>
+            <% end %>
+          </div>
+          <!-- Batch Code Display -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">
+              <span class="flex items-center">
+                <span class="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
+                Batch Code
+              </span>
+            </label>
+            <div class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-700 font-mono">
+              <%= @unit_batch.batch_code %>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Batch code cannot be changed after creation</p>
+          </div>
           <!-- Status Selection -->
           <div>
             <%= f.label :status, class: "block text-sm font-semibold text-gray-700 mb-3" do %>
