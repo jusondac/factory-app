@@ -6,14 +6,7 @@ class ProducesController < ApplicationController
 
   def index
     @q = Produce.ransack(params[:q])
-    @produces = @q.result.with_includes.page(params[:page]).per(10).order(created_at: :desc)
-
-    # Get checked unit batches that are ready to move to production
-    @checked_unit_batches = UnitBatch.preparation
-                                   .joins(:prepare)
-                                   .where(prepares: { status: :checked })
-                                   .where.missing(:produce)
-                                   .includes(:product, :prepare)
+    @produces = @q.result.with_includes.page(params[:page]).per(5).order(created_at: :desc)
   end
 
   def show
