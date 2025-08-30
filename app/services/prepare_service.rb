@@ -33,12 +33,12 @@ class PrepareService
     existing_preparation = UnitBatch.joins(:prepare)
                                    .where(product: @product, prepares: { prepare_date: prepare_date })
                                    .exists?
-    
+
     if existing_preparation
       errors.add(:base, "A preparation for this product on this date already exists.")
       return true
     end
-    
+
     false
   end
 
@@ -48,6 +48,22 @@ class PrepareService
 
   def prepare
     @prepare
+  end
+
+  def self.remove_unit_batch(unit_batch_id)
+    unit_batch = UnitBatch.find_by(id: unit_batch_id)
+    return { success: false, error: "Unit batch not found" } unless unit_batch
+
+    ActiveRecord::Base.transaction do
+      # The dependent: :destroy on the associations will automatically
+      # destroy the associated prepare and produce records
+      unit_batch.destroy!
+      { success: true, message: "Unit batch and associated records removed successfully" }
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    { success: false, error: e.message }
+  rescue StandardError => e
+    { success: false, error: "Failed to remove unit batch: #{e.message}" }
   end
 
   private
