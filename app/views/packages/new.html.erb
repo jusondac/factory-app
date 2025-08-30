@@ -1,0 +1,119 @@
+<% content_for :title, "Create New Package" %>
+<div class="bg-gray-50 min-h-screen">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Create New Package</h1>
+          <p class="mt-1 text-sm text-gray-600">Create a new packaging operation</p>
+        </div>
+        <div class="flex space-x-3">
+          <%= link_to packages_path, 
+              class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Packages
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <!-- Main Form Card -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h3 class="text-lg font-medium text-gray-900">Package Information</h3>
+      </div>
+      <div class="p-6">
+        <%= form_with model: @package, local: true, class: "space-y-6" do |form| %>
+          <% if @package.errors.any? %>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+                  <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc list-inside space-y-1">
+                      <% @package.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <!-- Unit Batch Selection -->
+          <div>
+            <%= form.label :unit_batch_id, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+              <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span>Unit Batch <span class="text-red-500">*</span></span>
+              </div>
+            <% end %>
+            <%= form.select :unit_batch_id, 
+                options_for_select([["Select a unit batch", ""]] + @unit_batches.map { |ub| ["#{ub.unit_id} - #{ub.product.name} (#{ub.batch_code})", ub.id] }, @package.unit_batch_id), 
+                {}, 
+                { required: true, class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" } %>
+            <p class="text-xs text-gray-600 mt-1">Select a unit batch that is ready for packaging</p>
+          </div>
+          <!-- Waste Quantity -->
+          <div>
+            <%= form.label :waste_quantity, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+              <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Waste Quantity</span>
+              </div>
+            <% end %>
+            <%= form.number_field :waste_quantity, 
+                min: 0, 
+                value: @package.waste_quantity || 0,
+                placeholder: "Enter waste quantity", 
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+            <p class="text-xs text-gray-600 mt-1">Amount of product wasted during packaging process</p>
+          </div>
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+            <%= link_to packages_path, 
+                class: "inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200 shadow-sm" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Cancel
+            <% end %>
+            <%= form.submit "Create Package", 
+                class: "inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <!-- Available Unit Batches Info -->
+    <div class="mt-6 bg-blue-50 rounded-lg border border-blue-200 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-blue-800">Available Unit Batches</h3>
+          <div class="mt-2 text-sm text-blue-700">
+            <% if @unit_batches.any? %>
+              <p>There are <%= @unit_batches.count %> unit batches ready for packaging.</p>
+            <% else %>
+              <p>No unit batches are currently available for packaging. Unit batches must be in "packing" status and not already packaged.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

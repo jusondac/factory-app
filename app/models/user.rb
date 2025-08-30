@@ -36,6 +36,14 @@ class User < ApplicationRecord
     worker?
   end
 
+  def can_view_packages?
+    supervisor? || worker? || manager? || head?
+  end
+
+  def can_edit_packages?
+    worker?
+  end
+
   def can_create_unit_batches?
     supervisor? || manager? || head?
   end

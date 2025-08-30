@@ -2,6 +2,7 @@ class UnitBatch < ApplicationRecord
   belongs_to :product
   has_one :prepare, dependent: :destroy
   has_one :produce, dependent: :destroy
+  has_one :package, dependent: :destroy
 
   enum :status, {
     preparation: 0,
@@ -36,6 +37,7 @@ class UnitBatch < ApplicationRecord
   validates :package_type, presence: true
   validates :shift, presence: true
   validates :batch_code, presence: true, uniqueness: true
+  validates :waste_quantity, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
   before_validation :generate_unit_id, on: :create
   before_validation :generate_batch_code, on: :create
@@ -48,12 +50,27 @@ class UnitBatch < ApplicationRecord
     prepare&.prepare_date
   end
 
+  def calculate_expiry_date
+    return nil unless product.present?
+
+    base_date = Date.current
+    expiry = base_date
+
+    # Add periods if they exist
+    expiry += product.period_year.years if product.period_year.present?
+    expiry += product.period_month.months if product.period_month.present?
+    expiry += product.period_week.weeks if product.period_week.present?
+    expiry += product.period_day.days if product.period_day.present?
+
+    expiry
+  end
+
   def self.ransackable_attributes(auth_object = nil)
-    [ "batch_code", "created_at", "id", "id_value", "package_type", "product_id", "quantity", "shift", "status", "unit_id", "updated_at" ]
+    [ "batch_code", "created_at", "expiry_date", "id", "id_value", "package_type", "product_id", "quantity", "shift", "status", "unit_id", "updated_at", "waste_quantity" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    [ "prepare", "product", "produce" ]
+    [ "package", "prepare", "product", "produce" ]
   end
 
   private

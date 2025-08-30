@@ -103,7 +103,7 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.require(:product).permit(:name)
+    params.require(:product).permit(:name, :period_year, :period_month, :period_week, :period_day)
   end
 
   def ingredient_params

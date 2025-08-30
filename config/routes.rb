@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  resources :packages do
+    member do
+      patch :select_machine
+    end
+  end
   resources :machines
   get "home/index"
   root to: "home#index"

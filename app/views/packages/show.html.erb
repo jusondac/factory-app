@@ -1,0 +1,240 @@
+<% content_for :title, "Package Details" %>
+<div class="bg-gray-50 min-h-screen">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Package Details</h1>
+          <p class="mt-1 text-sm text-gray-600">Package ID: <%= @package.package_id %></p>
+        </div>
+        <div class="flex space-x-3">
+          <%= link_to packages_path, 
+              class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Packages
+          <% end %>
+          <% if Current.user.can_edit_packages? %>
+            <%= link_to edit_package_path(@package), 
+                class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Package
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main Package Information -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Package Details Card -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+            <h3 class="text-lg font-medium text-gray-900">Package Information</h3>
+          </div>
+          <div class="p-6">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Package ID</dt>
+                <dd class="mt-1 text-lg font-semibold text-gray-900"><%= @package.package_id %></dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Package Date</dt>
+                <dd class="mt-1 text-lg text-gray-900"><%= @package.package_date&.strftime("%B %d, %Y") %></dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                <dd class="mt-1">
+                  <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full 
+                    <%= case @package.status
+                        when 'unpackage' then 'bg-gray-100 text-gray-800'
+                        when 'packaging' then 'bg-yellow-100 text-yellow-800'
+                        when 'package' then 'bg-green-100 text-green-800'
+                        else 'bg-gray-100 text-gray-800'
+                        end %>">
+                    <%= @package.status&.humanize %>
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Waste Quantity</dt>
+                <dd class="mt-1 text-lg text-gray-900"><%= @package.waste_quantity || 0 %> units</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+        <!-- Unit Batch Information -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <h3 class="text-lg font-medium text-gray-900">Unit Batch Information</h3>
+          </div>
+          <div class="p-6">
+            <% if @package.unit_batch %>
+              <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Unit ID</dt>
+                  <dd class="mt-1 text-lg font-semibold text-gray-900"><%= @package.unit_batch.unit_id %></dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Batch Code</dt>
+                  <dd class="mt-1 text-lg text-gray-900"><%= @package.unit_batch.batch_code %></dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Quantity</dt>
+                  <dd class="mt-1 text-lg text-gray-900"><%= @package.unit_batch.quantity %> units</dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Package Type</dt>
+                  <dd class="mt-1 text-lg text-gray-900"><%= @package.unit_batch.package_type&.humanize %></dd>
+                </div>
+                <% if @package.unit_batch.expiry_date %>
+                  <div>
+                    <dt class="text-sm font-medium text-gray-500">Expiry Date</dt>
+                    <dd class="mt-1 text-lg text-gray-900"><%= @package.unit_batch.expiry_date&.strftime("%B %d, %Y %I:%M %p") %></dd>
+                  </div>
+                <% end %>
+                <% if @package.unit_batch.waste_quantity %>
+                  <div>
+                    <dt class="text-sm font-medium text-gray-500">Unit Batch Waste</dt>
+                    <dd class="mt-1 text-lg text-gray-900"><%= @package.unit_batch.waste_quantity %> units</dd>
+                  </div>
+                <% end %>
+              </dl>
+            <% else %>
+              <p class="text-gray-500">No unit batch information available.</p>
+            <% end %>
+          </div>
+        </div>
+        <!-- Product Information -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+            <h3 class="text-lg font-medium text-gray-900">Product Information</h3>
+          </div>
+          <div class="p-6">
+            <% if @package.product %>
+              <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Product Name</dt>
+                  <dd class="mt-1 text-lg font-semibold text-gray-900"><%= @package.product.name %></dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Product Code</dt>
+                  <dd class="mt-1 text-lg text-gray-900"><%= @package.product.product_code %></dd>
+                </div>
+                <% if @package.product.period_year %>
+                  <div>
+                    <dt class="text-sm font-medium text-gray-500">Shelf Life (Years)</dt>
+                    <dd class="mt-1 text-lg text-gray-900"><%= @package.product.period_year %> years</dd>
+                  </div>
+                <% end %>
+                <% if @package.product.period_month %>
+                  <div>
+                    <dt class="text-sm font-medium text-gray-500">Shelf Life (Months)</dt>
+                    <dd class="mt-1 text-lg text-gray-900"><%= @package.product.period_month %> months</dd>
+                  </div>
+                <% end %>
+                <% if @package.product.period_week %>
+                  <div>
+                    <dt class="text-sm font-medium text-gray-500">Shelf Life (Weeks)</dt>
+                    <dd class="mt-1 text-lg text-gray-900"><%= @package.product.period_week %> weeks</dd>
+                  </div>
+                <% end %>
+                <% if @package.product.period_day %>
+                  <div>
+                    <dt class="text-sm font-medium text-gray-500">Shelf Life (Days)</dt>
+                    <dd class="mt-1 text-lg text-gray-900"><%= @package.product.period_day %> days</dd>
+                  </div>
+                <% end %>
+              </dl>
+            <% else %>
+              <p class="text-gray-500">No product information available.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Machine Assignment -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50">
+            <h3 class="text-lg font-medium text-gray-900">Machine Assignment</h3>
+          </div>
+          <div class="p-6">
+            <% if @package.machine %>
+              <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2"><%= @package.machine.name %></h4>
+                <div class="space-y-2 text-sm text-gray-600">
+                  <p><strong>Type:</strong> <%= @package.machine.machine_type&.humanize %></p>
+                  <p><strong>Line:</strong> <%= @package.machine.line %></p>
+                  <p><strong>Status:</strong>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                      <%= @package.machine.status == 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                      <%= @package.machine.status&.humanize %>
+                    </span>
+                  </p>
+                </div>
+              </div>
+            <% else %>
+              <div class="text-center">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <p class="text-gray-500 mb-4">No machine assigned</p>
+                <% if Current.user.worker? && @package.status == 'unpackage' %>
+                  <% if @available_machines.present? %>
+                    <%= form_with url: select_machine_package_path(@package), method: :patch, local: true, class: "space-y-4" do |form| %>
+                      <%= form.select :machine_id, 
+                          options_for_select([["Select Machine", ""]] + @available_machines.map { |m| [m.name, m.id] }), 
+                          {}, 
+                          { class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" } %>
+                      <%= form.submit "Assign Machine", 
+                          class: "w-full bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-emerald-700 transition-colors duration-200" %>
+                    <% end %>
+                  <% else %>
+                    <p class="text-sm text-gray-500">No machines available</p>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <!-- Quick Actions -->
+        <% if Current.user.can_edit_packages? %>
+          <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+              <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
+            </div>
+            <div class="p-6 space-y-3">
+              <%= link_to edit_package_path(@package), 
+                  class: "block w-full bg-blue-600 text-white text-center px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Package
+              <% end %>
+              <%= link_to @package, method: :delete, 
+                  confirm: "Are you sure you want to delete this package?",
+                  class: "block w-full bg-red-600 text-white text-center px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200" do %>
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Package
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

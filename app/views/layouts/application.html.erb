@@ -201,6 +201,22 @@
                 <span class="text-sm font-medium">Produces</span>
               <% end %>
             <% end %>
+            <% if Current.user.can_view_packages? %>
+              <%= link_to packages_path, class: "flex items-center px-4 py-2 transition-all duration-200 #{request.path.include?('/packages') ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'} rounded-lg whitespace-nowrap" do %>
+                <% if request.path.include?('/packages') %>
+                  <div class="w-6 h-6 flex items-center justify-center mr-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                  </div>
+                <% else %>
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
+                <% end %>
+                <span class="text-sm font-medium">Packages</span>
+              <% end %>
+            <% end %>
             <% if Current.session.user.manager? || Current.session.user.head? || Current.session.user.supervisor? %>
               <%= link_to machines_path, class: "flex items-center px-4 py-2 transition-all duration-200 #{request.path.include?('/machines') ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'} rounded-lg whitespace-nowrap" do %>
                 <% if request.path.include?('/machines') %>
