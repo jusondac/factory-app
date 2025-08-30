@@ -39,6 +39,7 @@ class UnitBatch < ApplicationRecord
 
   before_validation :generate_unit_id, on: :create
   before_validation :generate_batch_code, on: :create
+  before_validation :set_default_status, on: :create
 
   scope :for_date, ->(date) { joins(:prepare).where(prepares: { prepare_date: date }) }
   scope :for_product, ->(product) { where(product: product) }
@@ -66,6 +67,10 @@ class UnitBatch < ApplicationRecord
     existing_count = UnitBatch.where("unit_id LIKE ?", "UNIT-#{date_str}-%").count
 
     self.unit_id = "UNIT-#{date_str}-#{existing_count + 1}"
+  end
+
+  def set_default_status
+    self.status ||= :preparation
   end
 
   def generate_batch_code

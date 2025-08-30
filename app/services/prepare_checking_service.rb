@@ -19,9 +19,14 @@ class PrepareCheckingService
 
   def cancel_checking
     return false unless can_cancel_checking?
+    ActiveRecord::Base.transaction do
+      prepare.update!(status: :cancelled, checked_by: nil)
+      prepare.unit_batch.update!(status: :cancelled)
+    end
 
-    prepare.update!(status: :cancelled, checked_by: nil)
     true
+  rescue ActiveRecord::RecordInvalid
+    false
   end
 
   def complete_checking

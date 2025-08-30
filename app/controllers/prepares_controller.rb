@@ -23,7 +23,6 @@ class PreparesController < ApplicationController
   end
 
   def show
-    byebug
     redirect_to checking_prepare_path(@prepare) if @prepare.checking? && Current.user&.can_check_prepares?
     # Preload ingredients with proper ordering to avoid N+1
     @prepare_ingredients = @prepare.prepare_ingredients.order(:ingredient_name)

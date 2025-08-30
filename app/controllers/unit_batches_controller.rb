@@ -80,7 +80,7 @@ class UnitBatchesController < ApplicationController
   end
 
   def unit_batch_params
-    params.require(:unit_batch).permit(:product_id, :status, :quantity, :package_type, :shift)
+    params.require(:unit_batch).permit(:product_id, :quantity, :package_type, :shift)
   end
 
   def current_user
