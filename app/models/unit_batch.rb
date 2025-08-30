@@ -7,7 +7,8 @@ class UnitBatch < ApplicationRecord
     preparation: 0,
     production: 1,
     testing: 2,
-    packing: 3
+    packing: 3,
+    cancelled: 4
   }
 
   enum :package_type, {

@@ -36,7 +36,7 @@ class ProducesController < ApplicationController
       redirect_to @produce, notice: "Produce was successfully created."
     else
       @unit_batches = UnitBatch.production.includes(:product).where.missing(:produce)
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -56,7 +56,7 @@ class ProducesController < ApplicationController
     if @produce.update(produce_params)
       redirect_to @produce, notice: "Produce was successfully updated."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

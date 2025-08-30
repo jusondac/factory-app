@@ -11,7 +11,7 @@ class PreparesController < ApplicationController
     @prepares = @q.result
                   .order(prepare_date: :desc, created_at: :desc)
                   .page(params[:page])
-                  .per(10)
+                  .per(5)
 
     # Auto-cancel outdated preparations in a single batch query
     outdated_ids = @prepares.select { |p| p.prepare_date < Date.current && (p.unchecked? || p.checking?) }.map(&:id)
@@ -23,6 +23,7 @@ class PreparesController < ApplicationController
   end
 
   def show
+    byebug
     redirect_to checking_prepare_path(@prepare) if @prepare.checking? && Current.user&.can_check_prepares?
     # Preload ingredients with proper ordering to avoid N+1
     @prepare_ingredients = @prepare.prepare_ingredients.order(:ingredient_name)
@@ -51,7 +52,7 @@ class PreparesController < ApplicationController
       # Transfer service errors to prepare object for form display
       service.errors.each { |error| @prepare.errors.add(:base, error.message) }
 
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -109,15 +110,16 @@ class PreparesController < ApplicationController
           render json: {
             success: false,
             message: "Unable to update ingredient status."
-          }, status: :unprocessable_entity
+          }, status: :unprocessable_content
         }
       end
     end
   end
 
   def cancel
+    # Update notes if provided
+    @prepare.update(notes: params[:notes]) if params[:notes].present?
     service = PrepareCheckingService.new(prepare: @prepare, user: Current.user)
-
     if service.cancel_checking
       redirect_to prepares_path, notice: "Preparation has been cancelled."
     else

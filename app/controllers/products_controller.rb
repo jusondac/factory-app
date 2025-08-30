@@ -79,7 +79,7 @@ class ProductsController < ApplicationController
       render json: {
         errors: @ingredient.errors.full_messages,
         success: false
-      }, status: :unprocessable_entity
+      }, status: :unprocessable_content
     end
   end
 
