@@ -66,6 +66,21 @@ class PrepareService
     { success: false, error: "Failed to remove unit batch: #{e.message}" }
   end
 
+  def self.auto_cancel_outdated_preparations(prepares_collection)
+    # Find outdated preparations that need to be cancelled
+    outdated_ids = prepares_collection.select { |p| p.prepare_date < Date.current && (p.unchecked? || p.checking?) }.map(&:id)
+
+    if outdated_ids.any?
+      # Cancel outdated preparations in a single batch query
+      Prepare.where(id: outdated_ids).update_all(status: :cancelled, checked_by_id: nil)
+
+      # Update in-memory objects to reflect the status change
+      prepares_collection.each { |p| p.status = "cancelled" if outdated_ids.include?(p.id) }
+    end
+
+    outdated_ids.count
+  end
+
   private
 
   def create_unit_batch!

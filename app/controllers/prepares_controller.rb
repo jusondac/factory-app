@@ -13,13 +13,8 @@ class PreparesController < ApplicationController
                   .page(params[:page])
                   .per(5)
 
-    # Auto-cancel outdated preparations in a single batch query
-    outdated_ids = @prepares.select { |p| p.prepare_date < Date.current && (p.unchecked? || p.checking?) }.map(&:id)
-    if outdated_ids.any?
-      Prepare.where(id: outdated_ids).update_all(status: :cancelled, checked_by_id: nil)
-      # Update in-memory objects
-      @prepares.each { |p| p.status = "cancelled" if outdated_ids.include?(p.id) }
-    end
+    # Auto-cancel outdated preparations using service
+    PrepareService.auto_cancel_outdated_preparations(@prepares)
   end
 
   def show
