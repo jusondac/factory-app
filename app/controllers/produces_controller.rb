@@ -6,7 +6,21 @@ class ProducesController < ApplicationController
 
   def index
     @q = Produce.ransack(params[:q])
-    @produces = @q.result.with_includes.page(params[:page]).per(5).order(created_at: :desc)
+
+    # Apply tab filter
+    tab = params[:tab] || "today"
+    @tab = tab
+
+    base_query = case tab
+    when "today"
+      @q.result.today
+    when "history"
+      @q.result.history
+    else
+      @q.result
+    end
+
+    @produces = base_query.with_includes.page(params[:page]).per(5).order(created_at: :desc)
   end
 
   def show

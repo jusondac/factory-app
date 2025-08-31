@@ -7,8 +7,21 @@ class PreparesController < ApplicationController
     # Build the query with all necessary includes upfront
     @q = Prepare.with_includes.ransack(params[:q])
 
+    # Apply tab filter
+    tab = params[:tab] || "today"
+    @tab = tab
+
+    base_query = case tab
+    when "today"
+      @q.result.today
+    when "history"
+      @q.result.history
+    else
+      @q.result
+    end
+
     # Get paginated results
-    @prepares = @q.result
+    @prepares = base_query
                   .order(prepare_date: :desc, created_at: :desc)
                   .page(params[:page])
                   .per(5)

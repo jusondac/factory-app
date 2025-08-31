@@ -1,5 +1,6 @@
 class PackagesController < ApplicationController
   before_action :set_package, only: [ :show, :edit, :update, :destroy, :select_machine, :machine_checking, :update_machine_checking, :start_packaging, :complete_packaging ]
+  before_action :authorize_view!, only: [ :index, :show ]
   before_action :authorize_edit!, only: [ :edit, :update, :destroy, :select_machine, :machine_checking, :update_machine_checking, :start_packaging, :complete_packaging ]
   def machine_checking
     service = PackageMachineCheckingService.new(package: @package, user: Current.user)
@@ -53,6 +54,7 @@ class PackagesController < ApplicationController
     @total_count = service_result[:total_count]
     @current_page = service_result[:current_page]
     @total_pages = service_result[:total_pages]
+    @tab = params[:tab] || "today"
 
     # For AJAX requests
     respond_to do |format|

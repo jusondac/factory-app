@@ -30,6 +30,8 @@ class Produce < ApplicationRecord
   scope :for_date, ->(date) { where(product_date: date) }
   scope :for_product, ->(product) { joins(:unit_batch).where(unit_batches: { product: product }) }
   scope :with_includes, -> { includes(unit_batch: :product) }
+  scope :today, -> { where(product_date: Date.current) }
+  scope :history, -> { where(product_date: ...Date.current) }
 
   # Delegate product to unit_batch
   delegate :product, to: :unit_batch, allow_nil: true

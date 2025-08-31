@@ -35,17 +35,19 @@ class Prepare < ApplicationRecord
   scope :for_product, ->(product) { joins(:unit_batch).where(unit_batches: { product: product }) }
   scope :with_includes, -> { includes(unit_batch: :product, created_by: [], checked_by: [], prepare_ingredients: []) }
   scope :outdated_and_incomplete, -> { where(prepare_date: ...Date.current).where(status: [ :unchecked, :checking ]) }
+  scope :today, -> { where(prepare_date: Date.current) }
+  scope :history, -> { where(prepare_date: ...Date.current) }
 
   # Delegate product to unit_batch
   delegate :product, to: :unit_batch, allow_nil: true
+
+  # Allow setting product_id for form handling (virtual attribute)
+  attr_accessor :temp_product_id
 
   # Delegate product_id to unit_batch for form compatibility
   def product_id
     unit_batch&.product_id || @temp_product_id
   end
-
-  # Allow setting product_id for form handling (virtual attribute)
-  attr_accessor :temp_product_id
 
   def product_id=(value)
     @temp_product_id = value
