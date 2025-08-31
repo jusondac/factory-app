@@ -45,7 +45,7 @@ class Package < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    [ "machine", "unit_batch" ]
+    [ "machine", "unit_batch", "product"]
   end
 
   private

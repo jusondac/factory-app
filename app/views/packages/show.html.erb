@@ -46,6 +46,28 @@
         </div>
       </div>
     </div>
+    <% if @package.status == 'package' %>
+      <!-- Success Banner for Packaged -->
+      <div class="mb-8">
+        <div class="mt-4 rounded-xl p-4">
+          <div class="flex flex-col items-center space-x-3">
+            <div class="flex-shrink-0 mb-8">
+              <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
+                <svg class="h-20 w-20 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <div class="flex-1 text-center">
+              <div class="flex flex-col items-center space-y-2">
+                <h3 class="text-sm font-semibold text-green-900">Packaging completed successfully!</h3>
+              </div>
+              <p class="mt-1 text-xs text-green-700">This package has passed all quality checks and is ready for shipment.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Main Package Information -->
       <div class="lg:col-span-2 space-y-6">
