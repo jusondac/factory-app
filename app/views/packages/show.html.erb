@@ -26,12 +26,19 @@
             <% end %>
             <%# Workflow buttons %>
             <% if Current.user.worker? %>
-              <% if @package.status == 'unpackage' && @package.machine.present? %>
+              <% if @package.status == 'unpackage' && @package.machine.present? && !@package.machine_check? %>
                 <%= link_to machine_checking_package_path(@package), class: "inline-flex items-center px-4 py-2 bg-yellow-500 text-white text-sm font-medium rounded-lg hover:bg-yellow-600 transition-colors duration-200" do %>
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Start Machine Checking
+                <% end %>
+              <% elsif @package.status == 'unpackage' && @package.machine.present? && @package.machine_check? %>
+                <%= button_to start_packaging_package_path(@package), method: :patch, class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                  Start Packaging
                 <% end %>
               <% elsif @package.status == 'packaging' %>
                 <%= button_to complete_packaging_package_path(@package), method: :patch, class: "inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200" do %>
@@ -213,7 +220,7 @@
                 </div>
                 <h4 class="text-lg font-semibold text-gray-900 mb-2"><%= @package.machine.name %></h4>
                 <div class="space-y-2 text-sm text-gray-600">
-                  <p><strong>Type:</strong> <%= @package.machine.machine_type&.humanize %></p>
+                  <p><strong>Type:</strong> <%= @package.machine.allocation&.humanize %></p>
                   <p><strong>Line:</strong> <%= @package.machine.line %></p>
                   <p><strong>Status:</strong>
                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
@@ -231,7 +238,7 @@
                   </svg>
                 </div>
                 <p class="text-gray-500 mb-4">No machine assigned</p>
-                <% if Current.user.worker? && @package.status == 'unpackage' %>
+                <% if Current.user.worker? && @package.status == 'unpackage' && !@package.machine_check? %>
                   <% if @available_machines.present? %>
                     <%= form_with url: select_machine_package_path(@package), method: :patch, local: true, class: "space-y-4" do |form| %>
                       <%= form.select :machine_id, 

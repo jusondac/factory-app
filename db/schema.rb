@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_31_025633) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_31_054312) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -61,6 +61,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_025633) do
     t.integer "waste_quantity", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "machine_check", default: false
     t.index ["machine_id"], name: "index_packages_on_machine_id"
     t.index ["package_date"], name: "index_packages_on_package_date"
     t.index ["package_id"], name: "index_packages_on_package_id", unique: true

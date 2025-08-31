@@ -4,6 +4,11 @@ class PackagesController < ApplicationController
   def machine_checking
     return redirect_to @package, alert: "Please select a machine first." unless @package.machine.present?
 
+    if @package.machine_check?
+      redirect_to @package, alert: "Machine checking has already been completed."
+      return
+    end
+
     @machine_checkings = @package.machine.machine_checkings
     @package_machine_checks = {}
 
@@ -15,6 +20,11 @@ class PackagesController < ApplicationController
   def update_machine_checking
     unless @package.machine.present?
       redirect_to @package, alert: "Please select a machine first."
+      return
+    end
+
+    if @package.machine_check?
+      redirect_to @package, alert: "Machine checking has already been completed."
       return
     end
 
@@ -32,17 +42,17 @@ class PackagesController < ApplicationController
       )
     end
 
-    @package.update!(status: :packaging)
+    @package.update!(status: :packaging, machine_check: true)
     redirect_to @package, notice: "Machine checking completed. You can now start packaging."
   rescue ActiveRecord::RecordInvalid => e
     redirect_to machine_checking_package_path(@package), alert: "Error saving machine checks: #{e.message}"
   end
 
   def start_packaging
-    if @package.unpackage? && @package.update(status: :packaging)
+    if @package.unpackage? && @package.machine_check? && @package.update(status: :packaging)
       redirect_to @package, notice: "Packaging started successfully."
     else
-      redirect_to @package, alert: "Unable to start packaging."
+      redirect_to @package, alert: "Unable to start packaging. Machine checking must be completed first."
     end
   end
 
@@ -112,6 +122,11 @@ class PackagesController < ApplicationController
   end
 
   def select_machine
+    if @package.machine_check?
+      redirect_to @package, alert: "Machine checking has already been completed."
+      return
+    end
+
     if params[:machine_id].present?
       machine = Machine.find(params[:machine_id])
       if machine.status == "inactive"

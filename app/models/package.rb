@@ -6,6 +6,7 @@ class Package < ApplicationRecord
   # unit_batch_id: integer (FK) - not null
   # machine_id: integer (FK) - nullable
   # waste_quantity: integer - default: 0
+  # machine_check: boolean - default: false
   # created_at: datetime - not null
   # updated_at: datetime - not null
 
@@ -16,6 +17,7 @@ class Package < ApplicationRecord
 
   belongs_to :unit_batch
   belongs_to :machine, optional: true
+  has_many :package_machine_checks, dependent: :destroy
 
   validates :package_date, presence: true
   validates :package_id, presence: true, uniqueness: true
@@ -41,11 +43,11 @@ class Package < ApplicationRecord
   delegate :produce, to: :unit_batch, allow_nil: true
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "created_at", "id", "machine_id", "package_date", "package_id", "status", "unit_batch_id", "updated_at", "waste_quantity" ]
+    [ "created_at", "id", "machine_check", "machine_id", "package_date", "package_id", "status", "unit_batch_id", "updated_at", "waste_quantity" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    [ "machine", "unit_batch", "product"]
+    [ "machine", "unit_batch", "product" ]
   end
 
   private
