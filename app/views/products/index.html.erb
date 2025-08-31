@@ -198,7 +198,7 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white/40 backdrop-blur-sm divide-y divide-gray-200/30">
-                  <% @products.earodu do |product| %>
+                  <% @products.each do |product| %>
                     <tr class="hover:bg-white/60 transition-all duration-200 cursor-pointer" onclick="window.location.href='<%= product_path(product) %>'">
                       <!-- Product Name / Creator -->
                       <td class="px-6 py-4">

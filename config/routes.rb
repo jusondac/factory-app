@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   resources :packages do
     member do
       patch :select_machine
+      get :machine_checking
+      patch :update_machine_checking
+      patch :start_packaging
+      patch :complete_packaging
     end
   end
   resources :machines

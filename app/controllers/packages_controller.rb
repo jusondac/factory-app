@@ -1,10 +1,74 @@
 class PackagesController < ApplicationController
-  before_action :set_package, only: [ :show, :edit, :update, :destroy, :select_machine ]
-  before_action :authorize_edit!, only: [ :edit, :update, :destroy, :select_machine ]
+  before_action :set_package, only: [ :show, :edit, :update, :destroy, :select_machine, :machine_checking, :update_machine_checking, :start_packaging, :complete_packaging ]
+  before_action :authorize_edit!, only: [ :edit, :update, :destroy, :select_machine, :machine_checking, :update_machine_checking, :start_packaging, :complete_packaging ]
+  def machine_checking
+    return redirect_to @package, alert: "Please select a machine first." unless @package.machine.present?
+
+    @machine_checkings = @package.machine.machine_checkings
+    @package_machine_checks = {}
+
+    @package.package_machine_checks.includes(:machine_checking).each do |check|
+      @package_machine_checks[check.machine_checking_id] = check.answer
+    end
+  end
+
+  def update_machine_checking
+    unless @package.machine.present?
+      redirect_to @package, alert: "Please select a machine first."
+      return
+    end
+
+    @package.package_machine_checks.destroy_all
+
+    params.fetch(:machine_checking, {}).each do |checking_id, answer|
+      next if answer.blank?
+      machine_checking = MachineChecking.find(checking_id)
+      final_answer = answer.is_a?(Array) ? answer.reject(&:blank?).join(", ") : answer
+      next if final_answer.blank?
+      @package.package_machine_checks.create!(
+        machine_checking: machine_checking,
+        question: machine_checking.checking_name,
+        answer: final_answer
+      )
+    end
+
+    @package.update!(status: :packaging)
+    redirect_to @package, notice: "Machine checking completed. You can now start packaging."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to machine_checking_package_path(@package), alert: "Error saving machine checks: #{e.message}"
+  end
+
+  def start_packaging
+    if @package.unpackage? && @package.update(status: :packaging)
+      redirect_to @package, notice: "Packaging started successfully."
+    else
+      redirect_to @package, alert: "Unable to start packaging."
+    end
+  end
+
+  def complete_packaging
+    if @package.packaging? && @package.update(status: :package)
+      @package.machine.inactive! if @package.machine.present?
+      redirect_to @package, notice: "Packaging completed successfully. Machine is now available."
+    else
+      redirect_to @package, alert: "Unable to complete packaging."
+    end
+  end
 
   def index
-    @q = Package.ransack(params[:q])
-    @packages = @q.result.with_includes.page(params[:page]).per(5).order(created_at: :desc)
+    service_result = PackageIndexService.new(params).call
+
+    @packages = service_result[:packages]
+    @q = service_result[:search]
+    @total_count = service_result[:total_count]
+    @current_page = service_result[:current_page]
+    @total_pages = service_result[:total_pages]
+
+    # For AJAX requests
+    respond_to do |format|
+      format.html
+      format.json { render json: { packages: @packages, total_count: @total_count } }
+    end
   end
 
   def show

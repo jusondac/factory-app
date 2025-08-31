@@ -24,6 +24,24 @@
               </svg>
               Edit Package
             <% end %>
+            <%# Workflow buttons %>
+            <% if Current.user.worker? %>
+              <% if @package.status == 'unpackage' && @package.machine.present? %>
+                <%= link_to machine_checking_package_path(@package), class: "inline-flex items-center px-4 py-2 bg-yellow-500 text-white text-sm font-medium rounded-lg hover:bg-yellow-600 transition-colors duration-200" do %>
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Start Machine Checking
+                <% end %>
+              <% elsif @package.status == 'packaging' %>
+                <%= button_to complete_packaging_package_path(@package), method: :patch, class: "inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200" do %>
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Complete Packaging
+                <% end %>
+              <% end %>
+            <% end %>
           <% end %>
         </div>
       </div>
