@@ -72,21 +72,20 @@
                         <span class="text-red-500 ml-1">*</span>
                       </label>
                       <% if checking.checking_type == 'option' %>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-3">
                           <% checking.checking_options.each do |option| %>
-                            <% is_selected = @produce_machine_checks[checking.id]&.split(',')&.map(&:strip)&.include?(option) || false %>
+                            <% is_selected = @produce_machine_checks[checking.id] == option %>
                             <label class="relative cursor-pointer">
-                              <%= check_box_tag "machine_checking[#{checking.id}][]", option, is_selected,
+                              <%= radio_button_tag "machine_checking[#{checking.id}]", option, is_selected,
                                     class: "sr-only peer",
-                                    id: "option_#{checking.id}_#{option.parameterize}" %>
+                                    id: "option_#{checking.id}_#{option.parameterize}",
+                                    required: true %>
                               <div class="peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-violet-600 peer-checked:text-white peer-checked:border-purple-500 peer-checked:shadow-lg peer-checked:scale-105 w-full text-left p-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-purple-300 transition-all duration-200 bg-white shadow-sm">
                                 <div class="flex items-center justify-between">
                                   <div class="flex items-center space-x-3">
                                     <div class="peer-checked:bg-white peer-checked:text-purple-600 w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-white flex items-center justify-center transition-all duration-200">
                                       <% if is_selected %>
-                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                        </svg>
+                                        <div class="w-3 h-3 bg-white rounded-full"></div>
                                       <% end %>
                                     </div>
                                     <span class="font-medium"><%= option %></span>
