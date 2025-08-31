@@ -1,148 +1,288 @@
 <% content_for :title, "Packages" %>
-<div class="bg-gray-50 min-h-screen">
+<!-- Two-Column Layout -->
+<div class="bg-gray-50 w-screen">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
     <!-- Page Header -->
-    <div class="mb-8">
+    <div class="mb-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Packages Management</h1>
-          <p class="mt-1 text-sm text-gray-600">Manage packaging operations and track package status</p>
+          <h1 class="text-3xl font-bold text-gray-900">Package Management</h1>
+          <p class="mt-1 text-sm text-gray-600">Monitor and manage product packaging workflows</p>
         </div>
-        <div class="flex space-x-3">
-          <% if Current.user.can_edit_packages? %>
-            <%= link_to new_package_path, 
-                class: "inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-medium rounded-lg hover:from-emerald-500 hover:to-teal-500 transition-all duration-200 shadow-lg transform hover:scale-105" do %>
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              New Package
-            <% end %>
+        <% if Current.user&.can_edit_packages? %>
+          <%= link_to new_package_path, 
+              class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Package
           <% end %>
-        </div>
+        <% end %>
       </div>
     </div>
-    <!-- Search and Filters -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      <%= search_form_for @q, local: true, class: "space-y-4" do |f| %>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <%= f.label :package_id_cont, "Package ID", class: "block text-sm font-medium text-gray-700 mb-2" %>
-            <%= f.text_field :package_id_cont, 
-                placeholder: "Search by Package ID", 
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
-          </div>
-          <div>
-            <%= f.label :status_eq, "Status", class: "block text-sm font-medium text-gray-700 mb-2" %>
-            <%= f.select :status_eq, 
-                options_for_select([["All Statuses", ""], ["Unpackage", "unpackage"], ["Packaging", "packaging"], ["Package", "package"]], @q.status_eq), 
-                {}, 
-                { class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" } %>
-          </div>
-          <div class="flex items-end">
-            <%= f.submit "Search", class: "w-full bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors duration-200" %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-    <!-- Packages Table -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">Packages List</h3>
-      </div>
-      <% if @packages.any? %>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Batch</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Machine</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waste Quantity</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <% @packages.each do |package| %>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900"><%= package.package_id %></div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900"><%= package.product&.name %></div>
-                    <div class="text-sm text-gray-500"><%= package.product&.product_code %></div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900"><%= package.unit_batch&.unit_id %></div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= package.package_date&.strftime("%B %d, %Y") %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                      <%= case package.status
-                          when 'unpackage' then 'bg-gray-100 text-gray-800'
-                          when 'packaging' then 'bg-yellow-100 text-yellow-800'
-                          when 'package' then 'bg-green-100 text-green-800'
-                          else 'bg-gray-100 text-gray-800'
-                          end %>">
-                      <%= package.status&.humanize %>
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= package.machine&.name || "Not assigned" %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= package.waste_quantity || 0 %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div class="flex space-x-2">
-                      <%= link_to package, class: "text-emerald-600 hover:text-emerald-900" do %>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      <% end %>
-                      <% if Current.user.can_edit_packages? %>
-                        <%= link_to edit_package_path(package), class: "text-blue-600 hover:text-blue-900" do %>
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        <% end %>
-                      <% end %>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-        <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-gray-200">
-          <%= paginate @packages if respond_to?(:paginate) %>
-        </div>
-      <% else %>
-        <div class="text-center py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No packages found</h3>
-          <p class="mt-1 text-sm text-gray-500">Get started by creating a new package.</p>
-          <% if Current.user.can_edit_packages? %>
-            <div class="mt-6">
-              <%= link_to new_package_path, 
-                  class: "inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700" do %>
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Left Sidebar: Filters & Info -->
+      <div class="col-span-12 lg:col-span-4 space-y-6">
+        <!-- Filter Card -->
+        <div class="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl shadow-lg border border-blue-100 p-6 backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.121A1 1 0 013 6.414V4z"></path>
                 </svg>
-                New Package
+              </div>
+              <div class="ml-3">
+                <h3 class="text-lg font-bold text-gray-900">Smart Filters</h3>
+                <p class="text-xs text-gray-600">Find packages quickly</p>
+              </div>
+            </div>
+            <%= search_form_for @q, local: true, class: "space-y-4" do |f| %>
+              <!-- Package ID -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  Package ID
+                </label>
+                <%= f.search_field :package_id_cont, 
+                    placeholder: "PKG-20250826-1", 
+                    class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" %>
+              </div>
+              <!-- Status -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                  Status
+                </label>
+                <%= f.select :status_eq, 
+                    options_for_select([
+                      ['All Statuses', ''],
+                      ['Unpackage', Package.statuses['unpackage']],
+                      ['Packaging', Package.statuses['packaging']],
+                      ['Package', Package.statuses['package']]
+                    ], @q.status_eq),
+                    {},
+                    { class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md" } %>
+              </div>
+              <!-- Action Buttons -->
+              <div class="flex space-x-3 pt-2">
+                <%= f.submit "🔍 Search", class: "flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold" %>
+                <%= link_to "Clear", packages_path, class: "px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-white/80 transition-all duration-200 shadow-sm hover:shadow-md bg-white/50 backdrop-blur-sm" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <!-- Quick Actions -->
+        <div class="relative bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 rounded-2xl shadow-lg border border-rose-100 p-6 backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-fuchsia-500/5 rounded-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-lg font-bold text-gray-900">Quick Filters</h3>
+                <p class="text-xs text-gray-600">One-click shortcuts</p>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <%= link_to packages_path(q: { package_date_eq: Date.current }), 
+                  class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">📅</span>
+                  <span class="group-hover:text-gray-900 transition-colors">Today's Packages</span>
+                </span>
               <% end %>
+              <%= link_to packages_path(q: { status_eq: Package.statuses['packaging'] }), 
+                  class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">📦</span>
+                  <span class="group-hover:text-gray-900 transition-colors">In Packaging Only</span>
+                </span>
+              <% end %>
+              <%= link_to packages_path(q: { status_eq: Package.statuses['package'] }), 
+                  class: "group block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20 hover:shadow-md transform hover:scale-105" do %>
+                <span class="flex items-center">
+                  <span class="text-lg mr-3">✅</span>
+                  <span class="group-hover:text-gray-900 transition-colors">Completed Only</span>
+                </span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Right Content: Records & Pagination -->
+      <div class="col-span-12 lg:col-span-8 space-y-6">
+        <!-- Quick Stats -->
+        <div class="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl shadow-lg border border-blue-100 p-6 backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
+          <div class="relative">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-lg font-bold text-gray-900">Quick Stats</h3>
+                <p class="text-xs text-gray-600">Real-time overview</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="flex flex-col items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center mb-1">
+                  <span class="w-3 h-3 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
+                  Total
+                </span>
+                <span class="font-bold text-gray-900 text-xl"><%= @total_count %></span>
+              </div>
+              <div class="flex flex-col items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center mb-1">
+                  <span class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                  Completed
+                </span>
+                <span class="font-bold text-green-600 text-xl"><%= Package.where(status: :package).count %></span>
+              </div>
+              <div class="flex flex-col items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center mb-1">
+                  <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2 animate-pulse"></span>
+                  In Packaging
+                </span>
+                <span class="font-bold text-yellow-600 text-xl"><%= Package.where(status: :packaging).count %></span>
+              </div>
+              <div class="flex flex-col items-center p-3 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20">
+                <span class="text-sm font-medium text-gray-700 flex items-center mb-1">
+                  <span class="w-3 h-3 bg-gray-500 rounded-full mr-2 animate-pulse"></span>
+                  Pending
+                </span>
+                <span class="font-bold text-gray-600 text-xl"><%= Package.where(status: :unpackage).count %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Table Card -->
+        <div class="relative bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 rounded-2xl shadow-lg border border-gray-100 overflow-hidden backdrop-blur-sm">
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-slate-500/5 to-zinc-500/5 rounded-2xl"></div>
+          <!-- Header -->
+          <div class="relative px-6 py-4 border-b border-gray-200/50 bg-white/30 backdrop-blur-sm">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-r from-slate-600 to-gray-700 rounded-lg flex items-center justify-center shadow-md mr-3">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                  </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900">Package Records</h3>
+              </div>
+              <span class="text-sm text-gray-600 bg-white/50 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/20">
+                Showing <%= @packages.count %> of <%= @total_count %> records
+              </span>
+            </div>
+          </div>
+          <% if @packages.any? %>
+            <!-- Table -->
+            <div class="relative overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200/50">
+                <thead class="bg-gradient-to-r from-gray-50 to-slate-50 backdrop-blur-sm">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ID / Product</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Unit Batch</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white/40 backdrop-blur-sm divide-y divide-gray-200/30">
+                  <% @packages.each do |package| %>
+                    <% 
+                      # Status-based row coloring
+                      status_classes = case package.status
+                                      when 'package' then 'bg-green-50 hover:bg-green-100'
+                                      when 'unpackage' then 'bg-gray-50 hover:bg-gray-100'
+                                      when 'packaging' then 'bg-yellow-50 hover:bg-yellow-100'
+                                      else 'bg-white hover:bg-gray-50'
+                                      end
+                      
+                      row_classes = [status_classes, "transition-all duration-200 cursor-pointer"]
+                    %>
+                    <tr class="<%= row_classes.join(' ') %>" onclick="window.location.href='<%= package_path(package) %>'">
+                      <!-- ID / Product -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900"><%= package.package_id %></div>
+                        <div class="text-sm text-gray-500"><%= package.product&.name || 'No product' %></div>
+                      </td>
+                      <!-- Date -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900"><%= package.package_date&.strftime("%b %d, %Y") %></div>
+                        <div class="text-xs text-gray-500">
+                          <% if package.package_date %>
+                            <%= time_ago_in_words(package.package_date) %>
+                          <% end %>
+                        </div>
+                      </td>
+                      <!-- Status -->
+                      <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                          <%= case package.status
+                              when 'unpackage' then 'bg-gray-100 text-gray-800'
+                              when 'packaging' then 'bg-yellow-100 text-yellow-800'
+                              when 'package' then 'bg-green-100 text-green-800'
+                              end %>">
+                          <%= package.status.humanize %>
+                        </span>
+                      </td>
+                      <!-- Unit Batch -->
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900"><%= package.unit_batch&.unit_id || 'No batch' %></div>
+                        <div class="text-xs text-gray-500">
+                          <%= package.unit_batch&.status&.humanize || 'N/A' %>
+                        </div>
+                      </td>
+                      <!-- Actions -->
+                      <td class="px-6 py-4 text-sm" onclick="event.stopPropagation()">
+                        <%= link_to "View", package_path(package), 
+                            class: "text-blue-600 hover:text-blue-900 transition-colors" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                  Showing <%= @packages.offset_value + 1 %> to 
+                  <%= [@packages.offset_value + @packages.limit_value, @total_count].min %> of 
+                  <%= @total_count %> results
+                </div>
+                <div>
+                  <%= paginate @packages %>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <!-- Empty State -->
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No packages found</h3>
+              <p class="mt-1 text-sm text-gray-500">Try adjusting your search criteria.</p>
             </div>
           <% end %>
         </div>
-      <% end %>
+        <!-- End of Table Card -->
+      </div>
+      <!-- End of Right Content -->
     </div>
   </div>
 </div>

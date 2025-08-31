@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_112707) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_31_054312) do
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "product_id", null: false
@@ -41,6 +41,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_112707) do
     t.integer "line"
   end
 
+  create_table "package_machine_checks", force: :cascade do |t|
+    t.integer "package_id", null: false
+    t.integer "machine_checking_id", null: false
+    t.string "question"
+    t.text "answer"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["machine_checking_id"], name: "index_package_machine_checks_on_machine_checking_id"
+    t.index ["package_id"], name: "index_package_machine_checks_on_package_id"
+  end
+
   create_table "packages", force: :cascade do |t|
     t.date "package_date", null: false
     t.string "package_id", null: false
@@ -50,6 +61,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_112707) do
     t.integer "waste_quantity", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "machine_check", default: false
     t.index ["machine_id"], name: "index_packages_on_machine_id"
     t.index ["package_date"], name: "index_packages_on_package_date"
     t.index ["package_id"], name: "index_packages_on_package_id", unique: true
@@ -160,6 +172,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_112707) do
 
   add_foreign_key "ingredients", "products"
   add_foreign_key "machine_checkings", "machines"
+  add_foreign_key "package_machine_checks", "machine_checkings"
+  add_foreign_key "package_machine_checks", "packages"
   add_foreign_key "packages", "machines"
   add_foreign_key "packages", "unit_batches"
   add_foreign_key "prepare_ingredients", "prepares"

@@ -77,7 +77,28 @@ class ProducesController < ApplicationController
     if @produce.producing? && @produce.update(status: :produced)
       # Release the machine back to inactive status when production is completed
       @produce.machine.inactive! if @produce.machine.present?
-      redirect_to @produce, notice: "Production completed successfully. Machine is now available for other productions."
+
+      # Automatically transition unit batch to packing status and create package
+      begin
+        @produce.unit_batch.update!(status: :packing)
+
+        # Create new package with unpackage status
+        package = Package.new(
+          unit_batch: @produce.unit_batch,
+          package_date: Date.current,
+          waste_quantity: 0
+        )
+
+        if package.save
+          redirect_to @produce, notice: "Production completed successfully. Package created and ready for packaging. Machine is now available for other productions."
+        else
+          # If package creation fails, still show success for production but warn about package
+          redirect_to @produce, notice: "Production completed successfully. However, package creation failed: #{package.errors.full_messages.join(', ')}. Machine is now available for other productions."
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        # If unit batch update fails, still show success for production but warn about transition
+        redirect_to @produce, notice: "Production completed successfully. However, unit batch transition to packing failed: #{e.message}. Machine is now available for other productions."
+      end
     else
       redirect_to @produce, alert: "Unable to complete production."
     end
