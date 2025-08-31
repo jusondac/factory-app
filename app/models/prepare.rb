@@ -63,24 +63,20 @@ class Prepare < ApplicationRecord
     prepare_ingredients_count > 0 && checked_ingredients_count == prepare_ingredients_count
   end
 
-  def checked_ingredients_count
-    prepare_ingredients.count(&:checked)
+  def update_checked_ingredients_count
+    update_column(:checked_ingredients_count, prepare_ingredients.checked.count)
   end
 
   def checking_progress
-    @checking_progress ||= begin
-      total = prepare_ingredients.size # Use preloaded association
-      checked_count = prepare_ingredients.count(&:checked)
-      "#{checked_count}/#{total}"
-    end
+    @checking_progress ||= "#{checked_ingredients_count}/#{prepare_ingredients_count}"
   end
 
   def checking_percentage
     @checking_percentage ||= begin
-      total = prepare_ingredients.size # Use preloaded association
+      total = prepare_ingredients_count
       return 0 if total.zero?
 
-      checked_count = prepare_ingredients.count(&:checked)
+      checked_count = checked_ingredients_count
       (checked_count.to_f / total * 100).round(1)
     end
   end
@@ -133,10 +129,8 @@ class Prepare < ApplicationRecord
       )
     end
 
-    # Update counter cache after creating all ingredients
-    update_columns(
-      prepare_ingredients_count: created_ingredients.size,
-      checked_ingredients_count: 0
-    )
+    # Counter cache is automatically updated by Rails for prepare_ingredients_count
+    # But we need to manually set checked_ingredients_count since all are unchecked
+    update_column(:checked_ingredients_count, 0)
   end
 end

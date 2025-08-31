@@ -140,84 +140,49 @@ class ProducesController < ApplicationController
   def machine_checking
     authorize_edit_specific!
 
-    unless @produce.machine.present?
-      redirect_to @produce, alert: "Please select a machine first."
-      return
-    end
+    service = ProduceMachineCheckingService.new(produce: @produce, user: Current.user)
+    result = service.get_machine_checkings_data
 
-    @machine_checkings = @produce.machine.machine_checkings
-    @produce_machine_checks = {}
-
-    # Initialize existing answers
-    @produce.produce_machine_checks.includes(:machine_checking).each do |check|
-      @produce_machine_checks[check.machine_checking_id] = check.answer
+    if result[:success]
+      @machine_checkings = result[:machine_checkings]
+      @produce_machine_checks = result[:produce_machine_checks]
+    else
+      redirect_to @produce, alert: result[:alert]
     end
   end
 
   def update_machine_checking
     authorize_edit_specific!
 
-    unless @produce.machine.present?
-      redirect_to @produce, alert: "Please select a machine first."
-      return
+    service = ProduceMachineCheckingService.new(
+      produce: @produce,
+      user: Current.user,
+      machine_checking_params: machine_checking_params
+    )
+    result = service.perform_machine_checking
+
+    if result[:success]
+      redirect_to @produce, notice: result[:notice]
+    else
+      redirect_to machine_checking_produce_path(@produce), alert: result[:alert]
     end
-
-    # Clear existing checks for this produce
-    @produce.produce_machine_checks.destroy_all
-
-    # Create new checks from the submitted form
-    machine_checking_params.each do |checking_id, answer|
-      next if answer.blank?
-
-      machine_checking = MachineChecking.find(checking_id)
-
-      # Handle array answers (from checkboxes) by joining them
-      final_answer = answer.is_a?(Array) ? answer.reject(&:blank?).join(", ") : answer
-      next if final_answer.blank?
-
-      @produce.produce_machine_checks.create!(
-        machine_checking: machine_checking,
-        question: machine_checking.checking_name,
-        answer: final_answer
-      )
-    end
-
-    # Mark machine check as completed
-    @produce.update!(machine_check: true)
-
-    redirect_to @produce, notice: "Machine checking completed successfully."
-  rescue ActiveRecord::RecordInvalid => e
-    redirect_to machine_checking_produce_path(@produce), alert: "Error saving machine checks: #{e.message}"
   end
 
   def select_machine
     authorize_edit_specific!
 
-    if @produce.machine_check?
-      redirect_to @produce, alert: "Machine checking has already been completed."
-      return
+    service = ProduceMachineSelectionService.new(
+      produce: @produce,
+      user: Current.user,
+      machine_id: params[:machine_id]
+    )
+    result = service.select_machine
+
+    if result[:success]
+      redirect_to @produce, notice: result[:notice]
+    else
+      redirect_to @produce, alert: result[:alert]
     end
-
-    machine = Machine.find(params[:machine_id])
-
-    unless machine.production?
-      redirect_to @produce, alert: "Selected machine is not allocated for production."
-      return
-    end
-
-    # Only allow selecting inactive machines (available machines)
-    unless machine.inactive?
-      redirect_to @produce, alert: "Selected machine is currently in use."
-      return
-    end
-
-    # Clear any existing machine checks if changing machine
-    @produce.produce_machine_checks.destroy_all if @produce.machine.present? && @produce.machine != machine
-
-    # Activate the machine when it's selected for production
-    machine.update!(status: :active)
-    @produce.update!(machine: machine)
-    redirect_to @produce, notice: "Machine selected and activated successfully."
   end
 
   private
