@@ -25,7 +25,6 @@ class Package < ApplicationRecord
   enum :status, { unpackage: 0, packaging: 1, package: 2 }, default: :unpackage
 
   before_validation :generate_package_id, on: :create
-  after_create :update_unit_batch_expiry_date
 
   scope :for_date, ->(date) { where(package_date: date) }
   scope :for_product, ->(product) { joins(:unit_batch).where(unit_batches: { product: product }) }
@@ -59,12 +58,5 @@ class Package < ApplicationRecord
     existing_count = Package.where("package_id LIKE ?", "PACK-#{date_str}-%").count
 
     self.package_id = "PACK-#{date_str}-#{existing_count + 1}"
-  end
-
-  def update_unit_batch_expiry_date
-    return unless unit_batch.present?
-
-    expiry_date = unit_batch.calculate_expiry_date
-    unit_batch.update_column(:expiry_date, expiry_date) if expiry_date.present?
   end
 end
