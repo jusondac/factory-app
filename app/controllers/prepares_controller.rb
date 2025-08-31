@@ -157,8 +157,11 @@ class PreparesController < ApplicationController
   end
 
   def progress_data
-    total_count = @prepare.prepare_ingredients.count
-    checked_count = @prepare.prepare_ingredients.checked.count
+    # Optimized query: get counts in a single query using group
+    ingredient_counts = @prepare.prepare_ingredients.group(:checked).count
+    total_count = ingredient_counts.values.sum
+    checked_count = ingredient_counts[true] || 0
+
     {
       total_count: total_count,
       checked_count: checked_count,

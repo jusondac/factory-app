@@ -2,50 +2,30 @@ class PackagesController < ApplicationController
   before_action :set_package, only: [ :show, :edit, :update, :destroy, :select_machine, :machine_checking, :update_machine_checking, :start_packaging, :complete_packaging ]
   before_action :authorize_edit!, only: [ :edit, :update, :destroy, :select_machine, :machine_checking, :update_machine_checking, :start_packaging, :complete_packaging ]
   def machine_checking
-    return redirect_to @package, alert: "Please select a machine first." unless @package.machine.present?
+    service = PackageMachineCheckingService.new(package: @package, user: Current.user)
+    result = service.get_machine_checkings_data
 
-    if @package.machine_check?
-      redirect_to @package, alert: "Machine checking has already been completed."
-      return
-    end
-
-    @machine_checkings = @package.machine.machine_checkings
-    @package_machine_checks = {}
-
-    @package.package_machine_checks.includes(:machine_checking).each do |check|
-      @package_machine_checks[check.machine_checking_id] = check.answer
+    if result[:success]
+      @machine_checkings = result[:machine_checkings]
+      @package_machine_checks = result[:package_machine_checks]
+    else
+      redirect_to @package, alert: result[:alert]
     end
   end
 
   def update_machine_checking
-    unless @package.machine.present?
-      redirect_to @package, alert: "Please select a machine first."
-      return
+    service = PackageMachineCheckingService.new(
+      package: @package,
+      user: Current.user,
+      machine_checking_params: params.permit(machine_checking: {}).fetch(:machine_checking, {})
+    )
+    result = service.perform_machine_checking
+
+    if result[:success]
+      redirect_to @package, notice: result[:notice]
+    else
+      redirect_to machine_checking_package_path(@package), alert: result[:alert]
     end
-
-    if @package.machine_check?
-      redirect_to @package, alert: "Machine checking has already been completed."
-      return
-    end
-
-    @package.package_machine_checks.destroy_all
-
-    params.fetch(:machine_checking, {}).each do |checking_id, answer|
-      next if answer.blank?
-      machine_checking = MachineChecking.find(checking_id)
-      final_answer = answer.is_a?(Array) ? answer.reject(&:blank?).join(", ") : answer
-      next if final_answer.blank?
-      @package.package_machine_checks.create!(
-        machine_checking: machine_checking,
-        question: machine_checking.checking_name,
-        answer: final_answer
-      )
-    end
-
-    @package.update!(status: :packaging, machine_check: true)
-    redirect_to @package, notice: "Machine checking completed. You can now start packaging."
-  rescue ActiveRecord::RecordInvalid => e
-    redirect_to machine_checking_package_path(@package), alert: "Error saving machine checks: #{e.message}"
   end
 
   def start_packaging
@@ -122,22 +102,17 @@ class PackagesController < ApplicationController
   end
 
   def select_machine
-    if @package.machine_check?
-      redirect_to @package, alert: "Machine checking has already been completed."
-      return
-    end
+    service = PackageMachineSelectionService.new(
+      package: @package,
+      user: Current.user,
+      machine_id: params[:machine_id]
+    )
+    result = service.select_machine
 
-    if params[:machine_id].present?
-      machine = Machine.find(params[:machine_id])
-      if machine.status == "inactive"
-        @package.update!(machine: machine)
-        machine.update!(status: "active")
-        redirect_to @package, notice: "Machine #{machine.name} has been assigned and activated."
-      else
-        redirect_to @package, alert: "Selected machine is not available."
-      end
+    if result[:success]
+      redirect_to @package, notice: result[:notice]
     else
-      redirect_to @package, alert: "Please select a machine."
+      redirect_to @package, alert: result[:alert]
     end
   end
 
