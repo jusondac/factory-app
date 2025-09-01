@@ -205,6 +205,19 @@
                 Showing <%= @unit_batches.count %> of <%= @unit_batches.total_count %> records
               </span>
             </div>
+            <!-- Today/History Tabs -->
+            <div>
+              <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <%= link_to unit_batches_path(tab: 'today'), 
+                    class: "whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm #{ params[:tab] == 'today' || params[:tab].blank? ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }" do %>
+                  Today's Unit Batches
+                <% end %>
+                <%= link_to unit_batches_path(tab: 'history'), 
+                    class: "whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm #{ params[:tab] == 'history' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }" do %>
+                  History
+                <% end %>
+              </nav>
+            </div>
           </div>
           <% if @unit_batches.any? %>
             <!-- Table -->

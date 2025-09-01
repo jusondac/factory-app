@@ -8,8 +8,21 @@ class UnitBatchesController < ApplicationController
     # Set up Ransack search
     @q = UnitBatch.includes(:product, :prepare, :produce).ransack(params[:q])
 
+    # Apply tab filter
+    tab = params[:tab] || 'today'
+    @tab = tab
+
+    base_query = case tab
+    when 'today'
+      @q.result.today
+    when 'history'
+      @q.result.history
+    else
+      @q.result
+    end
+
     # Get the results with pagination
-    @unit_batches = @q.result
+    @unit_batches = base_query
                       .order(created_at: :desc)
                       .page(params[:page])
                       .per(8)  # 8 items per page

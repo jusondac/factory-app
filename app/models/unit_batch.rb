@@ -45,6 +45,8 @@ class UnitBatch < ApplicationRecord
 
   scope :for_date, ->(date) { joins(:prepare).where(prepares: { prepare_date: date }) }
   scope :for_product, ->(product) { where(product: product) }
+  scope :today, -> { joins(:prepare).where(prepares: { prepare_date: Date.current }) }
+  scope :history, -> { joins(:prepare).where("prepares.prepare_date < ?", Date.current)  }
 
   def prepare_date
     prepare&.prepare_date
