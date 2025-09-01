@@ -110,6 +110,8 @@
                 <%= link_to "Machines", machines_path, 
                     class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
               <% end %>
+              <%= link_to "Reports", reports_path, 
+                  class: "text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium" %>
               <% if Current.session.user.can_create_products? %>
                 <%= link_to "New Product", new_product_path, 
                     class: "bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md text-base font-medium" %>
@@ -236,6 +238,20 @@
                 <% end %>
                 <span class="text-sm font-medium">Machines</span>
               <% end %>
+            <% end %>
+            <%= link_to reports_path, class: "flex items-center px-4 py-2 transition-all duration-200 #{request.path.include?('/reports') ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'} rounded-lg whitespace-nowrap" do %>
+              <% if request.path.include?('/reports') %>
+                <div class="w-6 h-6 flex items-center justify-center mr-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                </div>
+              <% else %>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+              <% end %>
+              <span class="text-sm font-medium">Reports</span>
             <% end %>
           </div>
         </div>

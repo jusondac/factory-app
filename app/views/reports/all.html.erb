@@ -1,0 +1,34 @@
+<h1>All Unit Batches Report</h1>
+<p>From <%= @start_date %> to <%= @end_date %></p>
+<% @report_data.each do |date, unit_batches| %>
+  <h2><%= date %></h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Unit ID</th>
+        <th>Batch Code</th>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Status</th>
+        <th>Prepare</th>
+        <th>Produce</th>
+        <th>Package</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% unit_batches.each do |ub| %>
+        <tr>
+          <td><%= ub.unit_id %></td>
+          <td><%= ub.batch_code %></td>
+          <td><%= ub.product&.name %></td>
+          <td><%= ub.quantity %></td>
+          <td><%= ub.status %></td>
+          <td><%= ub.prepare&.prepare_id %></td>
+          <td><%= ub.produce&.product_id %></td>
+          <td><%= ub.package&.package_id %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+<%= link_to 'Back to Reports', reports_path %>

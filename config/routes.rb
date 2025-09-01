@@ -45,11 +45,16 @@ Rails.application.routes.draw do
 
   patch "produces/move_to_produce/:unit_batch_id", to: "produces#move_to_produce", as: :move_to_produce
 
-  resources :machines
-
   resources :unit_batches do
     member do
       patch :start_preparing
+    end
+  end
+
+  resources :reports, only: [ :index ] do
+    collection do
+      get :all
+      get :core
     end
   end
 
