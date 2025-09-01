@@ -73,6 +73,6 @@ gem "ransack"
 # Pagination
 gem "kaminari"
 
-gem "wicked_pdf", "~> 2.8"
-
-gem "wkhtmltopdf-binary", "~> 0.12.6"
+# PDF generation
+gem "prawn", "~> 2.4"
+gem "prawn-table", "~> 0.2"
