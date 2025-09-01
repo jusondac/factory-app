@@ -51,12 +51,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :reports, only: [ :index ] do
-    collection do
-      get :all
-      get :core
-    end
-  end
+  resources :reports, only: [ :index ]
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

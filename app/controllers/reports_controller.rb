@@ -1,58 +1,39 @@
 class ReportsController < ApplicationController
   def index
     @min_date = ReportService.min_date
-    @report_type = params[:report_type] || 'all'
-    @start_date = params[:start_date]&.to_date || @min_date
-    @end_date = params[:end_date]&.to_date || Date.current
+    @report_type = params[:report_type]
+    @start_date = params[:start_date]&.to_date
+    @end_date = params[:end_date]&.to_date
+
+    # Only show data if filters have been submitted
+    if @report_type.present? && @start_date.present? && @end_date.present?
+      @show_data = true
+      @report_data = case @report_type
+      when 'unit_batch'
+        ReportService.unit_batch_report(@start_date, @end_date)
+      when 'core_process'
+        ReportService.core_process_report(@start_date, @end_date)
+      when 'ingredients_product_machine'
+        ReportService.ingredients_product_machine_report(@start_date, @end_date)
+      end
+    else
+      @show_data = false
+    end
 
     respond_to do |format|
-      format.html do
-        @report_data = case @report_type
-        when 'all'
-          ReportService.all_report(@start_date, @end_date)
-        when 'core'
-          ReportService.core_report(@start_date, @end_date)
-        end
-      end
+      format.html
       format.pdf do
-        @report_data = case @report_type
-        when 'all'
-          ReportService.all_report(@start_date, @end_date)
-        when 'core'
-          ReportService.core_report(@start_date, @end_date)
-        end
-
-        begin
+        if @show_data
           pdf_data = generate_pdf_report(@report_data, @report_type, @start_date, @end_date)
-
           send_data pdf_data,
                    filename: "#{@report_type}_report_#{@start_date.strftime('%Y%m%d')}_to_#{@end_date.strftime('%Y%m%d')}.pdf",
                    type: 'application/pdf',
                    disposition: 'attachment'
-        rescue => e
-          Rails.logger.error "PDF generation failed: #{e.message}"
-          redirect_to reports_path, alert: "PDF generation failed: #{e.message}"
+        else
+          redirect_to reports_path, alert: "Please select filters first"
         end
       end
     end
-  end
-
-  def all
-    @min_date = ReportService.min_date
-    start_date = params[:start_date]&.to_date || @min_date
-    end_date = params[:end_date]&.to_date || Date.current
-    @report_data = ReportService.all_report(start_date, end_date)
-    @start_date = start_date
-    @end_date = end_date
-  end
-
-  def core
-    @min_date = ReportService.min_date
-    start_date = params[:start_date]&.to_date || @min_date
-    end_date = params[:end_date]&.to_date || Date.current
-    @report_data = ReportService.core_report(start_date, end_date)
-    @start_date = start_date
-    @end_date = end_date
   end
 
   private
@@ -118,40 +99,90 @@ class ReportsController < ApplicationController
                    style: :bold, color: '0066cc'
           pdf.move_down 5
 
-          if report_type == 'core'
-            # Core Process Report - Simplified view
-            table_data = [['Batch Code', 'Product', 'Produce Machine', 'Package Machine', 'Unchecked Ingredients']]
+          case report_type
+          when 'core_process'
+            # Core Process Report
+            table_data = [['Batch Code', 'Product', 'Machine', 'Ingredients Checked', 'Unchecked Ingredients', 'Machine Checks']]
 
             unit_batches.each do |unit_batch|
               next unless unit_batch
 
-              # Get produce machine
-              produce_machine = unit_batch.produce&.machine&.name || 'N/A'
+              # Get machine info
+              machine_info = []
+              machine_info << "Produce: #{unit_batch.produce&.machine&.name || 'N/A'}" if unit_batch.produce
+              machine_info << "Package: #{unit_batch.package&.machine&.name || 'N/A'}" if unit_batch.package
+              machine_text = machine_info.join(', ')
 
-              # Get package machine
-              package_machine = unit_batch.package&.machine&.name || 'N/A'
-
-              # Get unchecked ingredients
+              # Get ingredients info
+              total_ingredients = 0
+              checked_count = 0
               unchecked_ingredients = []
+
               if unit_batch.prepare&.prepare_ingredients
+                total_ingredients = unit_batch.prepare.prepare_ingredients.count
+                checked_count = unit_batch.prepare.prepare_ingredients.select { |prep_ing| prep_ing.checked }.count
                 unit_batch.prepare.prepare_ingredients.each do |prep_ing|
-                  if prep_ing.status != 'checked'
-                    unchecked_ingredients << (prep_ing.ingredient&.name || 'Unknown Ingredient')
+                  if !prep_ing.checked
+                    unchecked_ingredients << (prep_ing.ingredient_name || 'Unknown Ingredient')
                   end
                 end
               end
+
+              ingredients_text = "#{checked_count}/#{total_ingredients}"
               unchecked_text = unchecked_ingredients.any? ? unchecked_ingredients.join(', ') : 'All checked'
+
+              # Get machine checks
+              machine_checks = []
+              if unit_batch.produce&.produce_machine_checks
+                machine_checks << "Produce: #{unit_batch.produce.produce_machine_checks.count} checks"
+              end
+              if unit_batch.package&.package_machine_checks
+                machine_checks << "Package: #{unit_batch.package.package_machine_checks.count} checks"
+              end
+              machine_checks_text = machine_checks.any? ? machine_checks.join(', ') : 'No checks'
 
               table_data << [
                 unit_batch.batch_code || 'N/A',
                 unit_batch.product&.name || 'No product',
-                produce_machine,
-                package_machine,
-                unchecked_text
+                machine_text,
+                ingredients_text,
+                unchecked_text,
+                machine_checks_text
+              ]
+            end
+          when 'ingredients_product_machine'
+            # Ingredients-Product-Machine Report
+            table_data = [['Batch Code', 'Product', 'Ingredients', 'Machines', 'Status']]
+
+            unit_batches.each do |unit_batch|
+              next unless unit_batch
+
+              # Get ingredients list
+              ingredients_list = []
+              if unit_batch.prepare&.prepare_ingredients
+                unit_batch.prepare.prepare_ingredients.each do |prep_ing|
+                  status = prep_ing.checked ? '✓' : '✗'
+                  ingredients_list << "#{prep_ing.ingredient_name} (#{status})"
+                end
+              end
+              ingredients_text = ingredients_list.any? ? ingredients_list.join(', ') : 'No ingredients'
+
+              # Get machines
+              machines = []
+              machines << "Produce: #{unit_batch.produce&.machine&.name || 'N/A'}" if unit_batch.produce
+              machines << "Package: #{unit_batch.package&.machine&.name || 'N/A'}" if unit_batch.package
+              machines_text = machines.any? ? machines.join(', ') : 'No machines'
+
+              table_data << [
+                unit_batch.batch_code || 'N/A',
+                unit_batch.product&.name || 'No product',
+                ingredients_text,
+                machines_text,
+                unit_batch.status&.humanize || 'Unknown'
               ]
             end
           else
-            # All Unit Batches Report - Full view
+            # Unit Batch Report - Default view
             table_data = [['Unit ID', 'Batch Code', 'Product', 'Status', 'Processes', 'Quantity', 'Date']]
 
             unit_batches.each do |unit_batch|
