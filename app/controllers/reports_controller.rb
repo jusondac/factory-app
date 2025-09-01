@@ -118,41 +118,82 @@ class ReportsController < ApplicationController
                    style: :bold, color: '0066cc'
           pdf.move_down 5
 
-          # Table data
-          table_data = [['Unit ID', 'Batch Code', 'Product', 'Status', 'Processes', 'Quantity', 'Date']]
+          if report_type == 'core'
+            # Core Process Report - Simplified view
+            table_data = [['Batch Code', 'Product', 'Produce Machine', 'Package Machine', 'Unchecked Ingredients']]
 
-          unit_batches.each do |unit_batch|
-            next unless unit_batch
+            unit_batches.each do |unit_batch|
+              next unless unit_batch
 
-            processes = []
-            processes << 'Prepare' if unit_batch.prepare
-            processes << 'Produce' if unit_batch.produce
-            processes << 'Package' if unit_batch.package
-            processes_text = processes.join(', ')
+              # Get produce machine
+              produce_machine = unit_batch.produce&.machine&.name || 'N/A'
 
-            table_data << [
-              unit_batch.unit_id || 'N/A',
-              unit_batch.batch_code || 'N/A',
-              unit_batch.product&.name || 'No product',
-              unit_batch.status&.humanize || 'Unknown',
-              processes_text.presence || 'None',
-              unit_batch.quantity&.to_s || '0',
-              date&.strftime('%b %d, %Y') || 'N/A'
-            ]
+              # Get package machine
+              package_machine = unit_batch.package&.machine&.name || 'N/A'
+
+              # Get unchecked ingredients
+              unchecked_ingredients = []
+              if unit_batch.prepare&.prepare_ingredients
+                unit_batch.prepare.prepare_ingredients.each do |prep_ing|
+                  if prep_ing.status != 'checked'
+                    unchecked_ingredients << (prep_ing.ingredient&.name || 'Unknown Ingredient')
+                  end
+                end
+              end
+              unchecked_text = unchecked_ingredients.any? ? unchecked_ingredients.join(', ') : 'All checked'
+
+              table_data << [
+                unit_batch.batch_code || 'N/A',
+                unit_batch.product&.name || 'No product',
+                produce_machine,
+                package_machine,
+                unchecked_text
+              ]
+            end
+          else
+            # All Unit Batches Report - Full view
+            table_data = [['Unit ID', 'Batch Code', 'Product', 'Status', 'Processes', 'Quantity', 'Date']]
+
+            unit_batches.each do |unit_batch|
+              next unless unit_batch
+
+              processes = []
+              processes << 'Prepare' if unit_batch.prepare
+              processes << 'Produce' if unit_batch.produce
+              processes << 'Package' if unit_batch.package
+              processes_text = processes.join(', ')
+
+              table_data << [
+                unit_batch.unit_id || 'N/A',
+                unit_batch.batch_code || 'N/A',
+                unit_batch.product&.name || 'No product',
+                unit_batch.status&.humanize || 'Unknown',
+                processes_text.presence || 'None',
+                unit_batch.quantity&.to_s || '0',
+                date&.strftime('%b %d, %Y') || 'N/A'
+              ]
+            end
           end
 
           if table_data.length > 1
             begin
-              pdf.table(table_data, width: pdf.bounds.width, header: true) do |table|
+              # Ensure all data is properly formatted as strings
+              clean_table_data = table_data.map do |row|
+                row.map { |cell| cell.to_s }
+              end
+
+              pdf.table(clean_table_data, width: pdf.bounds.width, header: true) do |table|
                 table.row(0).font_style = :bold
                 table.row(0).background_color = 'e0e0e0'
-                table.cells.padding = 6
+                table.cells.padding = [4, 6, 4, 6] # top, right, bottom, left
                 table.cells.borders = [:all]
                 table.cells.border_width = 0.5
                 table.cells.size = 8
+                table.cells.overflow = :truncate
               end
             rescue => e
               pdf.text "Error generating table for #{date&.strftime('%B %d, %Y')}: #{e.message}", color: 'ff0000'
+              pdf.text "Debug info: table_data length = #{table_data.length}", color: '666666', size: 8
             end
           end
 
