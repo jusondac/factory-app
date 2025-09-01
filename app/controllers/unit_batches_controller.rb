@@ -9,13 +9,13 @@ class UnitBatchesController < ApplicationController
     @q = UnitBatch.includes(:product, :prepare, :produce).ransack(params[:q])
 
     # Apply tab filter
-    tab = params[:tab] || 'today'
+    tab = params[:tab] || "today"
     @tab = tab
 
     base_query = case tab
-    when 'today'
+    when "today"
       @q.result.today
-    when 'history'
+    when "history"
       @q.result.history
     else
       @q.result
