@@ -206,6 +206,21 @@
                 </div>
               </div>
               <div class="space-y-3">
+                <% if Current.session&.user&.supervisor? %>
+                  <%= button_to quick_create_unit_batches_path, 
+                      params: { product_id: @product.id },
+                      method: :post,
+                      class: "block w-full text-left px-4 py-3 text-sm font-medium text-white rounded-xl hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 transition-all duration-200 bg-gradient-to-r from-purple-500 to-indigo-500 backdrop-blur-sm border border-purple-300 shadow-lg hover:shadow-xl transform hover:scale-105",
+                      form: { class: "w-full" } do %>
+                    <div class="flex items-center">
+                      <span class="text-lg mr-3">⚡</span>
+                      <div>
+                        <div class="font-bold">Quick Unit Batch</div>
+                        <div class="text-xs text-purple-100">Create batch with random values</div>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
                 <%= link_to unit_batches_path(q: { product_id_eq: @product.id }), 
                   class: "block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-white/60 transition-all duration-200 bg-white/30 backdrop-blur-sm border border-white/20" do %>
                   <div class="flex items-center">

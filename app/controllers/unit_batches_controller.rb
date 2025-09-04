@@ -86,6 +86,53 @@ class UnitBatchesController < ApplicationController
     end
   end
 
+  def quick_create
+    unless current_user&.supervisor?
+      redirect_back(fallback_location: root_path, alert: "Only supervisors can quick create unit batches.")
+      return
+    end
+
+    # If product_id is provided (from product show page), use it
+    # Otherwise, pick a random product (from unit batch index page)
+    if params[:product_id].present?
+      product = Product.find(params[:product_id])
+      redirect_path = product
+    else
+      product = Product.all.sample
+      redirect_path = unit_batches_path(tab: "today")
+    end
+
+    unless product
+      redirect_back(fallback_location: root_path, alert: "No products available to create unit batch.")
+      return
+    end
+
+    # Generate random values for quick creation
+    random_quantity = [ 50, 100, 150, 200, 250, 300 ].sample
+    random_package_type = UnitBatch.package_types.keys.sample
+    random_shift = UnitBatch.shifts.keys.sample
+
+    @unit_batch = UnitBatch.new(
+      product: product,
+      quantity: random_quantity,
+      package_type: random_package_type,
+      shift: random_shift
+    )
+
+    if @unit_batch.save
+      # Create a prepare record so it shows up in "today" tab
+      prepare = @unit_batch.build_prepare(
+        prepare_date: Date.current,
+        created_by: current_user
+      )
+      prepare.save
+
+      redirect_to redirect_path, notice: "Quick unit batch created successfully! #{@unit_batch.unit_id} for #{product.name} - #{random_quantity} units in #{random_package_type.humanize} for #{random_shift.humanize} shift."
+    else
+      redirect_to redirect_path, alert: "Failed to create unit batch: #{@unit_batch.errors.full_messages.join(', ')}"
+    end
+  end
+
   private
 
   def set_unit_batch

@@ -49,6 +49,9 @@ Rails.application.routes.draw do
     member do
       patch :start_preparing
     end
+    collection do
+      post :quick_create
+    end
   end
 
   resources :reports, only: [ :index ]
