@@ -65,7 +65,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_054312) do
     t.index ["machine_id"], name: "index_packages_on_machine_id"
     t.index ["package_date"], name: "index_packages_on_package_date"
     t.index ["package_id"], name: "index_packages_on_package_id", unique: true
-    t.index ["unit_batch_id"], name: "index_packages_on_unit_batch_id", unique: true
+    t.index ["unit_batch_id"], name: "index_packages_on_unit_batch_id"
   end
 
   create_table "prepare_ingredients", force: :cascade do |t|

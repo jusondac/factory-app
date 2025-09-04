@@ -108,13 +108,123 @@ puts "Created #{Ingredient.count} ingredients"
 # Create machines
 puts "Creating machines..."
 
-Machine.find_or_create_by!(name: "Oven 1", line: 1, status: :active, allocation: :production)
-Machine.find_or_create_by!(name: "Mixer 1", line: 1, status: :active, allocation: :production)
-Machine.find_or_create_by!(name: "Packaging Machine 1", line: 1, status: :active, allocation: :packing)
-Machine.find_or_create_by!(name: "Testing Station 1", line: 2, status: :active, allocation: :testing)
-Machine.find_or_create_by!(name: "Oven 2", line: 2, status: :under_maintenance, allocation: :production)
+oven1 = Machine.find_or_create_by!(name: "Oven 1", line: 1, status: :inactive, allocation: :production)
+mixer1 = Machine.find_or_create_by!(name: "Mixer 1", line: 1, status: :inactive, allocation: :production)
+packaging1 = Machine.find_or_create_by!(name: "Packaging Machine 1", line: 1, status: :inactive, allocation: :packing)
+testing1 = Machine.find_or_create_by!(name: "Testing Station 1", line: 2, status: :inactive, allocation: :testing)
+oven2 = Machine.find_or_create_by!(name: "Oven 2", line: 2, status: :inactive, allocation: :production)
 
 puts "Created #{Machine.count} machines"
+
+# Create machine checking questions for each machine
+puts "Creating machine checking questions..."
+
+# Oven 1 checking questions
+MachineChecking.find_or_create_by!(machine: oven1, checking_name: "Temperature Check") do |check|
+  check.checking_type = :option
+  check.checking_value = "Below 150°C, 150-200°C, 200-250°C, Above 250°C"
+end
+
+MachineChecking.find_or_create_by!(machine: oven1, checking_name: "Door Seal Condition") do |check|
+  check.checking_type = :option
+  check.checking_value = "Good, Fair, Poor, Damaged"
+end
+
+MachineChecking.find_or_create_by!(machine: oven1, checking_name: "Cleaning Status") do |check|
+  check.checking_type = :option
+  check.checking_value = "Clean, Needs Cleaning, Dirty"
+end
+
+MachineChecking.find_or_create_by!(machine: oven1, checking_name: "Additional Notes") do |check|
+  check.checking_type = :text
+  check.checking_value = ""
+end
+
+# Mixer 1 checking questions
+MachineChecking.find_or_create_by!(machine: mixer1, checking_name: "Mixing Speed") do |check|
+  check.checking_type = :option
+  check.checking_value = "Low (1-3), Medium (4-6), High (7-10)"
+end
+
+MachineChecking.find_or_create_by!(machine: mixer1, checking_name: "Bowl Condition") do |check|
+  check.checking_type = :option
+  check.checking_value = "Excellent, Good, Fair, Needs Replacement"
+end
+
+MachineChecking.find_or_create_by!(machine: mixer1, checking_name: "Blade Sharpness") do |check|
+  check.checking_type = :option
+  check.checking_value = "Sharp, Acceptable, Dull, Very Dull"
+end
+
+MachineChecking.find_or_create_by!(machine: mixer1, checking_name: "Maintenance Notes") do |check|
+  check.checking_type = :text
+  check.checking_value = ""
+end
+
+# Packaging Machine 1 checking questions
+MachineChecking.find_or_create_by!(machine: packaging1, checking_name: "Seal Quality") do |check|
+  check.checking_type = :option
+  check.checking_value = "Perfect, Good, Fair, Poor"
+end
+
+MachineChecking.find_or_create_by!(machine: packaging1, checking_name: "Packaging Speed") do |check|
+  check.checking_type = :option
+  check.checking_value = "Normal, Slow, Fast, Irregular"
+end
+
+MachineChecking.find_or_create_by!(machine: packaging1, checking_name: "Material Feed") do |check|
+  check.checking_type = :option
+  check.checking_value = "Smooth, Occasional Jam, Frequent Jams, Blocked"
+end
+
+MachineChecking.find_or_create_by!(machine: packaging1, checking_name: "Operational Issues") do |check|
+  check.checking_type = :text
+  check.checking_value = ""
+end
+
+# Testing Station 1 checking questions
+MachineChecking.find_or_create_by!(machine: testing1, checking_name: "Calibration Status") do |check|
+  check.checking_type = :option
+  check.checking_value = "Calibrated, Needs Calibration, Out of Calibration"
+end
+
+MachineChecking.find_or_create_by!(machine: testing1, checking_name: "Test Accuracy") do |check|
+  check.checking_type = :option
+  check.checking_value = "Accurate, Minor Deviation, Major Deviation, Unreliable"
+end
+
+MachineChecking.find_or_create_by!(machine: testing1, checking_name: "Equipment Condition") do |check|
+  check.checking_type = :option
+  check.checking_value = "Excellent, Good, Fair, Poor"
+end
+
+MachineChecking.find_or_create_by!(machine: testing1, checking_name: "Testing Observations") do |check|
+  check.checking_type = :text
+  check.checking_value = ""
+end
+
+# Oven 2 checking questions
+MachineChecking.find_or_create_by!(machine: oven2, checking_name: "Temperature Check") do |check|
+  check.checking_type = :option
+  check.checking_value = "Below 150°C, 150-200°C, 200-250°C, Above 250°C"
+end
+
+MachineChecking.find_or_create_by!(machine: oven2, checking_name: "Maintenance Required") do |check|
+  check.checking_type = :option
+  check.checking_value = "Minor Repair, Major Repair, Parts Replacement, Complete Overhaul"
+end
+
+MachineChecking.find_or_create_by!(machine: oven2, checking_name: "Safety Check") do |check|
+  check.checking_type = :option
+  check.checking_value = "Safe to Operate, Caution Required, Do Not Operate, Emergency Stop"
+end
+
+MachineChecking.find_or_create_by!(machine: oven2, checking_name: "Maintenance Details") do |check|
+  check.checking_type = :text
+  check.checking_value = ""
+end
+
+puts "Created #{MachineChecking.count} machine checking questions"
 
 # Create some Prepare records for testing
 puts "Creating unit batches and prepare records..."
