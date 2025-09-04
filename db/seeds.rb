@@ -84,7 +84,37 @@ pizza_ingredients.each do |ingredient_name|
   Ingredient.find_or_create_by!(name: ingredient_name, product: artisan_pizza)
 end
 
+# More products
+blueberry_pancakes = Product.find_or_create_by!(name: "Blueberry Pancakes", user: manager)
+pancake_ingredients = [ "Flour", "Milk", "Eggs", "Blueberries", "Baking Powder", "Sugar", "Butter" ]
+pancake_ingredients.each do |ingredient_name|
+  Ingredient.find_or_create_by!(name: ingredient_name, product: blueberry_pancakes)
+end
+
+lemon_bars = Product.find_or_create_by!(name: "Lemon Bars", user: head)
+lemon_ingredients = [ "Flour", "Sugar", "Butter", "Eggs", "Lemon Juice", "Lemon Zest", "Baking Powder" ]
+lemon_ingredients.each do |ingredient_name|
+  Ingredient.find_or_create_by!(name: ingredient_name, product: lemon_bars)
+end
+
+cinnamon_rolls = Product.find_or_create_by!(name: "Cinnamon Rolls", user: manager)
+cinnamon_ingredients = [ "Flour", "Milk", "Yeast", "Sugar", "Butter", "Cinnamon", "Salt", "Eggs" ]
+cinnamon_ingredients.each do |ingredient_name|
+  Ingredient.find_or_create_by!(name: ingredient_name, product: cinnamon_rolls)
+end
+
 puts "Created #{Ingredient.count} ingredients"
+
+# Create machines
+puts "Creating machines..."
+
+Machine.find_or_create_by!(name: "Oven 1", line: 1, status: :active, allocation: :production)
+Machine.find_or_create_by!(name: "Mixer 1", line: 1, status: :active, allocation: :production)
+Machine.find_or_create_by!(name: "Packaging Machine 1", line: 1, status: :active, allocation: :packing)
+Machine.find_or_create_by!(name: "Testing Station 1", line: 2, status: :active, allocation: :testing)
+Machine.find_or_create_by!(name: "Oven 2", line: 2, status: :under_maintenance, allocation: :production)
+
+puts "Created #{Machine.count} machines"
 
 # Create some Prepare records for testing
 puts "Creating unit batches and prepare records..."
