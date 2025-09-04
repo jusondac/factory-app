@@ -90,7 +90,7 @@ class PreparesController < ApplicationController
     respond_to do |format|
       case result
       when :completed
-        format.html { redirect_to prepares_path, notice: "Preparation has been completed!" }
+        format.html { redirect_to @prepare, notice: "Preparation has been completed! All ingredients checked." }
         format.json {
           render json: {
             success: true,
@@ -138,7 +138,7 @@ class PreparesController < ApplicationController
     service = PrepareCheckingService.new(prepare: @prepare, user: Current.user)
 
     if service.complete_checking
-      redirect_to prepares_path, notice: "Preparation has been completed!"
+      redirect_to @prepare, notice: "Preparation has been completed!"
     else
       redirect_to checking_prepare_path(@prepare), alert: "You cannot complete this preparation."
     end

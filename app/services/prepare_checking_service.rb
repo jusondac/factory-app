@@ -57,6 +57,9 @@ class PrepareCheckingService
 
     ingredient = prepare.prepare_ingredients.find(prepare_ingredient_id)
     ingredient.toggle_checked!
+
+    # Reload prepare to get fresh counter data
+    prepare.reload
     complete_checking_if_all_done
   end
 
