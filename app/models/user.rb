@@ -45,7 +45,7 @@ class User < ApplicationRecord
   end
 
   def can_create_unit_batches?
-    supervisor? || manager? || head?
+    manager? || head? || supervisor?
   end
 
   def can_start_preparing?
