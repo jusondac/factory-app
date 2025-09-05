@@ -54,7 +54,6 @@ class PrepareCheckingService
   def toggle_ingredient_check
     return false unless prepare_ingredient_id.present?
     return false unless prepare.checking?
-
     ingredient = prepare.prepare_ingredients.find(prepare_ingredient_id)
     ingredient.toggle_checked!
 

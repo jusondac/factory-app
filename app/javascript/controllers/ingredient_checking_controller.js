@@ -4,7 +4,8 @@ export default class extends Controller {
   static targets = ["checkbox", "status", "badge", "progressText", "progressBar"]
   static values = {
     prepareId: Number,
-    updateUrl: String
+    updateUrl: String,
+    showUrl: String
   }
 
   connect() {
@@ -157,8 +158,8 @@ export default class extends Controller {
   }
 
   showCompletionMessage() {
-    // Could add a toast notification or modal here
-    console.log("All ingredients checked!")
+    // Redirect to the show page when all ingredients are checked
+    window.location.href = this.showUrlValue
   }
 
   setLoadingState(ingredientItem, isLoading) {

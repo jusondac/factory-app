@@ -73,7 +73,8 @@
             <% if @prepare_ingredients.any? %>
               <div class="space-y-3" data-controller="ingredient-checking" 
                    data-ingredient-checking-prepare-id-value="<%= @prepare.id %>"
-                   data-ingredient-checking-update-url-value="<%= update_check_prepare_path(@prepare) %>">
+                   data-ingredient-checking-update-url-value="<%= update_check_prepare_path(@prepare) %>"
+                   data-ingredient-checking-show-url-value="<%= prepare_path(@prepare) %>">
                 <% @prepare_ingredients.each_with_index do |prepare_ingredient, index| %>
                   <div class="ingredient-item group border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 <%= 'bg-green-50 border-green-200 shadow-sm' if prepare_ingredient.checked? %>">
                     <label class="flex items-center cursor-pointer flex-1 group" 
