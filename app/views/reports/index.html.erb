@@ -22,28 +22,26 @@
         <% end %>
       </div>
     </div>
-    <!-- Filter Form -->
+    <!-- Inline Filter Form -->
     <div class="mb-6">
-      <div class="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl shadow-lg border border-blue-100 p-6 backdrop-blur-sm">
-        <!-- Gradient overlay -->
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
-        <div class="relative">
-          <div class="flex items-center mb-4">
-            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.121A1 1 0 013 6.414V4z"></path>
-              </svg>
-            </div>
-            <div class="ml-3">
-              <h3 class="text-lg font-bold text-gray-900">Report Filters</h3>
-              <p class="text-xs text-gray-600">Select type and date range to generate report</p>
-            </div>
+      <div class="relative bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-lg border border-blue-100 p-4 backdrop-blur-sm">
+        <div class="flex items-center mb-3">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.121A1 1 0 013 6.414V4z"></path>
+            </svg>
           </div>
-          <%= form_with url: reports_path, method: :get, local: true, class: "space-y-4", id: "report-form" do |f| %>
+          <div class="ml-3">
+            <h3 class="text-base font-bold text-gray-900">Report Filters</h3>
+            <p class="text-xs text-gray-600">Select type and date range to generate report</p>
+          </div>
+        </div>
+        <%= form_with url: reports_path, method: :get, local: true, class: "space-y-3", id: "report-form" do |f| %>
+          <!-- Inline Filter Controls -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
             <!-- Report Type -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+            <div class="lg:col-span-4">
+              <label class="block text-xs font-semibold text-gray-700 mb-1">
                 Report Type
               </label>
               <%= f.select :report_type,
@@ -53,47 +51,56 @@
                     ['Ingredients-Product-Machine', 'ingredients_product_machine']
                   ], @report_type),
                   { include_blank: 'Select Report Type' },
-                  { class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md",
+                  { class: "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md",
                     required: true } %>
             </div>
             <!-- Start Date -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+            <div class="lg:col-span-3">
+              <label class="block text-xs font-semibold text-gray-700 mb-1">
                 Start Date
               </label>
               <%= f.date_field :start_date,
                   value: @start_date,
                   min: @min_date,
                   max: Date.current,
-                  class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md",
+                  class: "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md",
                   required: true %>
             </div>
             <!-- End Date -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+            <div class="lg:col-span-3">
+              <label class="block text-xs font-semibold text-gray-700 mb-1">
                 End Date
               </label>
               <%= f.date_field :end_date,
                   value: @end_date,
                   min: @min_date,
                   max: Date.current,
-                  class: "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md",
+                  class: "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md",
                   required: true %>
             </div>
             <!-- Action Buttons -->
-            <div class="flex space-x-3 pt-2">
-              <%= f.submit "🔍 Generate Report", class: "flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold" %>
-              <%= link_to "Clear Filters", reports_path, class: "px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-white/80 transition-all duration-200 shadow-sm hover:shadow-md bg-white/50 backdrop-blur-sm" %>
+            <div class="lg:col-span-2 flex space-x-2">
+              <%= f.submit "Generate", class: "flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-2 text-sm rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold" %>
+              <%= link_to "Clear", reports_path, class: "px-3 py-2 border border-gray-200 text-gray-700 text-sm rounded-lg hover:bg-white/80 transition-all duration-200 shadow-sm hover:shadow-md bg-white/50 backdrop-blur-sm" %>
             </div>
-          <% end %>
-        </div>
+          </div>
+          <!-- Mobile Layout (stacked on small screens) -->
+          <div class="lg:hidden grid grid-cols-1 gap-3">
+            <div class="flex space-x-2">
+              <%= f.submit "🔍 Generate Report", class: "flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 text-sm rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold" %>
+              <%= link_to "Clear Filters", reports_path, class: "px-4 py-2 border border-gray-200 text-gray-700 text-sm rounded-lg hover:bg-white/80 transition-all duration-200 shadow-sm hover:shadow-md bg-white/50 backdrop-blur-sm" %>
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
-    <!-- Report Data -->
-    <% if @show_data %>
-      <div class="relative bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 rounded-2xl shadow-lg border border-gray-100 overflow-hidden backdrop-blur-sm">
+  </div>
+</div>
+<!-- Full Width Table Section -->
+<% if @show_data %>
+  <div class="bg-gray-50 w-screen">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+      <div class="relative bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 rounded-xl shadow-lg border border-gray-100 overflow-hidden backdrop-blur-sm w-full">
         <!-- Header -->
         <div class="relative px-6 py-4 border-b border-gray-200/50 bg-white/30 backdrop-blur-sm">
           <div class="flex items-center justify-between">
@@ -112,214 +119,9 @@
         </div>
         <% if @report_data.any? %>
           <!-- Table -->
-          <div class="relative overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200/50">
-              <thead class="bg-gradient-to-r from-gray-50 to-slate-50 backdrop-blur-sm">
-                <tr>
-                  <% case @report_type %>
-                  <% when 'core_process' %>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Batch Code</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Product</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Machine</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Ingredients Checked</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Unchecked Ingredients</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Machine Checks</th>
-                  <% when 'ingredients_product_machine' %>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Batch Code</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Product</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Ingredients</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Machines</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                  <% else %>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Unit ID</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Batch Code</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Product</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Processes</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
-                  <% end %>
-                </tr>
-              </thead>
-              <tbody class="bg-white/40 backdrop-blur-sm divide-y divide-gray-200/30">
-                <% @report_data.each do |date, unit_batches| %>
-                  <!-- Date Header Row -->
-                  <tr class="bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <td colspan="<%= case @report_type; when 'core_process'; 6; when 'ingredients_product_machine'; 5; else; 6; end %>" class="px-6 py-3">
-                      <div class="flex items-center">
-                        <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <span class="text-sm font-semibold text-blue-900"><%= date.strftime("%B %d, %Y") %></span>
-                        <span class="ml-2 text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
-                          <%= unit_batches.count %> batch<%= 'es' if unit_batches.count != 1 %>
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <% unit_batches.each do |unit_batch| %>
-                    <%
-                      # Status-based row coloring
-                      row_classes = "transition-all duration-200 cursor-pointer"
-                    %>
-                    <tr class="<%= row_classes %>" onclick="<%= @report_type == 'unit_batch' ? "window.location.href='#{unit_batch_path(unit_batch)}'" : '' %>">
-                      <% case @report_type %>
-                      <% when 'core_process' %>
-                        <!-- Core Process Columns -->
-                        <td class="px-6 py-4">
-                          <div class="text-sm font-medium text-gray-900"><%= unit_batch.batch_code %></div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900"><%= unit_batch.product&.name || 'No product' %></div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900">
-                            <% machines = [] %>
-                            <% machines << "Produce: #{unit_batch.produce&.machine&.name || 'N/A'}" if unit_batch.produce %>
-                            <% machines << "Package: #{unit_batch.package&.machine&.name || 'N/A'}" if unit_batch.package %>
-                            <%= machines.join('<br>') %>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900">
-                            <% if unit_batch.prepare&.prepare_ingredients %>
-                              <% total = unit_batch.prepare.prepare_ingredients.count %>
-                              <% checked = unit_batch.prepare.prepare_ingredients.select { |pi| pi.checked }.count %>
-                              <span class="<%= checked == total ? 'text-green-600' : 'text-yellow-600' %>">
-                                <%= checked %>/<%= total %>
-                              </span>
-                            <% else %>
-                              <span class="text-gray-500">N/A</span>
-                            <% end %>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900">
-                            <% if unit_batch.prepare&.prepare_ingredients %>
-                              <% unchecked = unit_batch.prepare.prepare_ingredients.select { |pi| !pi.checked } %>
-                              <% if unchecked.any? %>
-                                <span class="text-red-600">
-                                  <%= unchecked.map { |pi| pi.ingredient_name || 'Unknown' }.join(', ') %>
-                                </span>
-                              <% else %>
-                                <span class="text-green-600">All checked</span>
-                              <% end %>
-                            <% else %>
-                              <span class="text-gray-500">N/A</span>
-                            <% end %>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900">
-                            <% checks = [] %>
-                            <% checks << "Produce: #{unit_batch.produce&.produce_machine_checks&.count || 0}" if unit_batch.produce %>
-                            <% checks << "Package: #{unit_batch.package&.package_machine_checks&.count || 0}" if unit_batch.package %>
-                            <%= checks.join('<br>') %>
-                          </div>
-                        </td>
-                      <% when 'ingredients_product_machine' %>
-                        <!-- Ingredients-Product-Machine Columns -->
-                        <td class="px-6 py-4">
-                          <div class="text-sm font-medium text-gray-900"><%= unit_batch.batch_code %></div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900"><%= unit_batch.product&.name || 'No product' %></div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900">
-                            <% if unit_batch.prepare&.prepare_ingredients %>
-                              <% unit_batch.prepare.prepare_ingredients.each do |pi| %>
-                                <div class="<%= pi.checked ? 'text-green-600' : 'text-red-600' %>">
-                                  <%= pi.checked ? '✓' : '✗' %> <%= pi.ingredient_name || 'Unknown' %>
-                                </div>
-                              <% end %>
-                            <% else %>
-                              <span class="text-gray-500">No ingredients</span>
-                            <% end %>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900">
-                            <% machines = [] %>
-                            <% machines << "Produce: #{unit_batch.produce&.machine&.name || 'N/A'}" if unit_batch.produce %>
-                            <% machines << "Package: #{unit_batch.package&.machine&.name || 'N/A'}" if unit_batch.package %>
-                            <%= machines.join('<br>') %>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            <%= case unit_batch.status
-                                when 'preparation' then 'bg-blue-100 text-blue-800'
-                                when 'production' then 'bg-yellow-100 text-yellow-800'
-                                when 'testing' then 'bg-purple-100 text-purple-800'
-                                when 'packing' then 'bg-green-100 text-green-800'
-                                when 'cancelled' then 'bg-red-100 text-red-800'
-                                else 'bg-gray-100 text-gray-800'
-                                end %>">
-                            <%= unit_batch.status.humanize %>
-                          </span>
-                        </td>
-                      <% else %>
-                        <!-- Unit Batch Columns -->
-                        <td class="px-6 py-4">
-                          <div class="text-sm font-medium text-gray-900"><%= unit_batch.unit_id %></div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm font-medium text-gray-900"><%= unit_batch.batch_code %></div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="text-sm text-gray-900"><%= unit_batch.product&.name || 'No product' %></div>
-                          <div class="text-xs text-gray-500">Qty: <%= unit_batch.quantity %></div>
-                        </td>
-                        <td class="px-6 py-4">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            <%= case unit_batch.status
-                                when 'preparation' then 'bg-blue-100 text-blue-800'
-                                when 'production' then 'bg-yellow-100 text-yellow-800'
-                                when 'testing' then 'bg-purple-100 text-purple-800'
-                                when 'packing' then 'bg-green-100 text-green-800'
-                                when 'cancelled' then 'bg-red-100 text-red-800'
-                                else 'bg-gray-100 text-gray-800'
-                                end %>">
-                            <%= unit_batch.status.humanize %>
-                          </span>
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="flex space-x-1">
-                            <% if unit_batch.prepare %>
-                              <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Prepare
-                              </span>
-                            <% end %>
-                            <% if unit_batch.produce %>
-                              <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                </svg>
-                                Produce
-                              </span>
-                            <% end %>
-                            <% if unit_batch.package %>
-                              <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                                </svg>
-                                Package
-                              </span>
-                            <% end %>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4 text-sm" onclick="event.stopPropagation()">
-                          <%= link_to "View", unit_batch_path(unit_batch),
-                              class: "text-blue-600 hover:text-blue-900 transition-colors" %>
-                        </td>
-                      <% end %>
-                    </tr>
-                  <% end %>
-                <% end %>
-              </tbody>
+          <div class="relative overflow-x-auto w-full">
+            <table class="w-full min-w-full divide-y divide-gray-200/50">
+              <%= render "reports/#{@report_type}_table" %>
             </table>
           </div>
         <% else %>
@@ -333,6 +135,6 @@
           </div>
         <% end %>
       </div>
-    <% end %>
+    </div>
   </div>
-</div>
+<% end %>

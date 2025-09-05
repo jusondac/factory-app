@@ -1,0 +1,109 @@
+<thead class="bg-gradient-to-r from-gray-50 to-slate-50 backdrop-blur-sm">
+  <tr>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Batch Code</th>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Product</th>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Machine</th>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Ingredients Checked</th>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Unchecked Ingredients</th>
+    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Machine Checks</th>
+  </tr>
+</thead>
+<tbody class="bg-white/40 backdrop-blur-sm divide-y divide-gray-200/30">
+  <% @report_data.each do |date, unit_batches| %>
+    <!-- Date Header Row -->
+    <tr class="bg-gradient-to-r from-blue-50 to-indigo-50">
+      <td colspan="6" class="px-6 py-3">
+        <div class="flex items-center">
+          <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <span class="text-sm font-semibold text-blue-900"><%= date.strftime("%B %d, %Y") %></span>
+          <span class="ml-2 text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
+            <%= unit_batches.count %> batch<%= 'es' if unit_batches.count != 1 %>
+          </span>
+        </div>
+      </td>
+    </tr>
+    <% unit_batches.each do |unit_batch| %>
+      <tr class="transition-all duration-200 cursor-pointer hover:bg-gray-50/50">
+        <!-- Batch Code -->
+        <td class="px-6 py-4">
+          <div class="text-sm font-medium text-gray-900"><%= unit_batch.batch_code %></div>
+        </td>
+        <!-- Product -->
+        <td class="px-6 py-4">
+          <div class="text-sm text-gray-900"><%= unit_batch.product&.name || 'No product' %></div>
+        </td>
+        <!-- Machine -->
+        <td class="px-6 py-4">
+          <div class="text-sm text-gray-900">
+            <% machines = [] %>
+            <% machines << "Produce: #{unit_batch.produce&.machine&.name || 'N/A'}" if unit_batch.produce %>
+            <% machines << "Package: #{unit_batch.package&.machine&.name || 'N/A'}" if unit_batch.package %>
+            <%= machines.join('<br>').html_safe %>
+          </div>
+        </td>
+        <!-- Ingredients Checked -->
+        <td class="px-6 py-4">
+          <div class="text-sm text-gray-900">
+            <% if unit_batch.prepare&.prepare_ingredients %>
+              <% total = unit_batch.prepare.prepare_ingredients.count %>
+              <% checked = unit_batch.prepare.prepare_ingredients.select { |pi| pi.checked }.count %>
+              <span class="<%= checked == total ? 'text-green-600 font-semibold' : 'text-yellow-600 font-semibold' %>">
+                <%= checked %>/<%= total %>
+              </span>
+              <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                <div class="bg-<%= checked == total ? 'green' : 'yellow' %>-600 h-2 rounded-full" 
+                     style="width: <%= total > 0 ? (checked.to_f / total * 100).round : 0 %>%"></div>
+              </div>
+            <% else %>
+              <span class="text-gray-500">N/A</span>
+            <% end %>
+          </div>
+        </td>
+        <!-- Unchecked Ingredients -->
+        <td class="px-6 py-4">
+          <div class="text-sm text-gray-900">
+            <% if unit_batch.prepare&.prepare_ingredients %>
+              <% unchecked = unit_batch.prepare.prepare_ingredients.select { |pi| !pi.checked } %>
+              <% if unchecked.any? %>
+                <div class="text-red-600">
+                  <% unchecked.each do |ingredient| %>
+                    <span class="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                      <%= ingredient.ingredient_name || 'Unknown' %>
+                    </span>
+                  <% end %>
+                </div>
+              <% else %>
+                <span class="text-green-600 font-semibold">✓ All checked</span>
+              <% end %>
+            <% else %>
+              <span class="text-gray-500">N/A</span>
+            <% end %>
+          </div>
+        </td>
+        <!-- Machine Checks -->
+        <td class="px-6 py-4">
+          <div class="text-sm text-gray-900">
+            <% checks = [] %>
+            <% if unit_batch.produce&.produce_machine_checks %>
+              <% checks << "Produce: #{unit_batch.produce.produce_machine_checks.count}" %>
+            <% end %>
+            <% if unit_batch.package&.package_machine_checks %>
+              <% checks << "Package: #{unit_batch.package.package_machine_checks.count}" %>
+            <% end %>
+            <% if checks.any? %>
+              <% checks.each do |check| %>
+                <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1">
+                  <%= check %>
+                </span>
+              <% end %>
+            <% else %>
+              <span class="text-gray-500">No checks</span>
+            <% end %>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>
