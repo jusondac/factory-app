@@ -264,6 +264,11 @@
                               end %>">
                           <%= prepare.status.humanize %>
                         </span>
+                        <% if prepare.cancelled? && prepare.notes.present? %>
+                          <div class="text-xs text-red-600 mt-1 max-w-xs">
+                            <%= truncate(prepare.notes, length: 50) %>
+                          </div>
+                        <% end %>
                       </td>
                       <!-- Progress -->
                       <td class="px-6 py-4">

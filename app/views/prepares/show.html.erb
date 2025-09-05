@@ -339,7 +339,12 @@
         <div class="flex-1">
           <h3 class="text-lg font-semibold text-red-900">Preparation cancelled</h3>
           <div class="mt-2 text-red-800">
-            <p>This preparation was automatically cancelled because it was not completed by the end of the preparation date. Please contact your supervisor for further instructions.</p>
+            <% if @prepare.notes.present? %>
+              <p class="font-medium">Reason:</p>
+              <p class="mt-1"><%= @prepare.notes %></p>
+            <% else %>
+              <p>This preparation was automatically cancelled because it was not completed by the end of the preparation date. Please contact your supervisor for further instructions.</p>
+            <% end %>
           </div>
         </div>
       </div>
