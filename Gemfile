@@ -74,5 +74,4 @@ gem "ransack"
 gem "kaminari"
 
 # PDF generation
-gem "prawn", "~> 2.4"
-gem "prawn-table", "~> 0.2"
+gem "wicked_pdf"

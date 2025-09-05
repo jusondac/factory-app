@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= @report_type&.humanize || 'Report' %> Report</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 20px;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      margin: 0 0 10px 0;
+      color: #2563eb;
+    }
+    
+    .header .meta {
+      font-size: 14px;
+      color: #666;
+      margin: 5px 0;
+    }
+    
+    .summary {
+      margin-bottom: 30px;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    
+    .summary h2 {
+      font-size: 18px;
+      margin: 0 0 15px 0;
+      color: #1f2937;
+    }
+    
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+    
+    .summary-item {
+      text-align: center;
+      padding: 15px;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .summary-item .label {
+      font-weight: bold;
+      color: #4b5563;
+      margin-bottom: 5px;
+    }
+    
+    .summary-item .value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #1f2937;
+    }
+    
+    .report-section {
+      margin-bottom: 40px;
+    }
+    
+    .date-header {
+      font-size: 16px;
+      font-weight: bold;
+      color: #2563eb;
+      margin: 30px 0 15px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+      background: white;
+    }
+    
+    th, td {
+      padding: 10px 8px;
+      text-align: left;
+      border: 1px solid #ddd;
+      font-size: 11px;
+    }
+    
+    th {
+      background-color: #f1f5f9;
+      font-weight: bold;
+      color: #374151;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    
+    .status-preparation { color: #d97706; }
+    .status-production { color: #2563eb; }
+    .status-testing { color: #ea580c; }
+    .status-packing { color: #16a34a; }
+    .status-cancelled { color: #dc2626; }
+    
+    .no-data {
+      text-align: center;
+      color: #6b7280;
+      font-style: italic;
+      padding: 40px;
+    }
+    
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 10px;
+      color: #9ca3af;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 20px;
+    }
+    
+    /* Page break helpers */
+    .page-break {
+      page-break-before: always;
+    }
+    
+    .no-break {
+      page-break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1><%= @report_type&.humanize || 'Report' %> Report</h1>
+    <div class="meta">Generated on: <%= Time.current.strftime('%B %d, %Y at %I:%M %p') %></div>
+    <div class="meta">Report Period: <%= @start_date&.strftime('%b %d, %Y') || 'N/A' %> - <%= @end_date&.strftime('%b %d, %Y') || 'N/A' %></div>
+  </div>
+
+  <% 
+    # Calculate summary data
+    all_batches = @report_data.values&.flatten || []
+    total_batches = all_batches.count
+    completed_batches = all_batches.select { |ub| ub&.status == "packing" }.count
+    in_progress_batches = all_batches.select { |ub| ["preparation", "production"].include?(ub&.status) }.count
+    cancelled_batches = all_batches.select { |ub| ub&.status == "cancelled" }.count
+  %>
+
+  <div class="summary no-break">
+    <h2>Summary</h2>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="label">Total Batches</div>
+        <div class="value"><%= total_batches %></div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Completed</div>
+        <div class="value"><%= completed_batches %></div>
+      </div>
+      <div class="summary-item">
+        <div class="label">In Progress</div>
+        <div class="value"><%= in_progress_batches %></div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Cancelled</div>
+        <div class="value"><%= cancelled_batches %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <h2>Report Data</h2>
+    
+    <% if @report_data.present? && @report_data.any? %>
+      <% @report_data.each do |date, unit_batches| %>
+        <% next unless unit_batches.is_a?(Array) && unit_batches.any? %>
+        
+        <div class="date-header">
+          <%= date&.strftime('%B %d, %Y') || 'Unknown Date' %> 
+          (<%= unit_batches.count %> batch<%= unit_batches.count != 1 ? 'es' : '' %>)
+        </div>
+
+        <% case @report_type %>
+        <% when "core_process" %>
+          <table class="no-break">
+            <thead>
+              <tr>
+                <th>Batch Code</th>
+                <th>Product</th>
+                <th>Machine</th>
+                <th>Ingredients Checked</th>
+                <th>Unchecked Ingredients</th>
+                <th>Machine Checks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% unit_batches.each do |unit_batch| %>
+                <% next unless unit_batch %>
+                <%
+                  # Get machine info
+                  machine_info = []
+                  machine_info << "Produce: #{unit_batch.produce&.machine&.name || 'N/A'}" if unit_batch.produce
+                  machine_info << "Package: #{unit_batch.package&.machine&.name || 'N/A'}" if unit_batch.package
+                  machine_text = machine_info.join(", ")
+
+                  # Get ingredients info
+                  total_ingredients = 0
+                  checked_count = 0
+                  unchecked_ingredients = []
+
+                  if unit_batch.prepare&.prepare_ingredients
+                    total_ingredients = unit_batch.prepare.prepare_ingredients.count
+                    checked_count = unit_batch.prepare.prepare_ingredients.select { |prep_ing| prep_ing.checked }.count
+                    unit_batch.prepare.prepare_ingredients.each do |prep_ing|
+                      if !prep_ing.checked
+                        unchecked_ingredients << (prep_ing.ingredient_name || "Unknown Ingredient")
+                      end
+                    end
+                  end
+
+                  ingredients_text = "#{checked_count}/#{total_ingredients}"
+                  unchecked_text = unchecked_ingredients.any? ? unchecked_ingredients.join(", ") : "All checked"
+
+                  # Get machine checks
+                  machine_checks = []
+                  if unit_batch.produce&.produce_machine_checks
+                    machine_checks << "Produce: #{unit_batch.produce.produce_machine_checks.count} checks"
+                  end
+                  if unit_batch.package&.package_machine_checks
+                    machine_checks << "Package: #{unit_batch.package.package_machine_checks.count} checks"
+                  end
+                  machine_checks_text = machine_checks.any? ? machine_checks.join(", ") : "No checks"
+                %>
+                <tr>
+                  <td><%= unit_batch.batch_code || "N/A" %></td>
+                  <td><%= unit_batch.product&.name || "No product" %></td>
+                  <td><%= machine_text %></td>
+                  <td><%= ingredients_text %></td>
+                  <td><%= unchecked_text %></td>
+                  <td><%= machine_checks_text %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+
+        <% when "ingredients_product_machine" %>
+          <table class="no-break">
+            <thead>
+              <tr>
+                <th>Batch Code</th>
+                <th>Product</th>
+                <th>Ingredients</th>
+                <th>Machines</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% unit_batches.each do |unit_batch| %>
+                <% next unless unit_batch %>
+                <%
+                  # Get ingredients list
+                  ingredients_list = []
+                  if unit_batch.prepare&.prepare_ingredients
+                    unit_batch.prepare.prepare_ingredients.each do |prep_ing|
+                      status = prep_ing.checked ? "[✓]" : "[✗]"
+                      ingredient_name = prep_ing.ingredient_name
+                      ingredients_list << "#{ingredient_name} #{status}"
+                    end
+                  end
+                  ingredients_text = ingredients_list.any? ? ingredients_list.join(", ") : "No ingredients"
+
+                  # Get machines
+                  machines = []
+                  machines << "Produce: #{unit_batch.produce&.machine&.name || 'N/A'}" if unit_batch.produce
+                  machines << "Package: #{unit_batch.package&.machine&.name || 'N/A'}" if unit_batch.package
+                  machines_text = machines.any? ? machines.join(", ") : "No machines"
+                %>
+                <tr>
+                  <td><%= unit_batch.batch_code || "N/A" %></td>
+                  <td><%= unit_batch.product&.name || "No product" %></td>
+                  <td><%= ingredients_text %></td>
+                  <td><%= machines_text %></td>
+                  <td class="status-<%= unit_batch.status %>"><%= unit_batch.status&.humanize || "Unknown" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+
+        <% else %>
+          <!-- Unit Batch Report - Default view -->
+          <table class="no-break">
+            <thead>
+              <tr>
+                <th>Unit ID</th>
+                <th>Batch Code</th>
+                <th>Product</th>
+                <th>Status</th>
+                <th>Processes</th>
+                <th>Quantity</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% unit_batches.each do |unit_batch| %>
+                <% next unless unit_batch %>
+                <%
+                  processes = []
+                  processes << "Prepare" if unit_batch.prepare
+                  processes << "Produce" if unit_batch.produce
+                  processes << "Package" if unit_batch.package
+                  processes_text = processes.join(", ")
+                %>
+                <tr>
+                  <td><%= unit_batch.unit_id || "N/A" %></td>
+                  <td><%= unit_batch.batch_code || "N/A" %></td>
+                  <td><%= unit_batch.product&.name || "No product" %></td>
+                  <td class="status-<%= unit_batch.status %>"><%= unit_batch.status&.humanize || "Unknown" %></td>
+                  <td><%= processes_text.presence || "None" %></td>
+                  <td><%= unit_batch.quantity&.to_s || "0" %></td>
+                  <td><%= date&.strftime("%b %d, %Y") || "N/A" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div class="no-data">
+        No data found for the selected criteria.
+      </div>
+    <% end %>
+  </div>
+
+  <div class="footer">
+    <div>Report generated by Factory Management System</div>
+    <div>&copy; <%= Time.current.year %> All rights reserved</div>
+  </div>
+</body>
+</html>
