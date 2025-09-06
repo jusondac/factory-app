@@ -19,7 +19,7 @@ module FactoryApp
     # Add custom directories to autoload paths
     config.autoload_paths += %W[
       #{config.root}/app/services
-      #{config.root}/app/queries  
+      #{config.root}/app/queries
       #{config.root}/app/presenters
     ]
 
@@ -28,7 +28,7 @@ module FactoryApp
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    config.time_zone = "Asia/Jakarta"
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
