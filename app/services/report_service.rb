@@ -3,6 +3,12 @@ class ReportService
     Rails.cache.delete_matched("report_*")
   end
 
+  # Helper method to ensure consistent timezone conversion
+  def self.to_local_date(datetime)
+    return nil unless datetime
+    datetime.in_time_zone.to_date
+  end
+
   def self.unit_batch_report(start_date = nil, end_date = nil)
     cache_key = "report_unit_batch_#{start_date}_#{end_date}"
     Rails.cache.fetch(cache_key, expires_in: 1.hour) do
@@ -13,8 +19,6 @@ class ReportService
   end
 
   def self.core_process_report(start_date = nil, end_date = nil)
-    cache_key = "report_core_process_#{start_date}_#{end_date}"
-    Rails.cache.fetch(cache_key, expires_in: 1.hour) do
       query = UnitBatch.joins(:prepare).left_joins(:produce, :package).includes(
         :product,
         prepare: [ :prepare_ingredients ],
@@ -23,27 +27,34 @@ class ReportService
       )
 
       if start_date && end_date
-        # Include batches that have prepare_date OR product_date in the range
-        query = query.where(
-          "(prepares.prepare_date BETWEEN ? AND ?) OR (produces.product_date BETWEEN ? AND ?) OR (unit_batches.created_at::date BETWEEN ? AND ?)",
-          start_date, end_date, start_date, end_date, start_date, end_date
-        )
+        # Filter by date range using multiple conditions for different date fields
+        date_conditions = [
+          "prepares.prepare_date BETWEEN ? AND ?",
+          "produces.product_date BETWEEN ? AND ?",
+          "date(unit_batches.created_at) BETWEEN ? AND ?"
+        ].join(" OR ")
+
+        query = query.where(date_conditions, start_date, end_date, start_date, end_date, start_date, end_date)
       end
 
-      # Order by the most recent relevant date
-      query = query.order("GREATEST(COALESCE(produces.product_date, '1900-01-01'), COALESCE(prepares.prepare_date, '1900-01-01'), unit_batches.created_at::date) DESC")
+      query = query.order("prepares.prepare_date DESC, produces.product_date DESC, unit_batches.created_at DESC")
 
-      # Group by the most relevant date for display
-      query.group_by do |ub|
-        if ub.produce&.product_date && (start_date.nil? || ub.produce.product_date >= start_date)
-          ub.produce.product_date
-        elsif ub.prepare&.prepare_date
-          ub.prepare.prepare_date
+      # Group by the most relevant date for display (converted to local timezone)
+      query.group_by do |unit_batch|
+        # Use the most recent relevant date for grouping
+        dates = [
+          unit_batch.produce&.product_date,
+          unit_batch.prepare&.prepare_date,
+          to_local_date(unit_batch.created_at)
+        ].compact
+
+        # Return the most recent date that falls within our range (if specified)
+        if start_date && end_date
+          dates.find { |date| date >= start_date && date <= end_date } || dates.first
         else
-          ub.created_at.to_date
+          dates.first
         end
       end
-    end
   end
 
   def self.ingredients_product_machine_report(start_date = nil, end_date = nil)
@@ -71,7 +82,7 @@ class ReportService
 
   def self.core_report(start_date = nil, end_date = nil)
     cache_key = "report_core_#{start_date}_#{end_date}"
-    Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+    Rails.cache.fetch(cache_key, expires_in: 1.minute) do
       query = UnitBatch.joins(:prepare, :produce, :package).includes(:product, :prepare, :produce, :package)
       query = query.where(prepares: { prepare_date: start_date..end_date }) if start_date && end_date
       query.order("prepares.prepare_date DESC").group_by { |ub| ub.prepare.prepare_date }
