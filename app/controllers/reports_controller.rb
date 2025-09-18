@@ -12,7 +12,9 @@ class ReportsController < ApplicationController
       when "unit_batch"
         ReportService.unit_batch_report(@start_date, @end_date)
       when "core_process"
-        ReportService.core_process_report(@start_date, @end_date)
+        @report_data = ReportService.core_process_report(@start_date, @end_date)
+        prepare_machine_data(@report_data) if @report_data
+        @report_data
       when "ingredients_product_machine"
         ReportService.ingredients_product_machine_report(@start_date, @end_date)
       end
@@ -33,6 +35,32 @@ class ReportsController < ApplicationController
   end
 
   private
+
+  def prepare_machine_data(report_data)
+    # Collect only production machines and their checking questions
+    @production_machines = []
+    @production_machine_checkings = []
+
+    report_data.values.flatten.each do |unit_batch|
+      # Only collect machines used in production (produce process)
+      if unit_batch.produce&.machine
+        unless @production_machines.any? { |m| m.id == unit_batch.produce.machine.id }
+          @production_machines << unit_batch.produce.machine
+          unit_batch.produce.machine.machine_checkings.each do |checking|
+            @production_machine_checkings << checking unless @production_machine_checkings.any? { |c| c.id == checking.id }
+          end
+        end
+      end
+    end
+
+    # Group checkings by production machine
+    @production_machine_checkings_grouped = @production_machines.map do |machine|
+      {
+        machine: machine,
+        checkings: machine.machine_checkings
+      }
+    end
+  end
 
   # No additional private methods needed - WickedPDF uses the HTML template
 end
